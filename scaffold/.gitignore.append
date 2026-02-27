@@ -1,0 +1,7 @@
+# Oscar — user-specific / sensitive
+.context/user-context.yaml
+.context/.secrets.yaml
+
+# spec-site
+spec-site/node_modules/
+spec-site/dist/

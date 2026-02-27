@@ -1,0 +1,26 @@
+{
+  "name": "create-oscar",
+  "version": "0.1.0",
+  "description": "Multi-agent PO/PM system scaffold for Claude Code",
+  "type": "module",
+  "bin": {
+    "create-oscar": "./bin/cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "scaffold/",
+    "README.md"
+  ],
+  "keywords": [
+    "claude-code",
+    "po",
+    "pm",
+    "multi-agent",
+    "scaffold"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

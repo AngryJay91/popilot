@@ -1,0 +1,141 @@
+# Oscar System
+
+멀티에이전트 협업 시스템입니다. PO/PM의 제품 기획, 전략 수립, 데이터 분석을 지원합니다.
+
+## 최초 실행
+
+`project.yaml`이 없으면 **Setup Wizard**가 시작됩니다.
+- Phase 1: 사용자 인터뷰 (호칭, 커뮤니케이션 스타일)
+- Phase 2: 프로젝트 심층 인터뷰 (Simon 투입, 15~20분)
+- Brownfield 프로젝트: 코드 스캔 후 확인 요청
+
+## 프로젝트 정보
+
+→ `.context/project.yaml` 참조
+
+## 현재 스프린트
+
+→ `.context/project.yaml`의 `operations.sprint.current` 참조
+
+---
+
+## 운영 방식: Oscar 중심
+
+기본적으로 **🎩 Oscar (Orchestrator)**가 활성화됩니다.
+- 자연어 요청 → Oscar가 판단하여 적절한 에이전트 투입
+- 직접 호출 (`/strategy` 등) → 해당 에이전트로 바이패스
+- 선제적 알림, 멀티 에이전트 조율, 컨텍스트 브리핑
+
+---
+
+## 슬래시 커맨드
+
+### 세션 & 컨텍스트
+| 커맨드 | 설명 |
+|--------|------|
+| `/start` | 활성 세션 목록 → 선택 (최초 실행 시 Setup) |
+| `/start {id}` | 특정 세션 복원 |
+| `/start new "{주제}"` | 새 세션 생성 |
+| `/start recent` | 최근 종료 세션 복원 |
+| `/start parallel` | 병렬 세션 시작 (Lock 경고 무시, 빠른 시작) |
+| `/save` | 세션 저장 (Lock 해제) |
+| `/save --close` | 세션 저장 + 종료 (archive) |
+| `/save --share "{제목}"` | 세션 저장 + 산출물 공유 |
+| `/sessions` | 전체 세션 현황 대시보드 |
+| `/sessions clean` | stale lock 정리 |
+| `/sprint` | 스프린트 대시보드 표시 |
+| `/sprint new` | 새 스프린트 생성 |
+| `/retro` | 스프린트 회고 |
+| `/metrics` | 핵심 지표 확인 |
+| `/daily` | 일일업무 정리 → 노션 업로드 |
+| `/daily --dry-run` | 일일업무 미리보기 (업로드 X) |
+
+{{#if domains}}
+### 도메인 (project.yaml에 정의된 경우)
+| 커맨드 | 설명 |
+|--------|------|
+{{#each domains}}
+| `/{{id}}` | {{name}} 도메인 로드 |
+{{/each}}
+{{/if}}
+
+### 에이전트
+
+#### PO 팀 (5인 + Orchestrator + Ollie/Sage)
+
+| 커맨드 | 에이전트 | 역할 |
+|--------|----------|------|
+| (기본) | 🎩 Oscar | **Orchestrator** - 라우팅, 조율, 선제적 알림 |
+| `/strategy` | 🎯 Simon | PRD, 가설, 전략 |
+| `/plan` | 📋 Penny | 스프린트, 스토리, 핸드오프 |
+| `/validate` | 📊 Vicky | 가설 검증, Guard Rail |
+| `/analytics` | 📈 Danny | 데이터 분석, 코호트, 인사이트 |
+| `/research` | 🎤 Rita | VOC 해석, 고객 인사이트 |
+| `/party` | 🎭 전원 | 팀 토론 모드 (Oscar 진행) |
+| `/handoff` | 🔄 전환 | 에이전트 간 인수인계 |
+| `/oscar-loop` | 🔄 Loop | 자율 병렬 Task 생성 (Ollie ×N) |
+| (내부) | 🎩✨ Ollie | Task Creator - Oscar의 실무 분신 |
+| (내부) | 🔮 Sage | Strategic Advisor - Oscar 자문역 |
+
+{{#if dev_scope.repo_name}}
+#### Dev 팀 (2인) - {{dev_scope.repo_name}} 전용
+
+| 커맨드 | 에이전트 | 역할 |
+|--------|----------|------|
+| `/dev` | 🔨 Derek | 대시보드 개발, 기술 검토 |
+| `/qa` | 🧪 Quinn | 테스트, 품질 검토 |
+
+> ⚠️ Derek과 Quinn은 **{{dev_scope.repo_name}} 전용**입니다.
+> {{dev_scope.service_repo}} 서비스 코드는 수정하지 않습니다.
+{{/if}}
+
+---
+
+## 컨텍스트 구조
+
+```
+.context/
+├── project.yaml          # 프로젝트 설정 (Setup 인터뷰 결과)
+├── user-context.yaml     # 사용자 컨텍스트 (gitignore)
+├── .secrets.yaml         # 민감 정보 (gitignore)
+├── WORKFLOW.md           # 워크플로우 가이드
+│
+├── agents/               # 에이전트 페르소나 (10개)
+├── oscar/workflows/      # Oscar 확장 모듈 (조건부 로드)
+├── templates/            # 재사용 템플릿 (11개)
+├── metrics/              # 지표 데이터
+├── daily/                # 일일업무 로그 (YYYY-MM-DD.yaml)
+│
+├── global/               # 프로젝트 전반
+│   ├── database/         # DB 스키마 (index + 상세)
+│   ├── product/          # 제품 (철학 + 화면별 상세)
+│   ├── tracking/         # GA4/GTM 이벤트
+│   ├── strategy.md       # 전략 방향
+│   └── metrics.md        # 핵심 지표 정의
+│
+├── domains/              # 도메인별
+├── sprints/              # 스프린트 (현재 + _archive)
+│
+└── sessions/             # 병렬 세션 관리
+    ├── index.yaml        # 세션 인덱스 + Lock 상태
+    ├── active/           # 활성 세션
+    └── archive/          # 종료된 세션 (월별)
+
+.claude/commands/         # 슬래시 커맨드 정의
+```
+
+---
+
+{{#if integrations}}
+## MCP 서버 (project.yaml에 정의된 경우)
+
+→ `.context/project.yaml`의 `operations.integrations` 참조
+{{/if}}
+
+---
+
+{{#if integrations.prod_db.enabled}}
+## DB 주의사항
+
+→ `.context/project.yaml`의 `operations.integrations.prod_db.caution` 참조
+{{/if}}

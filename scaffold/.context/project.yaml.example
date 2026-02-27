@@ -1,0 +1,98 @@
+# Project Configuration - Oscar Setup 인터뷰를 통해 생성/갱신됨
+# 이 파일은 프로젝트의 핵심 컨텍스트를 담고 있습니다.
+# Setup Wizard (/start)가 인터뷰를 통해 이 파일을 자동 생성합니다.
+
+# ============================================================
+# 프로젝트 기본 정보
+# ============================================================
+project:
+  name: ""           # {{project.name}}
+  tagline: ""        # {{project.tagline}}
+  type: ""           # brownfield | greenfield
+
+# ============================================================
+# 문제 & 시장
+# ============================================================
+problem:
+  core: ""
+  target: ""
+  alternatives: []
+  timing: ""
+
+# ============================================================
+# 솔루션 & 차별점
+# ============================================================
+solution:
+  approach: ""
+  differentiation: ""
+  outcome: []
+
+# ============================================================
+# 현재 상태
+# ============================================================
+current_state:
+  stage: ""          # idea | prototype | mvp | launched | pmf | growth
+  focus: ""
+  uncertainty: ""
+  next_milestone: ""
+
+# ============================================================
+# 검증 & 학습
+# ============================================================
+validation:
+  confirmed: []
+  unknown: []
+  customer_feedback: ""
+
+# ============================================================
+# 운영 설정
+# ============================================================
+operations:
+  sprint:
+    enabled: true
+    current: 1
+    duration_weeks: 2
+    d_day: ""
+
+  domains: []
+  # Example:
+  # - { id: ads, name: "광고분석", path: "domains/ads/" }
+  # - { id: marketing, name: "마케팅", path: "domains/marketing/" }
+
+  integrations:
+    ga4:
+      enabled: false
+      property_id: ""          # {{integrations.ga4.property_id}}
+    notion:
+      enabled: false
+      workspace: ""
+      daily_page_id: ""
+    channel_io:
+      enabled: false
+    prod_db:
+      enabled: false
+      mcp_name: ""             # {{integrations.prod_db.mcp_name}}
+      snapshot_mcp_name: ""    # {{integrations.prod_db.snapshot_mcp_name}}
+      caution: []              # {{#each integrations.prod_db.caution}}
+      rules: ""
+      tunnel_script: ""
+    notebooklm:
+      enabled: false
+      notebook_name: ""        # {{integrations.notebooklm.notebook_name}}
+
+  dev_scope:
+    repo_name: ""              # {{dev_scope.repo_name}}
+    service_repo: ""           # {{dev_scope.service_repo}}
+
+  spec_site:
+    title: ""                  # {{spec_site.title}}
+    deploy_url: ""             # {{spec_site.deploy_url}}
+
+# ============================================================
+# 메타데이터
+# ============================================================
+_meta:
+  created_at: ""
+  created_by: "Oscar (Setup Wizard)"
+  last_interview: null
+  version: "1.0.0"

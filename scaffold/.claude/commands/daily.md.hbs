@@ -1,0 +1,319 @@
+# /daily - 일일업무 정리
+
+{{#if integrations.notion.enabled}}
+오늘 작업한 내용을 취합하여 노션 일일업무일지에 업로드합니다.
+{{else}}
+오늘 작업한 내용을 취합하여 정리합니다.
+{{/if}}
+
+## 사용법
+
+```bash
+/daily                  # 오늘 작업 정리{{#if integrations.notion.enabled}} → 노션 업로드{{/if}}
+/daily 2026-02-01       # 특정 날짜 작업 정리
+/daily --dry-run        # 미리보기만{{#if integrations.notion.enabled}} (노션 업로드 X){{/if}}
+```
+
+ARGUMENTS: $ARGUMENTS
+
+---
+
+## 실행 단계
+
+### 1. 날짜 결정
+
+- 인자 없으면 오늘 날짜 사용
+- 날짜 인자가 있으면 해당 날짜 사용
+
+### 2. Daily 로그 파일 확인
+
+`.context/daily/{YYYY-MM-DD}.yaml` 파일 존재 여부 확인.
+
+```
+파일 있음 → 해당 파일 기반으로 정리
+파일 없음 → 세션 파일에서 추출 시도
+```
+
+### 3. 세션 파일에서 추출 (daily 파일 없을 경우)
+
+1. `index.yaml`에서 해당 날짜에 `updated_at`이 있는 세션들 필터링
+2. 각 세션의 `active/{id}.md` 또는 `archive/` 파일 읽기
+3. "작업 히스토리"에서 해당 날짜 섹션 추출
+4. 취합하여 정리
+
+{{#if integrations.notion.enabled}}
+### 4. 노션 페이지 확인 및 생성
+
+**상위 페이지**: `{{integrations.notion.daily_page_id}}` (일일업무일지)
+
+1. 상위 페이지에서 해당 날짜 제목의 하위 페이지 존재 여부 확인
+2. 없으면 새로 생성, 있으면 업데이트
+{{/if}}
+
+### {{#if integrations.notion.enabled}}5{{else}}4{{/if}}. 콘텐츠 포맷팅
+
+{{#if integrations.notion.enabled}}노션에 업로드할 마크다운 형식:{{else}}출력할 마크다운 형식:{{/if}}
+
+```markdown
+# {YYYY-MM-DD} ({요일})
+
+## 요약
+- 작업 세션 {N}개
+- 주요 성과: {핵심 성과 1-2개}
+
+---
+
+## {세션 ID}
+**주제**: {topic}
+
+### 완료
+- {완료 작업 1}
+- {완료 작업 2}
+
+### 결정사항
+- {의사결정 내용}
+
+### 커밋
+- `{hash}`: {message}
+
+### 인사이트
+- {발견한 인사이트}
+
+---
+
+## {다음 세션}
+...
+
+---
+
+## 로그 통계
+| 유형 | 건수 |
+|------|------|
+| 결정 | {N} |
+| 커밋 | {N} |
+| 인사이트 | {N} |
+| 배포 | {N} |
+```
+
+{{#if integrations.notion.enabled}}
+### 6. 노션 업로드
+
+```javascript
+mcp__notion__notion-create-pages({
+  parent: { page_id: "{{integrations.notion.daily_page_id}}" },
+  pages: [{
+    properties: { title: "{YYYY-MM-DD}" },
+    content: "{포맷된 마크다운}"
+  }]
+})
+```
+
+### 7. 완료 메시지
+
+```markdown
+🎩 Oscar: 일일업무 정리가 완료되었습니다.
+
+**날짜**: {YYYY-MM-DD}
+**세션**: {N}개
+**로그**: {N}건
+
+노션: {노션 페이지 URL}
+```
+{{else}}
+### {{#if integrations.notion.enabled}}6{{else}}5{{/if}}. 완료 메시지
+
+```markdown
+🎩 Oscar: 일일업무 정리가 완료되었습니다.
+
+**날짜**: {YYYY-MM-DD}
+**세션**: {N}개
+**로그**: {N}건
+```
+{{/if}}
+
+---
+
+## --dry-run 옵션
+
+{{#if integrations.notion.enabled}}
+노션에 업로드하지 않고 미리보기만 표시:
+
+```markdown
+🎩 Oscar: [미리보기] 일일업무 정리
+
+{포맷된 내용}
+
+---
+노션에 업로드하시겠습니까? (y/n)
+```
+{{else}}
+정리된 내용을 미리보기로 표시:
+
+```markdown
+🎩 Oscar: [미리보기] 일일업무 정리
+
+{포맷된 내용}
+```
+{{/if}}
+
+---
+
+## Daily 로그 파일 포맷
+
+`.context/daily/{YYYY-MM-DD}.yaml`:
+
+```yaml
+date: "2026-02-02"
+day_of_week: "일"
+
+sessions:
+  - id: s52-policy-adjustment
+    topic: "스프린트 52 세부 정책 조정"
+    logs:
+      - time: "14:00"
+        type: decision
+        content: "FIRST100 발급 조건: 회원가입 시 즉시 (현행 유지)"
+        context: "개발팀 ANL 문서 분석 후 정책 확정"
+
+      - time: "14:30"
+        type: commit
+        content: "docs(E-07): FIRST100 쿠폰 발급 조건을 현행에 맞춰 수정"
+        hash: "a04a701"
+
+_meta:
+  created_at: "2026-02-02T10:00:00"
+  updated_at: "2026-02-02T22:00:00"
+  total_logs: 9
+```
+
+### 로그 타입
+
+| type | 설명 | 자동 기록 조건 |
+|------|------|---------------|
+| `decision` | 정책/방향 결정 | Oscar 제안 → 사용자 승인 |
+| `commit` | Git 커밋 | feat/fix/docs 커밋 (chore/style 제외) |
+| `insight` | 데이터 인사이트 | 분석 결과 핵심 발견 |
+| `deploy` | 배포 완료 | Vercel/Amplify 배포 |
+| `infra` | 인프라 변경 | 설정/환경 변경 |
+| `handoff` | 핸드오프 | 에이전트 간 인계 |
+| `spec` | 스펙 확정 | Epic/Story 확정 |
+
+---
+
+## Oscar의 적극적 개입
+
+### 기록 제안 트리거
+
+Oscar가 다음 상황에서 "기록할까요?" 제안:
+
+| 상황 | 제안 내용 |
+|------|----------|
+| 정책 결정 완료 | "일일 로그에 기록할까요? → 결정: {내용}" |
+| 핵심 인사이트 도출 | "중요한 발견이네요. 기록할까요?" |
+| 주요 커밋 완료 | (자동 기록, 제안 없음) |
+| 스펙 확정 | "스펙이 확정되었습니다. 기록할까요?" |
+
+### 커밋 자동 필터링
+
+```
+기록 O (중요 커밋):
+- feat: / fix: / docs(중요 변경):
+- 정책 변경, 스펙 추가, 기능 구현
+
+기록 X (사소한 커밋):
+- chore: / style: / refactor:
+- typo, 포맷팅, 주석 수정
+- docs: (단순 오타/링크)
+```
+
+### 제안 예시
+
+```markdown
+🎩 Oscar: FIRST100 발급 조건을 "회원가입 시 즉시"로 확정했습니다.
+
+일일 로그에 기록할까요?
+→ "결정: FIRST100 회원가입 시 즉시 발급 (현행 유지)"
+```
+
+사용자 응답:
+- "ㅇㅇ", "응", "기록해" → 로그에 추가
+- 무시 또는 다른 대화 → 스킵
+
+---
+
+## 로그 추가 API
+
+Oscar가 로그를 추가할 때 사용하는 내부 로직:
+
+```yaml
+# 새 로그 항목 추가
+new_log:
+  time: "{현재 시각 HH:MM}"
+  type: "{decision|commit|insight|...}"
+  content: "{핵심 내용}"
+  context: "{배경 설명 - 선택}"
+  hash: "{커밋 해시 - commit 타입만}"
+```
+
+1. `.context/daily/{오늘 날짜}.yaml` 파일 읽기 (없으면 생성)
+2. 현재 세션 ID 찾기 (없으면 세션 항목 추가)
+3. 해당 세션의 `logs` 배열에 새 항목 추가
+4. `_meta.updated_at`, `_meta.total_logs` 갱신
+5. 파일 저장
+
+---
+
+## 에러 처리
+
+### Daily 로그 없음 + 세션 기록 없음
+
+```markdown
+{날짜}의 작업 기록을 찾을 수 없습니다.
+
+확인 사항:
+1. 해당 날짜에 작업한 세션이 있는지 확인
+2. 세션이 저장되었는지 확인 (/save)
+3. 수동으로 로그를 추가하려면: /log "{내용}"
+```
+
+{{#if integrations.notion.enabled}}
+### 노션 업로드 실패
+
+```markdown
+노션 업로드 실패: {에러 메시지}
+
+정리된 내용은 아래와 같습니다. 수동으로 복사해주세요:
+
+{포맷된 내용}
+```
+{{/if}}
+
+---
+
+## 자연어 호출
+
+다음 표현들도 `/daily`로 처리:
+
+- "오늘 한 일 정리해줘"
+- "일일업무 정리"
+{{#if integrations.notion.enabled}}
+- "오늘 작업 노션에 올려줘"
+{{/if}}
+- "데일리 로그"
+
+---
+
+## 관련 파일
+
+- Daily 로그: `.context/daily/{YYYY-MM-DD}.yaml`
+- 세션 파일: `.context/sessions/active/{id}.md`
+{{#if integrations.notion.enabled}}
+- 노션 상위 페이지: `{{integrations.notion.daily_page_id}}` (일일업무일지)
+{{/if}}
+
+---
+
+## 관련 커맨드
+
+- `/save` - 세션 저장 (세션별 작업 기록)
+- `/sessions` - 전체 세션 현황
