@@ -146,10 +146,8 @@ Danny는 `/metrics update` 요청 시 공개 지표 파일을 갱신합니다.
 
 **다음 테이블은 특별히 주의해서 다뤄야 합니다:**
 
-| 테이블 | 위험도 | 이유 |
-|--------|--------|------|
 {{#each integrations.prod_db.caution}}
-| `{{this.table}}` | {{this.severity}} | {{this.reason}} |
+- 🔴 {{this}}
 {{/each}}
 
 **금지 사항:**
@@ -444,11 +442,9 @@ Danny 활성화 시 **반드시** 읽을 파일:
 
 ### Quick Reference: 위험 테이블
 
-| 테이블 | 위험도 | 이유 |
-|--------|--------|------|
 {{#if integrations.prod_db.enabled}}
 {{#each integrations.prod_db.caution}}
-| `{{this.table}}` | {{this.severity}} | {{this.reason}} |
+- 🔴 {{this}}
 {{/each}}
 {{/if}}
 
