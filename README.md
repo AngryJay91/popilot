@@ -15,7 +15,7 @@ Popilot solves this with a **team of specialized agents**, each with deep expert
 - **No more context-switching** — Oscar routes your request to the right agent automatically
 - **Structured workflows** — From PRD to Epic Spec to Story to Handoff, nothing falls through the cracks
 - **Data-driven decisions** — Danny queries your analytics; Vicky validates your hypotheses
-- **Living documentation** — Interactive spec-site replaces static docs with scenario-based mockups
+- **Living specs, not dead docs** — spec-site turns static markdown into interactive, scenario-based mockups that developers actually use
 
 ---
 
@@ -196,6 +196,91 @@ my-project/
 │
 └── spec-site/                         # Interactive spec viewer (Vue 3 + Vite)
 ```
+
+---
+
+## spec-site: The Heart of Popilot
+
+Traditional PO work treats wireframes, storyboards, and screen specs as "documents" — static markdown files that developers skim and misinterpret. Popilot takes a different approach.
+
+**spec-site** is a Vue 3 + Vite interactive spec viewer that ships with every Popilot project. Instead of writing a 50-page spec doc, you build a living mockup where stakeholders can switch scenarios, see state transitions, and read contextual specs — all in one place.
+
+This isn't just a nice-to-have. When you create specs AI-natively — generating interactive mockups with scenario-driven state — the result is dramatically more intuitive than any static document. Developers see exactly what to build. Edge cases are visible, not buried in paragraphs.
+
+### Why It Matters
+
+```
+Before (static docs):
+  PO writes markdown → Developer reads (maybe) → "What did you mean by...?" → Repeat
+
+After (spec-site):
+  PO builds interactive mockup → Developer clicks through scenarios → Builds exactly that
+```
+
+### How It Works
+
+Every feature page follows the **SplitPaneLayout** pattern:
+
+```
+┌────────────────────────────────────────────────┐
+│                   AppHeader                     │
+├─────────────────────┬──────────────────────────┤
+│                     │                          │
+│   Interactive       │     Spec Panel           │
+│   Mockup            │     (contextual docs)    │
+│                     │                          │
+│   ← Click, hover,   │     ← Spec updates       │
+│     switch states    │       per scenario       │
+│                     │                          │
+├─────────────────────┴──────────────────────────┤
+│              ScenarioSwitcher                   │
+│   [ Default ] [ Empty ] [ Error ] [ Premium ]   │
+└────────────────────────────────────────────────┘
+```
+
+Left pane: a real, clickable mockup. Right pane: specs that update as you switch scenarios. Bottom: scenario selector to see different user types and states.
+
+### Adding a Page
+
+Each feature = 3 files + 2 registrations:
+
+```
+spec-site/src/pages/{feature}/
+├── {feature}Data.ts          # Scenarios, spec areas, version info
+├── {Feature}Mockup.vue       # Interactive mockup component
+└── {Feature}SpecPanel.vue    # Spec document panel
+```
+
+Register in `wireframeRegistry.ts` and `navigation.ts`. That's it.
+
+### Running Locally
+
+```bash
+cd spec-site
+npm install    # already done by popilot init
+npm run dev    # → http://localhost:5173
+```
+
+### Built-in Pages
+
+| Page | Route | Purpose |
+|------|-------|---------|
+| Home | `/` | Dashboard overview, navigation |
+| Epic Specs | `/policies` | Browse and read Epic Spec documents |
+| Wireframes | `/wireframe/:id` | Interactive mockups per feature |
+| Retro Board | `/retro` | Sprint retrospective (Turso/LibSQL) |
+
+### Deployment
+
+spec-site is a standard Vite app. Deploy anywhere:
+
+```bash
+cd spec-site
+npm run build    # → dist/
+# Deploy dist/ to Vercel, Netlify, AWS Amplify, etc.
+```
+
+Set `spec_site.deploy_url` in `project.yaml` — agents will use this URL in handoff documents.
 
 ---
 
