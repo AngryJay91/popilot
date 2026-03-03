@@ -1,0 +1,36 @@
+id: claude-code
+name: "Claude Code"
+
+system_prompt:
+  source: "CLAUDE.md.hbs"
+  target: "CLAUDE.md"
+  hydration:
+    type: system
+    name: "CLAUDE.md"
+
+commands:
+  dir: ".claude/commands"
+  target_dir: ".claude/commands"
+  hydration_map:
+    "analytics.md.hbs": analytics
+    "daily.md.hbs": daily
+    "dev.md.hbs": dev
+  domain_template: "_domain.md.hbs"
+
+detection_markers: [".claude", "CLAUDE.md"]
+
+doctor_checks:
+  - name: "System prompt exists (hydrated)"
+    file: "CLAUDE.md"
+    no_hbs: true
+
+template_vars:
+  PLATFORM_NAME: "Claude Code"
+  SYSTEM_PROMPT_FILE: "CLAUDE.md"
+  COMMAND_DIR: ".claude/commands/"
+  COMMAND_PREFIX: "/"
+
+post_install:
+  steps:
+    - "Open Claude Code in this directory"
+    - "Type /start — Oscar will greet you"

@@ -1,15 +1,19 @@
 {
   "name": "popilot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Multi-agent PO/PM system scaffold for Claude Code",
   "type": "module",
   "bin": {
     "popilot": "./bin/cli.mjs"
   },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
   "files": [
     "bin/",
     "lib/",
     "scaffold/",
+    "adapters/",
     "README.md"
   ],
   "keywords": [

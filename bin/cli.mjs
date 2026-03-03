@@ -6,6 +6,7 @@ import { copyScaffold, appendToFile, detectExisting } from '../lib/scaffold.mjs'
 import { runSetupWizard } from '../lib/setup-wizard.mjs';
 import { hydrate } from '../lib/hydrate.mjs';
 import { runDoctor } from '../lib/doctor.mjs';
+import { loadManifest, getDefaultAdapter } from '../lib/adapter.mjs';
 
 const USAGE = `
   popilot <command> [target-dir] [options]
@@ -19,6 +20,7 @@ const USAGE = `
   Options:
     --skip-spec-site   Skip spec-site (Vue3 + Vite) scaffold
     --force            Overwrite existing files
+    --platform=<id>    Adapter platform (default: claude-code)
     -h, --help         Show this help
 
   Examples:
@@ -40,6 +42,8 @@ async function main() {
 
   const skipSpecSite = args.includes('--skip-spec-site');
   const force = args.includes('--force');
+  const platformArg = args.find(a => a.startsWith('--platform='));
+  const platform = platformArg ? platformArg.split('=')[1] : getDefaultAdapter();
   const positional = args.filter(a => !a.startsWith('-'));
 
   // Determine subcommand and target directory
@@ -58,20 +62,20 @@ async function main() {
 
   switch (cmd) {
     case 'init':
-      await cmdInit(targetDir, { skipSpecSite, force });
+      await cmdInit(targetDir, { skipSpecSite, force, platform });
       break;
     case 'hydrate':
-      await cmdHydrate(targetDir, { skipSpecSite });
+      await cmdHydrate(targetDir, { skipSpecSite, platform });
       break;
     case 'doctor':
-      await cmdDoctor(targetDir, { skipSpecSite });
+      await cmdDoctor(targetDir, { skipSpecSite, platform });
       break;
   }
 }
 
 // ── init ────────────────────────────────────────────────
 
-async function cmdInit(targetDir, { skipSpecSite, force }) {
+async function cmdInit(targetDir, { skipSpecSite, force, platform }) {
   console.log();
   console.log('  🚀 Popilot — Multi-agent PO/PM System');
   console.log('  ══════════════════════════════════════');
@@ -80,7 +84,7 @@ async function cmdInit(targetDir, { skipSpecSite, force }) {
   console.log();
 
   // Check existing structure
-  const existing = await detectExisting(targetDir);
+  const existing = await detectExisting(targetDir, platform);
   if (existing.length > 0 && !force) {
     console.log('  ⚠️  Existing Popilot structure detected:');
     existing.forEach(f => console.log(`      - ${f}`));
@@ -90,11 +94,12 @@ async function cmdInit(targetDir, { skipSpecSite, force }) {
     process.exit(1);
   }
 
-  // 1. Copy scaffold
+  // 1. Copy scaffold (core + adapter)
   console.log('  📦 Copying scaffold...');
   const { copied, overwritten, skipped, appends } = await copyScaffold(targetDir, {
     skipSpecSite,
     overwriteExisting: force,
+    platform,
   });
   console.log(`     ${copied.length} files created`);
   if (overwritten.length > 0) {
@@ -112,14 +117,14 @@ async function cmdInit(targetDir, { skipSpecSite, force }) {
   }
 
   // 2. Interactive setup wizard
-  await runSetupWizard(targetDir);
+  await runSetupWizard(targetDir, { platform });
 
   // 3. Hydrate templates
   console.log();
   console.log('  ──────────────────────────────────────');
   console.log('  🔧 Hydrating templates...');
   console.log('  ──────────────────────────────────────');
-  const { hydrated, domains } = await hydrate(targetDir, { skipSpecSite });
+  const { hydrated, domains } = await hydrate(targetDir, { skipSpecSite, platform });
   for (const f of hydrated) {
     console.log(`     ${f} ✅`);
   }
@@ -140,15 +145,29 @@ async function cmdInit(targetDir, { skipSpecSite, force }) {
     }
   }
 
-  // 5. Summary
+  // 5. Summary — load post-install from manifest
+  let postInstallSteps;
+  try {
+    const manifest = await loadManifest(platform);
+    postInstallSteps = manifest.post_install?.steps;
+  } catch {
+    postInstallSteps = null;
+  }
+
   console.log();
   console.log('  ──────────────────────────────────────');
   console.log('  ✅ Popilot is ready!');
   console.log('  ──────────────────────────────────────');
   console.log();
   console.log('  Next steps:');
-  console.log('  1. Open Claude Code in this directory');
-  console.log('  2. Type /start — Oscar will greet you');
+  if (postInstallSteps && postInstallSteps.length > 0) {
+    postInstallSteps.forEach((step, i) => {
+      console.log(`  ${i + 1}. ${step}`);
+    });
+  } else {
+    console.log('  1. Open Claude Code in this directory');
+    console.log('  2. Type /start — Oscar will greet you');
+  }
   console.log('  3. Oscar can run a deep interview to enrich your project context');
   console.log();
   console.log('  📁 Created:');
@@ -164,13 +183,13 @@ async function cmdInit(targetDir, { skipSpecSite, force }) {
 
 // ── hydrate ─────────────────────────────────────────────
 
-async function cmdHydrate(targetDir, { skipSpecSite }) {
+async function cmdHydrate(targetDir, { skipSpecSite, platform }) {
   console.log();
   console.log('  🚀 Popilot — Re-hydrating templates');
   console.log('  ══════════════════════════════════════');
   console.log();
 
-  const { hydrated, domains } = await hydrate(targetDir, { skipSpecSite });
+  const { hydrated, domains } = await hydrate(targetDir, { skipSpecSite, platform });
   for (const f of hydrated) {
     console.log(`     ${f} ✅`);
   }
@@ -186,8 +205,8 @@ async function cmdHydrate(targetDir, { skipSpecSite }) {
 
 // ── doctor ──────────────────────────────────────────────
 
-async function cmdDoctor(targetDir, { skipSpecSite }) {
-  const { passed, failed } = await runDoctor(targetDir, { skipSpecSite });
+async function cmdDoctor(targetDir, { skipSpecSite, platform }) {
+  const { passed, failed } = await runDoctor(targetDir, { skipSpecSite, platform });
   process.exit(failed.length > 0 ? 1 : 0);
 }
 
