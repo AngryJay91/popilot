@@ -1,10 +1,10 @@
 {
-  "name": "create-oscar",
+  "name": "popilot",
   "version": "0.1.0",
   "description": "Multi-agent PO/PM system scaffold for Claude Code",
   "type": "module",
   "bin": {
-    "create-oscar": "./bin/cli.mjs"
+    "popilot": "./bin/cli.mjs"
   },
   "files": [
     "bin/",

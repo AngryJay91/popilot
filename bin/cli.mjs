@@ -5,9 +5,9 @@ import { execSync } from 'node:child_process';
 import { copyScaffold, appendToFile, detectExisting } from '../lib/scaffold.mjs';
 
 const USAGE = `
-  create-oscar [target-dir] [options]
+  popilot [target-dir] [options]
 
-  Scaffold the Oscar multi-agent PO/PM system for Claude Code.
+  Scaffold the Popilot multi-agent PO/PM system for Claude Code.
 
   Options:
     --skip-spec-site   Skip spec-site (Vue3 + Vite) scaffold
@@ -30,8 +30,8 @@ async function main() {
   const projectName = basename(targetDir) === '.' ? basename(resolve('.')) : basename(targetDir);
 
   console.log();
-  console.log('  🎩 Oscar — Multi-agent PO/PM System');
-  console.log('  ════════════════════════════════════');
+  console.log('  🚀 Popilot — Multi-agent PO/PM System');
+  console.log('  ══════════════════════════════════════');
   console.log();
   console.log(`  Target: ${targetDir}`);
   console.log();
@@ -39,7 +39,7 @@ async function main() {
   // Check existing structure
   const existing = await detectExisting(targetDir);
   if (existing.length > 0 && !force) {
-    console.log('  ⚠️  Existing Oscar structure detected:');
+    console.log('  ⚠️  Existing Popilot structure detected:');
     existing.forEach(f => console.log(`      - ${f}`));
     console.log();
     console.log('  Use --force to overwrite, or run in an empty directory.');
@@ -73,7 +73,7 @@ async function main() {
   }
 
   console.log();
-  console.log('  ✅ Oscar scaffold complete!');
+  console.log('  ✅ Popilot scaffold complete!');
   console.log();
   console.log('  Next steps:');
   console.log('  1. Open Claude Code in this directory');

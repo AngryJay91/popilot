@@ -1,13 +1,15 @@
-# create-oscar
+# Popilot
 
 Multi-agent PO/PM system scaffold for [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
-Oscar is a team of 10 AI agents that help Product Owners and Product Managers with product planning, strategy, data analysis, and sprint management.
+Popilot is a team of 10 AI agents that help Product Owners and Product Managers with product planning, strategy, data analysis, and sprint management.
+
+> *"개발자에겐 Copilot, PO에겐 Popilot."*
 
 ## Quick Start
 
 ```bash
-npx create-oscar my-project
+npx popilot my-project
 cd my-project
 ```
 
@@ -40,7 +42,7 @@ my-project/
 ## Options
 
 ```
-npx create-oscar [target-dir] [options]
+npx popilot [target-dir] [options]
 
 Options:
   --skip-spec-site   Skip spec-site scaffold
