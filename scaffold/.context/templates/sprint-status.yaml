@@ -9,7 +9,7 @@ meta:
   title: "[스프린트 제목]"
   created: "YYYY-MM-DD"
   updated: "YYYY-MM-DD"
-  project: jangsawang
+  project: ""
   period:
     start: "YYYY-MM-DD"
     end: "YYYY-MM-DD"

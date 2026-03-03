@@ -56,7 +56,7 @@ operations:
 
   domains: []
   # Example:
-  # - { id: ads, name: "광고분석", path: "domains/ads/" }
+  # - { id: growth, name: "그로스", path: "domains/growth/" }
   # - { id: marketing, name: "마케팅", path: "domains/marketing/" }
 
   integrations:

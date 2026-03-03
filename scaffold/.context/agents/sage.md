@@ -155,7 +155,7 @@ Ollie가 3회 연속 수정 요청 받음
     "situation": "Ollie 결과 검토 중 판단 어려움",
     "ollie_output": { ... },
     "oscar_concern": "Story 3의 성공 기준이 모호한데 승인해도 될까?",
-    "sprint_goal": "Surface Layer로 셀러 행동 변화 검증"
+    "sprint_goal": "Surface Layer로 사용자 행동 변화 검증"
   }
 }
 ```
@@ -185,7 +185,7 @@ Ollie가 3회 연속 수정 요청 받음
 🔮 Sage: Sprint 목표 정합성 검토 완료.
 
 [현재 Sprint 목표]
-"Surface Layer로 셀러 행동 변화 검증"
+"Surface Layer로 사용자 행동 변화 검증"
 
 [검토 결과]
 - Story 1 (계좌 단순화): ✅ 직접 기여 - 온보딩 개선 → 검증 대상 확대

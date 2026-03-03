@@ -4,7 +4,7 @@ category: pm_tool
 description: "태스크 관리, 문서 관리, 로드맵"
 
 mcp:
-  server_name: "moonklabs-notion-task"
+  server_name: "notion"
   tools: [notion-task-list, notion-task-create, notion-task-update, notion-task-update-status, notion-task-add-log, notion-task-my-sprint, notion-search, notion-fetch, notion-create-pages, notion-update-page]
 
 setup_questions:
@@ -120,7 +120,7 @@ workflow_rules:
 
       | 속성 | 값 | 예시 |
       |------|-----|------|
-      | 제목 | `[Epic-Story] 제목` | `[E-02-S-06] 캠페인 목록 정렬` |
+      | 제목 | `[Epic-Story] 제목` | `[E-01-S-03] 대시보드 필터링` |
       | 태그 | Sprint, Epic, 영역, 우선순위 | `S52`, `E-02`, `FE`, `P1` |
       | 담당자 | `.secrets.yaml` userId | 담당자 ID |
       | 스프린트 | `.secrets.yaml` sprintId | Sprint 페이지 ID |

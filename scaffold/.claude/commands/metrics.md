@@ -7,7 +7,7 @@
 ```bash
 /metrics              # 현재 지표 요약 표시
 /metrics update       # 전체 지표 파일 업데이트
-/metrics update ads   # 광고 지표만 업데이트
+/metrics update [domain]   # 특정 도메인 지표만 업데이트
 ```
 
 ARGUMENTS: $ARGUMENTS
@@ -20,7 +20,7 @@ ARGUMENTS: $ARGUMENTS
 
 `.context/metrics/` 폴더의 YAML 파일들을 읽습니다:
 - `business.yaml` - 핵심 KPI, 퍼널, 목표
-- `ads.yaml` - 광고 분석 지표
+- `[domain].yaml` - 도메인별 지표
 - `segments.yaml` - 세그먼트별 지표
 - `team.yaml` - 팀/담당자 정보
 
@@ -44,12 +44,11 @@ ARGUMENTS: $ARGUMENTS
 ## 퍼널 (2025년 누적)
 가입 3,645 → 연동 476 (13%) → 유료 132 (3.6%)
 
-## 광고 분석 (2026-01-19)
-- 순이익 달성률: 89%
-- 평균 ROAS: 481%
-- 활성 셀러: 64명
+## 도메인별 지표
+- 핵심 지표 달성률: --%
+- 활성 사용자: --명
 
-📊 대시보드: https://sellerking-sprint-planner.vercel.app/dashboard
+📊 대시보드: [배포 URL]
 ```
 
 #### Case B: `/metrics update`
@@ -60,9 +59,9 @@ ARGUMENTS: $ARGUMENTS
    - MCP `prod-db`에서 유료 사용자, MRR 조회
    - 날짜별 집계 쿼리 실행
 
-2. **ads.yaml**:
-   - MCP `prod-db`의 광고 관련 테이블 조회
-   - ROAS, 순이익률 계산
+2. **[domain].yaml**:
+   - MCP `prod-db`의 도메인 관련 테이블 조회
+   - 핵심 지표 계산
 
 3. **segments.yaml**:
    - 세그먼트별 리텐션, 전환율 계산
@@ -71,11 +70,11 @@ ARGUMENTS: $ARGUMENTS
 
 5. 변경 사항 요약 출력
 
-#### Case C: `/metrics update ads`
+#### Case C: `/metrics update [domain]`
 
-광고 지표만 업데이트:
+특정 도메인 지표만 업데이트:
 
-1. `ads.yaml`만 갱신
+1. `[domain].yaml`만 갱신
 2. 변경 전/후 비교 표시
 
 ---
@@ -86,7 +85,7 @@ ARGUMENTS: $ARGUMENTS
 .context/metrics/
 ├── README.md         # 구조 설명
 ├── business.yaml     # MRR, ARPU, 퍼널, 목표
-├── ads.yaml          # 광고 분석 지표
+├── [domain].yaml     # 도메인별 지표
 ├── segments.yaml     # 세그먼트별 지표
 └── team.yaml         # 팀/담당자 정보
 ```
@@ -99,7 +98,7 @@ ARGUMENTS: $ARGUMENTS
 |------|------|--------------|
 | MRR/ARPU | prod-db | Settlement 테이블 주의 (무거움) |
 | 퍼널 | GA4 MCP | - |
-| 광고 지표 | prod-db | snapshot 테이블 권장 |
+| 도메인 지표 | prod-db | snapshot 테이블 권장 |
 | 세그먼트 | prod-db | 인덱스 컬럼 필수 |
 
 ---
@@ -109,7 +108,7 @@ ARGUMENTS: $ARGUMENTS
 지표 업데이트 후:
 1. `npm run build` (VitePress 빌드)
 2. `git push` (Vercel 자동 배포)
-3. 대시보드 반영: https://sellerking-sprint-planner.vercel.app/dashboard
+3. 대시보드 반영
 
 ---
 

@@ -160,7 +160,7 @@ project.yaml 존재?
 🎩 Oscar: 병렬 세션으로 빠르게 시작합니다.
 
 ## 📋 현재 스프린트: 52 (D-5)
-- 목표: 쿠팡 광고 분석 공식 출시
+- 목표: [스프린트 목표]
 - D-Day: 2026-02-01
 
 ## 활성 세션 참고
@@ -248,9 +248,9 @@ Lock 상태 확인
 오늘은 어떤 작업을 하실 건가요?
 
 1. 🏃 스프린트 작업 (Sprint 52)
-2. 📊 광고분석 도메인
-3. 📣 마케팅 도메인
-4. 💬 CS 분석
+2. 📊 [도메인 1]
+3. 📣 [도메인 2]
+4. 💬 [도메인 3]
 5. 🎯 전략 논의
 6. 📈 지표 확인
 ```
@@ -260,9 +260,9 @@ Lock 상태 확인
 | 작업 | 로드할 파일 |
 |------|------------|
 | 스프린트 | `.context/sprints/s{N}/context.md` |
-| 광고분석 | `.context/domains/ads/*.md` |
-| 마케팅 | `.context/domains/marketing/*.md` |
-| CS 분석 | `.context/domains/cs/*.md` |
+| [도메인 1] | `.context/domains/[domain1]/*.md` |
+| [도메인 2] | `.context/domains/[domain2]/*.md` |
+| [도메인 3] | `.context/domains/[domain3]/*.md` |
 | 전략 | `.context/global/strategy.md` |
 | 지표 | `.context/global/metrics.md` |
 

@@ -50,7 +50,7 @@ export interface ScenarioMockData {
   showMallSection: boolean
   showAdsSection: boolean
   showGrowthCard: boolean
-  showCoupangCta: boolean
+  showExternalCta: boolean
 }
 
 export interface CoachingCardData {

@@ -1,7 +1,7 @@
 id: notebooklm
 name: "NotebookLM"
 category: ai_research
-description: "AI 기반 셀러/사용자 인사이트 탐색"
+description: "AI 기반 고객/사용자 인사이트 탐색"
 
 mcp:
   server_name: "notebooklm"
@@ -12,13 +12,13 @@ setup_questions:
     label: "활성 노트북 이름"
     type: string
     required: false
-    example: "coupang-ad-mastery"
+    example: "my-notebook"
 
 agent_prompts:
   researcher: |
     ### NotebookLM MCP ⭐ 핵심 도구
     ```
-    용도: 셀러 인사이트, 인터뷰 데이터, 도메인 지식
+    용도: 고객 인사이트, 인터뷰 데이터, 도메인 지식
     활성 노트북: {{config.notebook_name}}
     ```
 
@@ -27,7 +27,7 @@ agent_prompts:
     **1. Pain Point 발굴**
     ```javascript
     ask_question({
-      question: "셀러들이 광고 운영에서 가장 힘들어하는 점은 무엇인가요?",
+      question: "고객들이 서비스 이용에서 가장 힘들어하는 점은 무엇인가요?",
       session_id: "existing_session" // 세션 유지
     })
     ```
@@ -35,7 +35,7 @@ agent_prompts:
     **2. 니즈 확인**
     ```javascript
     ask_question({
-      question: "셀러들이 '판단해주는 서비스'를 원한다고 했는데, 구체적으로 어떤 판단을 원하나요?",
+      question: "고객들이 '판단해주는 서비스'를 원한다고 했는데, 구체적으로 어떤 판단을 원하나요?",
       session_id: "existing_session"
     })
     ```
@@ -43,7 +43,7 @@ agent_prompts:
     **3. 워크플로우 이해**
     ```javascript
     ask_question({
-      question: "셀러들이 광고 성과 확인할 때 어떤 순서로 뭘 보나요?",
+      question: "고객들이 주요 기능 사용할 때 어떤 순서로 뭘 보나요?",
       session_id: "existing_session"
     })
     ```
@@ -51,23 +51,23 @@ agent_prompts:
   strategist: |
     ### NotebookLM MCP
     ```
-    용도: 셀러 인사이트, 시장 조사
+    용도: 고객 인사이트, 시장 조사
     활성 노트북: {{config.notebook_name}}
     사용법:
-    - ask_question: 셀러 VOC 기반 인사이트 질문
+    - ask_question: 고객 VOC 기반 인사이트 질문
     - 세션 유지하며 깊이 있는 탐색
     ```
 
     #### 활용 예시
     ```
-    🎯 Simon: "NotebookLM에서 '광고 효율 개선 니즈'를 확인해볼게요."
-    → ask_question({ question: "셀러들이 광고 효율 관련해서 가장 많이 언급하는 pain point는?" })
+    🎯 Simon: "NotebookLM에서 '핵심 기능 개선 니즈'를 확인해볼게요."
+    → ask_question({ question: "고객들이 핵심 기능 관련해서 가장 많이 언급하는 pain point는?" })
     ```
 
   validator: |
     ### NotebookLM MCP
     ```
-    용도: 셀러 인사이트, 정성적 피드백 분석
+    용도: 고객 인사이트, 정성적 피드백 분석
     활성 노트북: {{config.notebook_name}}
     ```
 

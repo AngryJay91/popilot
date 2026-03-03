@@ -33,7 +33,7 @@ agent_prompts:
     ```javascript
     corti_search({
       workspace_id: "{{config.workspace_id}}",
-      query: "사용자 불만 광고 성과",
+      query: "사용자 불만 핵심 기능",
       sources: ["slack", "notion", "linear"]
     })
     ```
@@ -56,8 +56,8 @@ agent_prompts:
 
     #### 활용 예시
     ```
-    🎤 Rita: "Slack, Notion, Linear에서 '광고 효율' 관련 논의를 종합 검색해볼게요."
-    → corti_search({ query: "광고 효율 개선 피드백" })
+    🎤 Rita: "Slack, Notion, Linear에서 '핵심 지표' 관련 논의를 종합 검색해볼게요."
+    → corti_search({ query: "핵심 지표 개선 피드백" })
     → 결과를 VOC 인사이트로 종합 정리
     ```
 
