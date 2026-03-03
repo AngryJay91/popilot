@@ -63,26 +63,7 @@
 
 ## MCP 도구 활용
 
-{{#if integrations.notion.enabled}}
-### Notion MCP
-```
-용도: 스프린트 문서 관리, 스토리 생성
-사용법:
-- notion-search: 스프린트 문서 검색
-- notion-fetch: 특정 스토리 조회
-- notion-create-pages: 새 스토리 생성
-- notion-update-page: 진행 상태 업데이트
-```
-
-### 활용 예시
-```
-📋 Penny: "현재 스프린트 문서 확인해볼게요."
-→ notion-fetch({ id: "Sprint-51-PRD-링크" })
-
-📋 Penny: "새 스토리 생성할게요."
-→ notion-create-pages({ parent: {page_id: "..."}, pages: [...] })
-```
-{{/if}}
+{{INTEGRATION_PROMPTS}}
 
 ---
 

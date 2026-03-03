@@ -1,0 +1,116 @@
+id: ga4
+name: "Google Analytics 4"
+category: analytics
+description: "이벤트 기반 사용자 행동 분석"
+
+mcp:
+  server_name: "ga4"
+  tools: [run_report, run_realtime_report]
+
+setup_questions:
+  - key: property_id
+    label: "GA4 Property ID"
+    type: string
+    required: true
+    example: "462897329"
+
+agent_prompts:
+  analyst: |
+    ### GA4 MCP
+
+    ```
+    용도: 이벤트 기반 행동 데이터 분석
+    property_id: {{config.property_id}}
+    ```
+
+    #### 자주 사용하는 패턴
+
+    **1. 코호트 리텐션 (월별 가입자)**
+    ```javascript
+    run_report({
+      property_id: "{{config.property_id}}",
+      date_ranges: [{ start_date: "90daysAgo", end_date: "yesterday" }],
+      dimensions: ["firstUserSourceMedium", "cohort", "cohortNthDay"],
+      metrics: ["cohortActiveUsers", "cohortTotalUsers"]
+    })
+    ```
+
+    **2. 세그먼트별 행동 비교**
+    ```javascript
+    run_report({
+      property_id: "{{config.property_id}}",
+      date_ranges: [{ start_date: "30daysAgo", end_date: "yesterday" }],
+      dimensions: ["userType", "pagePath"],
+      metrics: ["activeUsers", "screenPageViews", "averageSessionDuration"]
+    })
+    ```
+
+    **3. 이상치 탐지 (일별 추이)**
+    ```javascript
+    run_report({
+      property_id: "{{config.property_id}}",
+      date_ranges: [{ start_date: "30daysAgo", end_date: "yesterday" }],
+      dimensions: ["date"],
+      metrics: ["activeUsers", "newUsers", "eventCount"],
+      order_bys: [{ dimension: { dimension_name: "date" }, desc: false }]
+    })
+    ```
+
+  validator: |
+    ### GA4 MCP ⭐ 핵심 도구
+    ```
+    용도: 이벤트 데이터 조회, 퍼널 분석, 지표 측정
+    property_id: {{config.property_id}}
+    ```
+
+    #### 자주 사용하는 쿼리 패턴
+
+    **1. 이벤트 카운트 조회**
+    ```javascript
+    run_report({
+      property_id: "{{config.property_id}}",
+      date_ranges: [{ start_date: "7daysAgo", end_date: "yesterday" }],
+      dimensions: ["eventName"],
+      metrics: ["eventCount"]
+    })
+    ```
+
+    **2. 퍼널 분석 (페이지별)**
+    ```javascript
+    run_report({
+      property_id: "{{config.property_id}}",
+      date_ranges: [{ start_date: "7daysAgo", end_date: "yesterday" }],
+      dimensions: ["pagePath"],
+      metrics: ["screenPageViews", "activeUsers"]
+    })
+    ```
+
+    **3. 특정 이벤트 상세**
+    ```javascript
+    run_report({
+      property_id: "{{config.property_id}}",
+      date_ranges: [{ start_date: "7daysAgo", end_date: "yesterday" }],
+      dimensions: ["eventName", "customEvent:campaign_id"],
+      metrics: ["eventCount"],
+      dimension_filter: {
+        filter: { field_name: "eventName", string_filter: { match_type: 1, value: "click_action_guide" }}
+      }
+    })
+    ```
+
+    **4. 일별 추이**
+    ```javascript
+    run_report({
+      property_id: "{{config.property_id}}",
+      date_ranges: [{ start_date: "14daysAgo", end_date: "yesterday" }],
+      dimensions: ["date", "eventName"],
+      metrics: ["eventCount"],
+      order_bys: [{ dimension: { dimension_name: "date" }, desc: false }]
+    })
+    ```
+
+command_prompts:
+  analytics: |
+    - **GA4 MCP 서버** (이벤트 데이터 분석)
+
+footer_tool_line: "GA4 MCP"

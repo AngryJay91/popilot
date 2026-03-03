@@ -1,0 +1,73 @@
+id: mixpanel
+name: "Mixpanel"
+category: analytics
+description: "프로덕트 분석, 퍼널, 리텐션"
+
+mcp:
+  server_name: "mixpanel"
+  tools: [query_jql, get_funnel, get_retention]
+
+setup_questions:
+  - key: project_id
+    label: "Mixpanel Project ID"
+    type: string
+    required: true
+    example: "2843271"
+  - key: api_secret
+    label: "Mixpanel API Secret (secrets.yaml 참조)"
+    type: string
+    required: false
+
+agent_prompts:
+  analyst: |
+    ### Mixpanel MCP
+    ```
+    용도: 프로덕트 분석, 퍼널, 리텐션 분석
+    project_id: {{config.project_id}}
+    ```
+
+    #### 자주 사용하는 패턴
+
+    **1. 이벤트 추이 분석**
+    ```javascript
+    query_jql({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-02-01",
+      to_date: "2026-02-28",
+      event: "page_view"
+    })
+    ```
+
+    **2. 퍼널 분석**
+    ```javascript
+    get_funnel({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-02-01",
+      to_date: "2026-02-28",
+      steps: ["sign_up", "onboarding_complete", "first_purchase"]
+    })
+    ```
+
+    **3. 리텐션 분석**
+    ```javascript
+    get_retention({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-01-01",
+      to_date: "2026-02-28",
+      born_event: "sign_up",
+      event: "page_view"
+    })
+    ```
+
+  validator: |
+    ### Mixpanel MCP
+    ```
+    용도: 가설 검증 데이터 조회, A/B 테스트 분석
+    project_id: {{config.project_id}}
+    ```
+
+command_prompts:
+  analytics: |
+    - **Mixpanel MCP 서버** (프로덕트 분석, 퍼널, 리텐션)
+
+footer_tool_line: "Mixpanel MCP"

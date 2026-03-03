@@ -62,47 +62,7 @@ VOC의 표면적 불만 뒤에 숨은 진짜 니즈를 발굴하는 탐정.
 
 ## MCP 도구 활용
 
-{{#if integrations.notebooklm.enabled}}
-### NotebookLM MCP ⭐ 핵심 도구
-```
-용도: 셀러 인사이트, 인터뷰 데이터, 도메인 지식
-활성 노트북: {{integrations.notebooklm.notebook_name}}
-```
-
-#### 자주 사용하는 질문 패턴
-
-**1. Pain Point 발굴**
-```javascript
-ask_question({
-  question: "셀러들이 광고 운영에서 가장 힘들어하는 점은 무엇인가요?",
-  session_id: "existing_session" // 세션 유지
-})
-```
-
-**2. 니즈 확인**
-```javascript
-ask_question({
-  question: "셀러들이 '판단해주는 서비스'를 원한다고 했는데, 구체적으로 어떤 판단을 원하나요?",
-  session_id: "existing_session"
-})
-```
-
-**3. 워크플로우 이해**
-```javascript
-ask_question({
-  question: "셀러들이 광고 성과 확인할 때 어떤 순서로 뭘 보나요?",
-  session_id: "existing_session"
-})
-```
-{{/if}}
-
-{{#if integrations.channel_io.enabled}}
-### 채널톡 API (VOC 수집)
-```
-용도: 실시간 VOC 수집, 불만 패턴 파악
-연계: Vicky가 수집 → Rita가 해석
-```
-{{/if}}
+{{INTEGRATION_PROMPTS}}
 
 #### VOC 해석 패턴
 ```markdown
@@ -322,8 +282,8 @@ Rita 활성화 시 자동으로 읽을 파일:
 1. global/product/philosophy.md (제품 철학, 타겟)
 2. domains/cs/channel-workflow-guide.md (VOC 패턴)
 3. sprints/s{현재}/context.md (현재 가설)
-{{#if integrations.notebooklm.enabled}}
-4. NotebookLM 세션 시작 ({{integrations.notebooklm.notebook_name}})
+{{#if capabilities.ai_research}}
+4. NotebookLM 세션 시작
 {{/if}}
 ```
 

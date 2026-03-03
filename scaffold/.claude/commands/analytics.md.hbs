@@ -48,37 +48,7 @@
 
 ## 도구
 
-{{#if integrations.prod_db.enabled}}
-- **Prod DB MCP 서버** (Service DB 직접 조회)
-{{/if}}
-{{#if integrations.ga4.enabled}}
-- **GA4 MCP 서버** (이벤트 데이터 분석)
-{{/if}}
-
-{{#if integrations.prod_db.enabled}}
-### DB 접속 전 포트포워딩 필수
-
-```bash
-{{{integrations.prod_db.tunnel_script}}}
-```
-
-> 로컬 포트로 연결됩니다.
-
-## DB 주의사항
-
-아래 테이블은 DELETE-INSERT 이 잦은 ETL 결과 저장하는 테이블로 **매우 무거움**. Full scan 절대 금지!
-
-| 테이블 | 위험도 |
-|--------|--------|
-{{#each integrations.prod_db.caution}}
-| `{{this.table}}` | {{this.risk}} |
-{{/each}}
-
-**안전한 쿼리 규칙:**
-- WHERE 절에 인덱스 컬럼 (user_id, created_at 등)
-- LIMIT 적용 필수
-- 조건 없는 COUNT(*) 금지
-{{/if}}
+{{INTEGRATION_PROMPTS}}
 
 ## 응답 형식
 

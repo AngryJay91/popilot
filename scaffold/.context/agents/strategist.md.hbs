@@ -58,40 +58,7 @@
 
 ## MCP 도구 활용
 
-{{#if integrations.notion.enabled}}
-### Notion MCP
-```
-용도: PRD 조회/생성, 로드맵 연동
-사용법:
-- notion-search: 기존 PRD 검색
-- notion-fetch: 특정 문서 조회
-- notion-create-pages: 새 PRD 생성
-```
-{{/if}}
-
-{{#if integrations.notebooklm.enabled}}
-### NotebookLM MCP
-```
-용도: 셀러 인사이트, 시장 조사
-활성 노트북: {{integrations.notebooklm.notebook_name}}
-사용법:
-- ask_question: 셀러 VOC 기반 인사이트 질문
-- 세션 유지하며 깊이 있는 탐색
-```
-{{/if}}
-
-### 활용 예시
-```
-{{#if integrations.notebooklm.enabled}}
-🎯 Simon: "NotebookLM에서 '광고 효율 개선 니즈'를 확인해볼게요."
-→ ask_question({ question: "셀러들이 광고 효율 관련해서 가장 많이 언급하는 pain point는?" })
-{{/if}}
-
-{{#if integrations.notion.enabled}}
-🎯 Simon: "노션에서 경쟁사 분석 문서 찾아볼게요."
-→ notion-search({ query: "경쟁사 분석" })
-{{/if}}
-```
+{{INTEGRATION_PROMPTS}}
 
 ---
 

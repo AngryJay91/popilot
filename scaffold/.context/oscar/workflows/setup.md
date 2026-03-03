@@ -254,66 +254,91 @@ _meta:
 
 ---
 
-## Phase 3: 통합 설정 (Integration Configuration)
+## Phase 3: 통합 설정 (Integration Registry 기반)
 
 ```
 🎩 Oscar: 외부 도구 연동을 설정할게요. 필요한 것만 선택해주세요.
 ```
 
-### 연동 옵션 안내
+### 연동 옵션 안내 (Registry 기반 동적 생성)
+
+Integration Registry(`.context/integrations/`)에서 카테고리와 provider 목록을 동적으로 읽어 표시합니다.
 
 ```
 🎩 Oscar: 다음 도구들을 연동할 수 있어요.
+```
 
-[분석]
-□ GA4 (Google Analytics 4) — 이벤트/행동 데이터 분석
-□ Mixpanel — 프로덕트 분석
+**카테고리별 provider 표시 로직:**
+
+```
+1. _registry.yaml에서 카테고리 목록 읽기
+2. providers/ 폴더의 *.yaml 파일에서 각 카테고리에 속하는 provider 수집
+3. 카테고리별로 그룹화하여 사용자에게 표시
+```
+
+예시 출력:
+```
+[데이터 분석]
+□ GA4 (Google Analytics 4) — 이벤트 기반 사용자 행동 분석
+□ Mixpanel — 프로덕트 분석, 퍼널, 리텐션
 □ 없음
 
-[PM 도구]
-□ Notion — 칸반 보드, 문서 관리
-□ Linear — 이슈 트래커
-□ Jira — 프로젝트 관리
+[프로젝트 관리]
+□ Notion — 태스크 관리, 문서 관리, 로드맵
+□ Linear — 이슈 트래킹, 프로젝트 관리, 로드맵
 □ 없음
 
-[고객 소통]
-□ Channel.io (채널톡) — CS, VOC 분석
-□ Intercom — 고객 지원
+[고객 피드백]
+□ Channel.io (채널톡) — CS 상담 데이터, VOC 수집/분석
+□ Intercom — 고객 지원, 메시지, VOC 분석
 □ 없음
 
-[DB]
-□ MySQL — 서비스 DB 직접 조회
-□ PostgreSQL — 서비스 DB 직접 조회
+[데이터베이스]
+□ Production Database — 운영/스냅샷 DB 직접 쿼리
 □ 없음
 
 [AI 리서치]
-□ NotebookLM — 셀러/사용자 인사이트
+□ NotebookLM — AI 기반 셀러/사용자 인사이트 탐색
 □ 없음
 
 어떤 것들을 사용하고 계세요?
 ```
 
-### DB 선택 시 추가 질문
+### 선택된 provider별 추가 질문
+
+사용자가 provider를 선택하면, 해당 provider YAML의 `setup_questions`를 순서대로 질문합니다.
 
 ```
+예: GA4 선택 시
+🎩 Oscar: GA4를 사용하시는군요.
+1. "GA4 Property ID를 알려주세요." (예: 462897329)
+
+예: DB 선택 시
 🎩 Oscar: DB를 사용하시는군요. 몇 가지 더 여쭤볼게요.
-
-1. "MCP 서버 이름은 어떻게 설정하셨나요?" (예: prod_service_db)
-2. "스냅샷 DB도 따로 있나요?"
-3. "접속 시 포트포워딩이나 터널 스크립트가 필요한가요?"
-4. "무거운 테이블 경고가 필요한 테이블이 있나요?"
-   (DELETE-INSERT ETL, Full scan 금지 등)
-```
-
-### NotebookLM 선택 시
-
-```
-🎩 Oscar: "어떤 노트북을 주로 사용하시나요?" (노트북 이름)
+1. "운영 DB MCP 서버 이름은?" (예: prod_service_db)
+2. "스냅샷 DB MCP 서버 이름은?" (선택, 예: snapshot_service_db)
+3. "포트포워딩 터널 스크립트 경로는?" (선택)
+4. "무거운 테이블 경고 목록은?" (선택)
+5. "DB 사용 규칙 요약은?" (선택)
 ```
 
 ### 연동 설정 결과
 
 → `project.yaml`의 `operations.integrations` 섹션에 반영
+
+```yaml
+# project.yaml에 저장되는 형식 (기존 스키마 유지)
+operations:
+  integrations:
+    ga4:
+      enabled: true
+      property_id: "462897329"
+    notion:
+      enabled: true
+      workspace: "My Workspace"
+      daily_page_id: "abc123..."
+    # ... 각 provider의 setup_questions 응답값 저장
+```
 
 ### 민감 정보 안내
 
@@ -335,13 +360,66 @@ _meta:
 
 ---
 
-## Phase 4: 템플릿 하이드레이션 (NEW)
+## Phase 4: 템플릿 하이드레이션 (Integration Registry 통합)
 
 ```
 🎩 Oscar: 설정을 기반으로 에이전트와 커맨드를 프로젝트에 맞게 조정합니다.
 ```
 
 ### 하이드레이션 절차
+
+#### Step 1: Integration 마커 치환 (신규)
+
+1. **project.yaml에서 enabled된 provider ID 목록 수집**
+   ```
+   예: [ga4, prod_db, notion, channel_io, notebooklm]
+   ```
+
+2. **각 provider YAML 읽기** (`integrations/providers/{id}.yaml`)
+
+3. **capabilities 맵 생성**
+   ```yaml
+   capabilities:
+     analytics: true      # ga4가 analytics 카테고리
+     database: true        # prod_db가 database 카테고리
+     pm_tool: true         # notion이 pm_tool 카테고리
+     customer_feedback: true  # channel_io가 customer_feedback 카테고리
+     ai_research: true     # notebooklm이 ai_research 카테고리
+   ```
+
+4. **에이전트별 마커 치환**
+
+   각 에이전트 .hbs 파일에 대해:
+
+   a. `_registry.yaml`에서 해당 에이전트에 매핑되는 카테고리 확인
+   b. 해당 카테고리의 enabled provider들에서 `agent_prompts.{에이전트명}` 수집
+   c. prompt 내 `{{config.KEY}}` → project.yaml 설정값으로 치환
+   d. prompt 내 `{{#each config.KEY}}` → 배열 확장
+   e. 수집된 prompt들을 결합
+   f. `{{INTEGRATION_PROMPTS}}` 마커 → 결합된 prompt로 치환
+   g. `{{INTEGRATION_TOOLS_FOOTER}}` → `footer_tool_line` 결합으로 치환
+   h. `{{INTEGRATION_CAUTION_LIST}}` → database provider의 `caution_list`로 치환
+
+5. **커맨드별 마커 치환**
+
+   각 커맨드 .hbs 파일에 대해:
+
+   a. `_registry.yaml`에서 해당 커맨드에 매핑되는 카테고리 확인
+   b. 해당 카테고리의 enabled provider들에서 `command_prompts.{커맨드명}` 수집
+   c. config 치환 후 결합
+   d. `{{INTEGRATION_PROMPTS}}` 마커 → 결합된 prompt로 치환
+
+6. **시스템 파일 마커 치환**
+
+   CLAUDE.md.hbs, WORKFLOW.md.hbs에 대해:
+
+   a. `_registry.yaml`에서 `system_files`에 해당 파일이 있는 카테고리 확인
+   b. 해당 카테고리의 enabled provider들에서 `safety_rules` / `workflow_rules` 수집
+   c. config 치환 후 결합
+   d. `{{INTEGRATION_SAFETY_RULES}}` 마커 → `safety_rules` 결합으로 치환 (CLAUDE.md용)
+   e. `{{INTEGRATION_WORKFLOW_RULES}}` 마커 → `workflow_rules` 결합으로 치환 (WORKFLOW.md용)
+
+#### Step 2: 기존 Handlebars 렌더링
 
 1. **`.hbs` 파일 목록 수집**
    ```
@@ -353,11 +431,13 @@ _meta:
 
 2. **변수 컨텍스트 구성**
    - `project.yaml`에서 project, integrations, domains, dev_scope, spec_site 추출
+   - **capabilities 맵 추가** (Step 1에서 생성)
    - 플랫 네임스페이스로 변환
 
 3. **각 `.hbs` → `.md`로 렌더링**
    - `{{var}}` → 값 대입
    - `{{#if path}}...{{/if}}` → 조건부 포함/제거
+   - `{{#if capabilities.pm_tool}}...{{/if}}` → 능력 기반 조건부
    - `{{#each path}}...{{/each}}` → 반복 생성
 
 4. **`.hbs` 원본 삭제**
@@ -371,6 +451,10 @@ _meta:
 
 ```
 🎩 Oscar: 하이드레이션이 완료되었습니다.
+
+[Integration Registry]
+• 활성 provider: {활성 목록}
+• capabilities: {능력 목록}
 
 [변환된 파일]
 • agents/orchestrator.md ✅
@@ -392,6 +476,14 @@ _meta:
 [남은 .hbs 파일]
 없음 ✅
 ```
+
+### 새 Provider 추가 방법
+
+1. `integrations/providers/{new_provider}.yaml` 파일 드롭
+2. `project.yaml`의 `operations.integrations.{id}` 에 설정 추가
+3. `/start` 재실행 → Setup Wizard가 자동으로 하이드레이션에 반영
+
+> **중요**: 에이전트 .hbs 파일 수정 불필요! Provider YAML만 추가하면 됨.
 
 ---
 

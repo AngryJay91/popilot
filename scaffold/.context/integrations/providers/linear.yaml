@@ -1,0 +1,46 @@
+id: linear
+name: "Linear"
+category: pm_tool
+description: "이슈 트래킹, 프로젝트 관리, 로드맵"
+
+mcp:
+  server_name: "linear"
+  tools: [list_issues, create_issue, update_issue, list_projects]
+
+setup_questions:
+  - key: team_id
+    label: "Linear Team ID"
+    type: string
+    required: true
+    example: "TEAM-123"
+
+agent_prompts:
+  strategist: |
+    ### Linear MCP
+    ```
+    용도: 이슈 관리, 로드맵 연동
+    team_id: {{config.team_id}}
+    사용법:
+    - list_issues: 이슈 목록 조회
+    - create_issue: 새 이슈 생성
+    - list_projects: 프로젝트 현황
+    ```
+
+  planner: |
+    ### Linear MCP
+    ```
+    용도: 스프린트 이슈 관리, 스토리 생성
+    team_id: {{config.team_id}}
+    사용법:
+    - list_issues: 스프린트 이슈 조회
+    - create_issue: 새 이슈 생성
+    - update_issue: 상태 업데이트
+    ```
+
+command_prompts:
+  daily: |
+    ### Linear 이슈 동기화
+
+    Linear에서 오늘 완료된 이슈를 자동 수집하여 일일업무에 반영합니다.
+
+footer_tool_line: "Linear MCP"

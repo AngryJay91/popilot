@@ -1,0 +1,32 @@
+version: "1.0"
+
+categories:
+  analytics:
+    label: "데이터 분석"
+    description: "사용자 행동, 퍼널, 이벤트 분석"
+    agents: [analyst, validator]
+    commands: [analytics]
+
+  database:
+    label: "데이터베이스"
+    description: "운영/분석 DB 직접 쿼리"
+    agents: [analyst]
+    commands: [analytics]
+    system_files: [CLAUDE.md, WORKFLOW.md]
+
+  pm_tool:
+    label: "프로젝트 관리"
+    description: "태스크, 문서, 로드맵 관리"
+    agents: [strategist, planner]
+    commands: [daily]
+    system_files: [WORKFLOW.md]
+
+  customer_feedback:
+    label: "고객 피드백"
+    description: "CS 상담, VOC 수집/분석"
+    agents: [validator, researcher]
+
+  ai_research:
+    label: "AI 리서치"
+    description: "AI 기반 지식 탐색, 인사이트 도출"
+    agents: [researcher, strategist, validator]

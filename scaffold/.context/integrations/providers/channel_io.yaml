@@ -1,0 +1,38 @@
+id: channel_io
+name: "Channel.io (채널톡)"
+category: customer_feedback
+description: "CS 상담 데이터, VOC 수집/분석"
+
+mcp:
+  server_name: "channel-io"
+  tools: [list_of_user_chats, retrieve_list_of_messages_in_user_chats]
+
+setup_questions: []
+
+agent_prompts:
+  validator: |
+    ### 채널톡 API (VOC 분석)
+    ```
+    용도: CS 상담 데이터 분석, VOC 인사이트 도출
+    인증: X-Access-Key, X-Access-Secret 헤더
+    ```
+
+    #### VOC 분석 패턴
+    ```bash
+    # 상담 목록 조회
+    curl -s 'https://api.channel.io/open/v5/user-chats?state=closed&limit=100' \
+      -H 'X-Access-Key: {key}' -H 'X-Access-Secret: {secret}'
+
+    # 특정 상담 메시지 조회
+    curl -s 'https://api.channel.io/open/v5/user-chats/{chat_id}/messages' \
+      -H 'X-Access-Key: {key}' -H 'X-Access-Secret: {secret}'
+    ```
+
+  researcher: |
+    ### 채널톡 API (VOC 수집)
+    ```
+    용도: 실시간 VOC 수집, 불만 패턴 파악
+    연계: Vicky가 수집 → Rita가 해석
+    ```
+
+footer_tool_line: "채널톡 API"

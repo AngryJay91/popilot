@@ -1,0 +1,183 @@
+id: prod_db
+name: "Production Database"
+category: database
+description: "운영/스냅샷 DB 직접 쿼리"
+
+mcp:
+  server_name: "{{config.mcp_name}}"
+  tools: [query]
+
+setup_questions:
+  - key: mcp_name
+    label: "운영 DB MCP 서버 이름"
+    type: string
+    required: true
+    example: "prod_service_db"
+  - key: snapshot_mcp_name
+    label: "스냅샷 DB MCP 서버 이름"
+    type: string
+    required: false
+    example: "snapshot_service_db"
+  - key: tunnel_script
+    label: "포트포워딩/터널 스크립트 경로"
+    type: string
+    required: false
+    example: "bash scripts/port-forward.sh"
+  - key: caution
+    label: "무거운 테이블 경고 목록 (테이블명, 위험도, 이유)"
+    type: object_list
+    required: false
+    fields: [table, risk, reason]
+    example:
+      - table: SettlementMargin
+        risk: "🔴 매우 높음"
+        reason: "DELETE-INSERT ETL 반복, 매우 무거움"
+  - key: rules
+    label: "DB 사용 규칙 요약"
+    type: string
+    required: false
+    example: "WHERE + 인덱스 컬럼 + LIMIT 필수. 조건 없는 COUNT(*) 금지"
+
+agent_prompts:
+  analyst: |
+    ### DB 선택 기준 ⭐ 중요
+
+    **두 가지 DB가 있습니다:**
+
+    | DB | MCP 이름 | 포트 | 용도 | 데이터 시점 |
+    |----|----------|------|------|-------------|
+    | **스냅샷 DB** | `{{config.snapshot_mcp_name}}` | 33306 | 일반 분석, 탐색 | 당일 새벽 스냅샷 (전일 마감 데이터) |
+    | **운영 DB** | `{{config.mcp_name}}` | 13306 | 실시간 필요시만 | 실시간 |
+
+    #### 🎯 선택 가이드
+
+    ```
+    ✅ 스냅샷 DB 사용 (기본값, 권장)
+    - 코호트 분석, 세그먼트 분석
+    - 트렌드 분석 (어제까지 데이터)
+    - 탐색적 분석
+    - 무거운 쿼리 실행해도 운영 영향 없음
+
+    ⚠️ 운영 DB 사용 (필요시만)
+    - "오늘" 데이터가 꼭 필요한 경우
+    - 실시간 모니터링
+    - 오늘 발생한 이슈 디버깅
+    ```
+
+    #### 🔌 DB 접속 전 포트포워딩 필수
+
+    터널링 스크립트를 **별도 터미널에서 먼저 실행**해야 합니다:
+
+    ```bash
+    # 프로젝트 내 스크립트 실행 (3개 터널 동시 오픈)
+    {{config.tunnel_script}}
+    ```
+
+    실행 후 열리는 포트:
+    | 환경 | DB | 로컬 포트 |
+    |------|-----|-----------|
+    | 운영 | Service DB | `13306` |
+    | 운영 | Scrap DB | `23306` |
+    | 테스트 | Service DB (스냅샷) | `33306` |
+
+    > **주의**: 포트포워딩 세션을 먼저 열어둔 상태에서 DB 쿼리를 실행해야 합니다.
+    > 종료: `Ctrl+C`
+
+    #### ⚠️ 중요: 무거운 테이블 주의사항
+
+    **다음 테이블은 특별히 주의해서 다뤄야 합니다:**
+
+    | 테이블 | 위험도 | 이유 |
+    |--------|--------|------|
+    {{#each config.caution}}
+    | `{{this.table}}` | {{this.risk}} | {{this.reason}} |
+    {{/each}}
+
+    **금지 사항:**
+    ```sql
+    {{#each config.caution}}
+    -- ❌ 절대 금지: Full Table Scan
+    SELECT * FROM {{this.table}};
+    SELECT * FROM {{this.table}} WHERE name LIKE '%검색어%';
+    SELECT COUNT(*) FROM {{this.table}};  -- 조건 없는 카운트
+
+    -- ❌ 절대 금지: 인덱스 없는 조건
+    SELECT * FROM {{this.table}} WHERE some_unindexed_column = 'value';
+    {{/each}}
+    ```
+
+    **안전한 쿼리 패턴:**
+    ```sql
+    -- ✅ 안전: 인덱스 컬럼으로 조건 (user_id, created_at 등)
+    SELECT * FROM [table]
+    WHERE user_id = 123
+      AND created_at >= '2026-01-01'
+    LIMIT 100;
+
+    -- ✅ 안전: 샘플링
+    SELECT * FROM [table]
+    WHERE user_id = 123
+    ORDER BY created_at DESC
+    LIMIT 50;
+    ```
+
+    **쿼리 전 체크리스트:**
+    - [ ] WHERE 절에 인덱스 컬럼이 있는가?
+    - [ ] LIMIT이 걸려 있는가?
+    - [ ] 위험 테이블인 경우 더 신중하게
+
+command_prompts:
+  analytics: |
+    - **Prod DB MCP 서버** (Service DB 직접 조회)
+
+    ### DB 접속 전 포트포워딩 필수
+
+    ```bash
+    {{{config.tunnel_script}}}
+    ```
+
+    > 로컬 포트로 연결됩니다.
+
+    ## DB 주의사항
+
+    아래 테이블은 DELETE-INSERT 이 잦은 ETL 결과 저장하는 테이블로 **매우 무거움**. Full scan 절대 금지!
+
+    | 테이블 | 위험도 | 이유 |
+    |--------|--------|------|
+    {{#each config.caution}}
+    | `{{this.table}}` | {{this.risk}} | {{this.reason}} |
+    {{/each}}
+
+    **안전한 쿼리 규칙:**
+    - WHERE 절에 인덱스 컬럼 (user_id, created_at 등)
+    - LIMIT 적용 필수
+    - 조건 없는 COUNT(*) 금지
+
+safety_rules:
+  - content: |
+      ## DB 주의사항
+
+      → `.context/project.yaml`의 `operations.integrations.prod_db.caution` 참조
+
+workflow_rules:
+  - content: |
+      ## DB 사용 주의사항
+
+      ### 무거운 테이블 경고
+
+      | 테이블 | 주의사항 |
+      |--------|----------|
+      {{#each config.caution}}
+      | `{{this.table}}` | {{this.risk}} {{this.reason}} |
+      {{/each}}
+
+      **규칙:** {{config.rules}}
+
+caution_list: |
+  | 테이블 | 위험도 | 이유 |
+  |--------|--------|------|
+  {{#each config.caution}}
+  | `{{this.table}}` | {{this.risk}} | {{this.reason}} |
+  {{/each}}
+
+footer_tool_line: "스냅샷 DB MCP (`{{config.snapshot_mcp_name}}`), 운영 DB MCP (`{{config.mcp_name}}`)"

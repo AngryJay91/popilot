@@ -1,0 +1,47 @@
+id: intercom
+name: "Intercom"
+category: customer_feedback
+description: "고객 지원, 메시지, VOC 분석"
+
+mcp:
+  server_name: "intercom"
+  tools: [list_conversations, get_conversation, search_contacts]
+
+setup_questions:
+  - key: app_id
+    label: "Intercom App ID"
+    type: string
+    required: true
+    example: "abc123"
+
+agent_prompts:
+  validator: |
+    ### Intercom API (VOC 분석)
+    ```
+    용도: CS 대화 분석, VOC 인사이트 도출
+    app_id: {{config.app_id}}
+    ```
+
+    #### VOC 분석 패턴
+    ```javascript
+    // 최근 종료된 대화 조회
+    list_conversations({
+      state: "closed",
+      per_page: 50,
+      sort_field: "updated_at",
+      sort_order: "desc"
+    })
+
+    // 특정 대화 상세 조회
+    get_conversation({ id: "{conversation_id}" })
+    ```
+
+  researcher: |
+    ### Intercom API (VOC 수집)
+    ```
+    용도: 고객 대화 수집, 불만 패턴 파악
+    app_id: {{config.app_id}}
+    연계: Vicky가 수집 → Rita가 해석
+    ```
+
+footer_tool_line: "Intercom API"

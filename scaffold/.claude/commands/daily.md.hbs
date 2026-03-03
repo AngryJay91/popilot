@@ -1,7 +1,7 @@
 # /daily - 일일업무 정리
 
-{{#if integrations.notion.enabled}}
-오늘 작업한 내용을 취합하여 노션 일일업무일지에 업로드합니다.
+{{#if capabilities.pm_tool}}
+오늘 작업한 내용을 취합하여 PM 도구에 업로드합니다.
 {{else}}
 오늘 작업한 내용을 취합하여 정리합니다.
 {{/if}}
@@ -9,9 +9,9 @@
 ## 사용법
 
 ```bash
-/daily                  # 오늘 작업 정리{{#if integrations.notion.enabled}} → 노션 업로드{{/if}}
+/daily                  # 오늘 작업 정리{{#if capabilities.pm_tool}} → PM 도구 업로드{{/if}}
 /daily 2026-02-01       # 특정 날짜 작업 정리
-/daily --dry-run        # 미리보기만{{#if integrations.notion.enabled}} (노션 업로드 X){{/if}}
+/daily --dry-run        # 미리보기만{{#if capabilities.pm_tool}} (업로드 X){{/if}}
 ```
 
 ARGUMENTS: $ARGUMENTS
@@ -41,18 +41,15 @@ ARGUMENTS: $ARGUMENTS
 3. "작업 히스토리"에서 해당 날짜 섹션 추출
 4. 취합하여 정리
 
-{{#if integrations.notion.enabled}}
-### 4. 노션 페이지 확인 및 생성
+{{#if capabilities.pm_tool}}
+### 4. PM 도구 업로드
 
-**상위 페이지**: `{{integrations.notion.daily_page_id}}` (일일업무일지)
-
-1. 상위 페이지에서 해당 날짜 제목의 하위 페이지 존재 여부 확인
-2. 없으면 새로 생성, 있으면 업데이트
+{{INTEGRATION_PROMPTS}}
 {{/if}}
 
-### {{#if integrations.notion.enabled}}5{{else}}4{{/if}}. 콘텐츠 포맷팅
+### {{#if capabilities.pm_tool}}5{{else}}4{{/if}}. 콘텐츠 포맷팅
 
-{{#if integrations.notion.enabled}}노션에 업로드할 마크다운 형식:{{else}}출력할 마크다운 형식:{{/if}}
+{{#if capabilities.pm_tool}}PM 도구에 업로드할 마크다운 형식:{{else}}출력할 마크다운 형식:{{/if}}
 
 ```markdown
 # {YYYY-MM-DD} ({요일})
@@ -95,20 +92,8 @@ ARGUMENTS: $ARGUMENTS
 | 배포 | {N} |
 ```
 
-{{#if integrations.notion.enabled}}
-### 6. 노션 업로드
-
-```javascript
-mcp__notion__notion-create-pages({
-  parent: { page_id: "{{integrations.notion.daily_page_id}}" },
-  pages: [{
-    properties: { title: "{YYYY-MM-DD}" },
-    content: "{포맷된 마크다운}"
-  }]
-})
-```
-
-### 7. 완료 메시지
+{{#if capabilities.pm_tool}}
+### {{#if capabilities.pm_tool}}6{{else}}5{{/if}}. 완료 메시지
 
 ```markdown
 🎩 Oscar: 일일업무 정리가 완료되었습니다.
@@ -117,10 +102,10 @@ mcp__notion__notion-create-pages({
 **세션**: {N}개
 **로그**: {N}건
 
-노션: {노션 페이지 URL}
+PM 도구: {업로드 URL}
 ```
 {{else}}
-### {{#if integrations.notion.enabled}}6{{else}}5{{/if}}. 완료 메시지
+### 5. 완료 메시지
 
 ```markdown
 🎩 Oscar: 일일업무 정리가 완료되었습니다.
@@ -135,8 +120,8 @@ mcp__notion__notion-create-pages({
 
 ## --dry-run 옵션
 
-{{#if integrations.notion.enabled}}
-노션에 업로드하지 않고 미리보기만 표시:
+{{#if capabilities.pm_tool}}
+업로드하지 않고 미리보기만 표시:
 
 ```markdown
 🎩 Oscar: [미리보기] 일일업무 정리
@@ -144,7 +129,7 @@ mcp__notion__notion-create-pages({
 {포맷된 내용}
 
 ---
-노션에 업로드하시겠습니까? (y/n)
+PM 도구에 업로드하시겠습니까? (y/n)
 ```
 {{else}}
 정리된 내용을 미리보기로 표시:
@@ -276,11 +261,11 @@ new_log:
 3. 수동으로 로그를 추가하려면: /log "{내용}"
 ```
 
-{{#if integrations.notion.enabled}}
-### 노션 업로드 실패
+{{#if capabilities.pm_tool}}
+### PM 도구 업로드 실패
 
 ```markdown
-노션 업로드 실패: {에러 메시지}
+업로드 실패: {에러 메시지}
 
 정리된 내용은 아래와 같습니다. 수동으로 복사해주세요:
 
@@ -296,8 +281,8 @@ new_log:
 
 - "오늘 한 일 정리해줘"
 - "일일업무 정리"
-{{#if integrations.notion.enabled}}
-- "오늘 작업 노션에 올려줘"
+{{#if capabilities.pm_tool}}
+- "오늘 작업 올려줘"
 {{/if}}
 - "데일리 로그"
 
@@ -307,9 +292,6 @@ new_log:
 
 - Daily 로그: `.context/daily/{YYYY-MM-DD}.yaml`
 - 세션 파일: `.context/sessions/active/{id}.md`
-{{#if integrations.notion.enabled}}
-- 노션 상위 페이지: `{{integrations.notion.daily_page_id}}` (일일업무일지)
-{{/if}}
 
 ---
 
