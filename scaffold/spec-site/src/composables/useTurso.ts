@@ -7,6 +7,8 @@ const url = import.meta.env.VITE_TURSO_URL as string
 const authToken = import.meta.env.VITE_TURSO_AUTH_TOKEN as string
 
 let _reachable: boolean | null = null
+let _lastFailureAt = 0
+const RETRY_COOLDOWN_MS = 15_000
 
 export interface QueryResult<T = Record<string, unknown>> {
   rows: T[]
@@ -61,7 +63,11 @@ async function pipeline(
   }
 
   if (_reachable === false) {
-    return { cols: [], rows: [], affectedRowCount: 0, lastInsertRowid: null, error: 'Turso unreachable' }
+    if (Date.now() - _lastFailureAt >= RETRY_COOLDOWN_MS) {
+      _reachable = null
+    } else {
+      return { cols: [], rows: [], affectedRowCount: 0, lastInsertRowid: null, error: 'Turso unreachable' }
+    }
   }
 
   try {
@@ -82,7 +88,8 @@ async function pipeline(
 
     if (!resp.ok) {
       const text = await resp.text().catch(() => '')
-      if (_reachable === null) _reachable = false
+      _reachable = false
+      _lastFailureAt = Date.now()
       return { cols: [], rows: [], affectedRowCount: 0, lastInsertRowid: null, error: `HTTP ${resp.status}: ${text}` }
     }
 
@@ -119,10 +126,11 @@ async function pipeline(
       lastInsertRowid: result.last_insert_rowid ? Number(result.last_insert_rowid) : null,
     }
   } catch (err: unknown) {
-    if (_reachable === null) {
-      _reachable = false
+    if (_reachable !== false) {
       console.warn('[useTurso] Turso unreachable, using offline mode')
     }
+    _reachable = false
+    _lastFailureAt = Date.now()
     const message = err instanceof Error ? err.message : 'Unknown error'
     return { cols: [], rows: [], affectedRowCount: 0, lastInsertRowid: null, error: message }
   }

@@ -79,6 +79,10 @@ operations:
     notebooklm:
       enabled: false
       notebook_name: ""        # {{integrations.notebooklm.notebook_name}}
+    corti:
+      enabled: false
+      workspace_id: ""         # {{integrations.corti.workspace_id}}
+      default_domain: ""       # {{integrations.corti.default_domain}}
 
   dev_scope:
     repo_name: ""              # {{dev_scope.repo_name}}

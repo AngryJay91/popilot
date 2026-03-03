@@ -50,6 +50,9 @@ async function mergeCustomScenarios() {
   const config = getWireframe(pageId.value, sprint.value)
   const baseScenarios: Scenario<any>[] = config?.scenarios ?? []
   const custom = await storeRef.value.loadCustomScenarios()
+  if (storeRef.value.error) {
+    console.warn('[WireframeShell] custom scenario sync failed:', storeRef.value.error)
+  }
   updateScenarios([...baseScenarios, ...custom], config?.defaultScenarioId ?? '')
 }
 
@@ -57,12 +60,14 @@ async function handleDuplicate(sourceId: string) {
   const source = scenarios.value.find(s => s.id === sourceId)
   if (!source) return
   const label = `${source.label} (copy)`
-  await storeRef.value.duplicateScenario(source, label, currentUser.value ?? 'unknown')
+  const newId = await storeRef.value.duplicateScenario(source, label, currentUser.value ?? 'unknown')
+  if (!newId) return
   await mergeCustomScenarios()
 }
 
 async function handleDeleteCustom(scenarioId: string) {
-  await storeRef.value.deleteScenario(scenarioId)
+  const ok = await storeRef.value.deleteScenario(scenarioId)
+  if (!ok) return
   await mergeCustomScenarios()
 }
 

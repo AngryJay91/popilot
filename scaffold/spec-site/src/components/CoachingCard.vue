@@ -30,7 +30,7 @@ function toggleCheck() {
       />
     </div>
     <div class="coaching-title">{{ title }}</div>
-    <div class="coaching-action" v-html="action" />
+    <div class="coaching-action">{{ action }}</div>
     <div class="coaching-effect">{{ effect }}</div>
     <div class="coaching-buttons">
       <button
@@ -74,8 +74,13 @@ function toggleCheck() {
 .coaching-severity.yellow { color: #92400e; }
 .coaching-severity.green { color: var(--green); }
 .coaching-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
-.coaching-action { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 4px; }
-.coaching-action :deep(strong) { color: var(--text-primary); font-weight: 600; }
+.coaching-action {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+}
 .coaching-effect { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
 .coaching-check {
   width: 20px; height: 20px; border-radius: 50%;

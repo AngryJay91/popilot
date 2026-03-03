@@ -30,3 +30,9 @@ categories:
     label: "AI 리서치"
     description: "AI 기반 지식 탐색, 인사이트 도출"
     agents: [researcher, strategist, validator]
+
+  knowledge:
+    label: "지식 관리"
+    description: "크로스소스 지식 검색, 의사결정 추적, 피처 타임라인"
+    agents: [researcher, strategist, planner, validator, analyst]
+    system_files: [WORKFLOW.md]

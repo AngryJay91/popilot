@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUser } from '@/composables/useUser'
 import { useRetro } from '@/composables/useRetro'
@@ -17,6 +17,10 @@ const retro = useRetro(sprintId)
 onMounted(async () => {
   await retro.loadOrCreateSession()
   retro.startPolling(currentUser.value ?? '')
+})
+
+watch(currentUser, (nextUser) => {
+  retro.startPolling(nextUser ?? '')
 })
 
 function handleExport() {

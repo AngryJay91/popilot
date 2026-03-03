@@ -70,6 +70,9 @@ function handleClearAll() {
             <button class="memo-add-btn" @click="handleAdd" :disabled="!newMemo.trim()">Save</button>
           </div>
           <div class="memo-list">
+            <div v-if="memoStore.error" class="memo-error">
+              Sync issue: {{ memoStore.error }}
+            </div>
             <div v-for="m in memoStore.memos" :key="m.id" class="memo-item">
               <div class="memo-item-header">
                 <span class="memo-item-meta">
@@ -206,6 +209,15 @@ function handleClearAll() {
 .memo-empty {
   text-align: center; color: #94a3b8; font-size: 13px;
   padding: 40px 20px; line-height: 1.6;
+}
+.memo-error {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 6px;
+  font-size: 12px;
 }
 
 .memo-footer {

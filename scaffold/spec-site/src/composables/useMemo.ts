@@ -12,6 +12,7 @@ export function useMemo(pageId: string) {
   const memos = ref<MemoItem[]>([])
   const memoCount = computed(() => memos.value.length)
   const loading = ref(false)
+  const error = ref<string | null>(null)
 
   // localStorage (sync, immediately available)
   function loadFromLocal() {
@@ -26,7 +27,9 @@ export function useMemo(pageId: string) {
           ts: m.ts,
         }))
       }
-    } catch { /* ignore corrupt data */ }
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to read local memos'
+    }
   }
 
   function saveToLocal() {
@@ -48,14 +51,18 @@ export function useMemo(pageId: string) {
           author: String(row.author),
           ts: new Date(row.created_at + 'Z').getTime(),
         }))
+      } else {
+        error.value = r.error
       }
-    } catch {
-      // Turso unavailable -- keep localStorage
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Turso load failed'
+      // Keep localStorage fallback silently in UI behavior
     }
   }
 
   async function loadMemos() {
     loading.value = true
+    error.value = null
     await tryLoadFromTurso()
     loading.value = false
   }
@@ -74,7 +81,10 @@ export function useMemo(pageId: string) {
         await tryLoadFromTurso()
         return true
       }
-    } catch { /* fallback */ }
+      error.value = r.error ?? 'Turso save failed'
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Turso save failed'
+    }
 
     // localStorage fallback
     memos.value.unshift({ id: Date.now(), text: trimmed, author, ts: Date.now() })
@@ -90,7 +100,10 @@ export function useMemo(pageId: string) {
         await tryLoadFromTurso()
         return
       }
-    } catch { /* fallback */ }
+      error.value = r.error ?? 'Turso delete failed'
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Turso delete failed'
+    }
 
     memos.value = memos.value.filter((m) => m.id !== id)
     saveToLocal()
@@ -99,8 +112,11 @@ export function useMemo(pageId: string) {
   async function clearAll() {
     try {
       const { execute } = await import('./useTurso')
-      await execute('DELETE FROM memos WHERE page_id = ?', [pageId])
-    } catch { /* ignore */ }
+      const r = await execute('DELETE FROM memos WHERE page_id = ?', [pageId])
+      if (r.error) error.value = r.error
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Turso clear failed'
+    }
     memos.value = []
     saveToLocal()
   }
@@ -118,5 +134,5 @@ export function useMemo(pageId: string) {
   loadFromLocal()
   loadMemos()
 
-  return { memos, memoCount, loading, addMemo, deleteMemo, clearAll, formatTime, loadMemos }
+  return { memos, memoCount, loading, error, addMemo, deleteMemo, clearAll, formatTime, loadMemos }
 }

@@ -49,8 +49,17 @@ async function main() {
 
   // Copy scaffold
   console.log('  📦 Copying scaffold...');
-  const { copied, appends } = await copyScaffold(targetDir, { skipSpecSite });
+  const { copied, overwritten, skipped, appends } = await copyScaffold(targetDir, {
+    skipSpecSite,
+    overwriteExisting: force,
+  });
   console.log(`     ${copied.length} files created`);
+  if (overwritten.length > 0) {
+    console.log(`     ${overwritten.length} files overwritten (--force)`);
+  }
+  if (skipped.length > 0) {
+    console.log(`     ${skipped.length} existing files kept`);
+  }
 
   // Process .append files (gitignore)
   for (const { file, content } of appends) {

@@ -22,6 +22,53 @@ export function renderMarkdown(md: string): string {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   }
 
+  function escAttr(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+  }
+
+  function normalizeHref(raw: string): string | null {
+    const href = raw.trim().replace(/&amp;/g, '&')
+    if (!href) return null
+
+    const lowered = href.toLowerCase()
+    if (
+      lowered.startsWith('javascript:') ||
+      lowered.startsWith('data:') ||
+      lowered.startsWith('vbscript:')
+    ) {
+      return null
+    }
+
+    if (
+      href.startsWith('#') ||
+      href.startsWith('/') ||
+      href.startsWith('./') ||
+      href.startsWith('../')
+    ) {
+      return href
+    }
+
+    try {
+      const parsed = new URL(href)
+      if (
+        parsed.protocol === 'http:' ||
+        parsed.protocol === 'https:' ||
+        parsed.protocol === 'mailto:' ||
+        parsed.protocol === 'tel:'
+      ) {
+        return href
+      }
+    } catch {
+      return null
+    }
+
+    return null
+  }
+
   function inline(s: string): string {
     s = esc(s)
     // bold
@@ -31,7 +78,11 @@ export function renderMarkdown(md: string): string {
     // inline code
     s = s.replace(/`([^`]+)`/g, '<code>$1</code>')
     // links
-    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text: string, url: string) => {
+      const safeHref = normalizeHref(url)
+      if (!safeHref) return text
+      return `<a href="${escAttr(safeHref)}" rel="noopener noreferrer">${text}</a>`
+    })
     return s
   }
 
