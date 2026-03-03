@@ -4,7 +4,7 @@
   "description": "Multi-agent PO/PM system scaffold for Claude Code",
   "type": "module",
   "bin": {
-    "popilot": "./bin/cli.mjs"
+    "popilot": "bin/cli.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs"
