@@ -1,106 +1,106 @@
-# /sprint - 스프린트 관리
+# /sprint - Sprint Management
 
-스프린트 관련 작업을 수행합니다.
+Perform sprint-related tasks.
 
-## 사용법
+## Usage
 
 ```
-/sprint          # 현재 스프린트 대시보드 표시
-/sprint new      # 새 스프린트 생성
-/sprint archive  # 이전 스프린트 아카이브
-/sprint status   # 간단한 상태 확인
+/sprint          # Display current sprint dashboard
+/sprint new      # Create new sprint
+/sprint archive  # Archive previous sprint
+/sprint status   # Quick status check
 ```
 
-## 현재 스프린트 번호 확인
+## Determine Current Sprint Number
 
-`CLAUDE.md`에서 "현재 스프린트: **{번호}**" 패턴을 찾아 번호 추출
+Find the pattern "Current Sprint: **{number}**" in `CLAUDE.md` and extract the number.
 
-## 스프린트 대시보드 (기본) ⭐ NEW
+## Sprint Dashboard (Default) ⭐ NEW
 
-`$ARGUMENTS`가 없으면 **대시보드 자동 생성**:
+If `$ARGUMENTS` is empty, **auto-generate the dashboard**:
 
-1. `CLAUDE.md`에서 현재 스프린트 번호(N) 확인
-2. `.context/sprints/s{N}/context.md` 로드
-3. 📋 Penny로서 대시보드 생성:
+1. Check the current sprint number (N) from `CLAUDE.md`
+2. Load `.context/sprints/s{N}/context.md`
+3. Generate the dashboard as 📋 Penny:
 
 ```markdown
-## 📋 Sprint {N} 대시보드
+## 📋 Sprint {N} Dashboard
 
-### 🎯 목표
-[One Question 또는 스프린트 목표]
+### 🎯 Goal
+[One Question or Sprint Goal]
 
-### 📊 KR 진행 현황
-| KR | 현재 | 목표 | 진행률 | 상태 |
-|----|------|------|--------|------|
+### 📊 KR Progress
+| KR | Current | Target | Progress | Status |
+|----|---------|--------|----------|--------|
 | KR1 | 15% | 20% | ███████░░░ 75% | 🟢 |
 | KR2 | 18% | 15% | ██████████ 100% | ✅ |
 | KR3 | 50% | 100% | █████░░░░░ 50% | 🟡 |
 
-### 📝 작업 현황
-| 작업 | 담당 | 상태 | 비고 |
-|------|------|------|------|
-| [작업1] | 개발팀 | 🔄 진행중 | - |
-| [작업2] | 마케팅 | ✅ 완료 | - |
-| [작업3] | 개발팀 | ⏳ 대기 | 의존성: [작업1] |
+### 📝 Work Status
+| Task | Owner | Status | Notes |
+|------|-------|--------|-------|
+| [Task 1] | Dev Team | 🔄 In Progress | - |
+| [Task 2] | Marketing | ✅ Done | - |
+| [Task 3] | Dev Team | ⏳ Waiting | Dependency: [Task 1] |
 
-### 🚧 블로커
-- [ ] [블로커 내용]
+### 🚧 Blockers
+- [ ] [Blocker description]
 
-### 📅 일정
-- 스프린트 기간: [시작일] ~ [종료일]
-- 현재: D-{N}일
+### 📅 Schedule
+- Sprint period: [Start date] ~ [End date]
+- Current: D-{N} days
 ```
 
-4. 가능하면 GA4에서 현재 지표값 조회 (📊 Vicky 연계)
-5. 리스크/블로커 있으면 강조 표시
+4. If possible, query current metric values from GA4 (📊 Vicky integration)
+5. Highlight risks/blockers if present
 
-### 상태 표시 기준
-- ✅ 목표 달성 (≥100%)
-- 🟢 순항 중 (≥70%)
-- 🟡 주의 필요 (≥40%)
-- 🔴 위험 (<40%)
+### Status Display Criteria
+- ✅ Goal achieved (≥100%)
+- 🟢 On track (≥70%)
+- 🟡 Needs attention (≥40%)
+- 🔴 At risk (<40%)
 
-## 새 스프린트 생성 (`new`)
+## New Sprint Creation (`new`)
 
-`$ARGUMENTS`가 `new`이면:
+If `$ARGUMENTS` is `new`:
 
-1. 현재 스프린트 번호 확인
-2. 새 스프린트 폴더 생성 (예: `s52/`)
-3. `context.md` 템플릿 생성:
+1. Check current sprint number
+2. Create new sprint folder (e.g., `s52/`)
+3. Generate `context.md` template:
    ```markdown
    # Sprint [N] Context
 
-   > **PRD**: [노션 링크]
-   > **기간**: [시작일] ~ [종료일]
+   > **PRD**: [Notion link]
+   > **Period**: [Start date] ~ [End date]
 
-   ## 목표
-   [스프린트 목표 한 문장]
+   ## Goal
+   [Sprint goal in one sentence]
 
    ## Key Results
-   | KR | Metrics | 현재 | 목표 | 담당 |
-   |----|---------|------|------|------|
+   | KR | Metrics | Current | Target | Owner |
+   |----|---------|---------|--------|-------|
    | KR1 | | | | |
 
-   ## 주요 작업
+   ## Key Tasks
    - [ ]
 
-   ## 관련 문서
-   | 문서 | 링크 |
-   |------|------|
+   ## Related Documents
+   | Document | Link |
+   |----------|------|
    ```
 
-4. 이전 스프린트에 `results.md` 생성 여부 확인
+4. Check if `results.md` was generated for the previous sprint
 
-## 아카이브 (`archive`)
+## Archive (`archive`)
 
-`$ARGUMENTS`가 `archive`이면:
+If `$ARGUMENTS` is `archive`:
 
-1. 종료된 스프린트 폴더를 `_archive/`로 이동
-2. 결과 요약이 있는지 확인
-3. 없으면 📊 Vicky에게 결과 보고서 작성 제안
+1. Move the completed sprint folder to `_archive/`
+2. Check if a results summary exists
+3. If not, suggest having 📊 Vicky write a results report
 
-## CLAUDE.md 업데이트
+## CLAUDE.md Update
 
-새 스프린트 생성 시:
-- `CLAUDE.md`의 "현재 스프린트: **{번호}**" 라인만 업데이트
-- 예: `## 현재 스프린트: **51**` → `## 현재 스프린트: **52**`
+When creating a new sprint:
+- Update only the "Current Sprint: **{number}**" line in `CLAUDE.md`
+- Example: `## Current Sprint: **51**` → `## Current Sprint: **52**`

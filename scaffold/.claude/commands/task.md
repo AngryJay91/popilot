@@ -1,115 +1,115 @@
-# /task - Story/Task 상태 관리
+# /task - Story/Task Status Management
 
-VitePress 칸반 보드와 연동하여 Story 상태와 Task 체크박스를 관리합니다.
+Manage Story status and Task checkboxes integrated with the VitePress kanban board.
 
-## 사용법
+## Usage
 
 ```bash
-# Story 상태 변경
+# Change Story status
 /task status E-10-S-01 done        # draft → done
 /task status E-10-S-01 in-progress # draft → in-progress
 
-# Task 완료 체크
-/task done E-10-S-01 1.1           # Task 1.1 완료 처리
-/task done E-10-S-01 1.1 1.2 2.1   # 여러 Task 한번에 완료
+# Mark Task as complete
+/task done E-10-S-01 1.1           # Complete Task 1.1
+/task done E-10-S-01 1.1 1.2 2.1   # Complete multiple Tasks at once
 
-# Task 완료 취소
-/task undo E-10-S-01 1.1           # Task 1.1 미완료로 되돌림
+# Undo Task completion
+/task undo E-10-S-01 1.1           # Revert Task 1.1 to incomplete
 
-# Story 정보 조회
-/task E-10-S-01                    # Story 상세 정보
-/task list                         # 현재 스프린트 전체 Story 목록
+# View Story info
+/task E-10-S-01                    # Story detail information
+/task list                         # All Stories in current sprint
 ```
 
-## 상태 값
+## Status Values
 
-| 상태 | 설명 |
-|------|------|
-| `draft` | 초안 |
-| `ready` | 개발 준비 완료 |
-| `in-progress` | 개발 중 |
-| `review` | 리뷰 중 |
-| `done` | 완료 |
-| `blocked` | 차단됨 |
+| Status | Description |
+|--------|-------------|
+| `draft` | Draft |
+| `ready` | Ready for development |
+| `in-progress` | In development |
+| `review` | Under review |
+| `done` | Complete |
+| `blocked` | Blocked |
 
 ---
 
-## 실행 로직
+## Execution Logic
 
-### 1. Story 상태 변경 (`/task status`)
+### 1. Change Story Status (`/task status`)
 
-**파일 위치 찾기**:
+**Find file location**:
 ```
-CLAUDE.md에서 "현재 스프린트: **{N}**" 추출 → s{N}
+Extract "Current Sprint: **{N}**" from CLAUDE.md → s{N}
 .context/sprints/s{N}/stories/{STORY_ID}.md
 ```
 
-**수정할 패턴**:
+**Pattern to modify**:
 ```markdown
-| **상태** | `{OLD_STATUS}` |
+| **Status** | `{OLD_STATUS}` |
 →
-| **상태** | `{NEW_STATUS}` |
+| **Status** | `{NEW_STATUS}` |
 ```
 
-**실행 예시**:
+**Execution example**:
 ```bash
 /task status E-10-S-01 done
 ```
 
-1. `.context/sprints/s52/stories/E-10-S-01.md` 파일 읽기
-2. `| **상태** | \`draft\` |` 찾기
-3. `| **상태** | \`done\` |` 으로 변경
-4. 파일 저장
-5. 결과 출력
+1. Read `.context/sprints/s52/stories/E-10-S-01.md` file
+2. Find `| **Status** | \`draft\` |`
+3. Change to `| **Status** | \`done\` |`
+4. Save file
+5. Output result
 
-**출력**:
+**Output**:
 ```
-✅ E-10-S-01 상태 변경: draft → done
+✅ E-10-S-01 status changed: draft → done
 
-📋 Story: WorkNote 테이블 설계 및 API
-📁 파일: .context/sprints/s52/stories/E-10-S-01.md
+📋 Story: WorkNote Table Design and API
+📁 File: .context/sprints/s52/stories/E-10-S-01.md
 ```
 
 ---
 
-### 2. Task 완료 체크 (`/task done`)
+### 2. Mark Task Complete (`/task done`)
 
-**수정할 패턴**:
+**Pattern to modify**:
 ```markdown
 - [ ] **{TASK_ID}**: {description}
 →
 - [x] **{TASK_ID}**: {description}
 ```
 
-**실행 예시**:
+**Execution example**:
 ```bash
 /task done E-10-S-01 1.1 1.2
 ```
 
-1. `.context/sprints/s52/stories/E-10-S-01.md` 파일 읽기
-2. `- [ ] **1.1**:` 패턴 찾기
-3. `- [x] **1.1**:` 으로 변경
-4. `- [ ] **1.2**:` 패턴 찾기
-5. `- [x] **1.2**:` 으로 변경
-6. 파일 저장
-7. 진행률 계산 및 출력
+1. Read `.context/sprints/s52/stories/E-10-S-01.md` file
+2. Find `- [ ] **1.1**:` pattern
+3. Change to `- [x] **1.1**:`
+4. Find `- [ ] **1.2**:` pattern
+5. Change to `- [x] **1.2**:`
+6. Save file
+7. Calculate and output progress
 
-**출력**:
+**Output**:
 ```
-✅ E-10-S-01 Task 완료 처리
+✅ E-10-S-01 Tasks marked complete
 
-완료된 Task:
-- [x] 1.1: WorkNote 테이블 스키마 정의
-- [x] 1.2: 마이그레이션 파일 생성
+Completed Tasks:
+- [x] 1.1: WorkNote table schema definition
+- [x] 1.2: Migration file generation
 
-📊 진행률: 2/14 tasks (14%)
+📊 Progress: 2/14 tasks (14%)
 ```
 
 ---
 
-### 3. Task 완료 취소 (`/task undo`)
+### 3. Undo Task Completion (`/task undo`)
 
-**수정할 패턴**:
+**Pattern to modify**:
 ```markdown
 - [x] **{TASK_ID}**: {description}
 →
@@ -118,103 +118,103 @@ CLAUDE.md에서 "현재 스프린트: **{N}**" 추출 → s{N}
 
 ---
 
-### 4. Story 정보 조회 (`/task {STORY_ID}`)
+### 4. View Story Info (`/task {STORY_ID}`)
 
-**실행 예시**:
+**Execution example**:
 ```bash
 /task E-10-S-01
 ```
 
-**출력**:
+**Output**:
 ```
-📋 E-10-S-01: WorkNote 테이블 설계 및 API
+📋 E-10-S-01: WorkNote Table Design and API
 
-| 항목 | 값 |
-|------|-----|
-| 상태 | draft |
-| 우선순위 | P0 |
-| 규모 | M (2 SP) |
-| 담당자 | TBD (BE) |
+| Item | Value |
+|------|-------|
+| Status | draft |
+| Priority | P0 |
+| Size | M (2 SP) |
+| Owner | TBD (BE) |
 
-## Tasks (0/14 완료)
+## Tasks (0/14 complete)
 
-### Task 1: 테이블 설계
-- [ ] 1.1: WorkNote 테이블 스키마 정의
-- [ ] 1.2: 마이그레이션 파일 생성
-- [ ] 1.3: 인덱스 추가
+### Task 1: Table Design
+- [ ] 1.1: WorkNote table schema definition
+- [ ] 1.2: Migration file generation
+- [ ] 1.3: Add indexes
 
-### Task 2: 노트 생성 API
-- [ ] 2.1: POST 엔드포인트 생성
+### Task 2: Note Creation API
+- [ ] 2.1: Create POST endpoint
 ...
 ```
 
 ---
 
-### 5. 전체 Story 목록 (`/task list`)
+### 5. Full Story List (`/task list`)
 
-**실행 예시**:
+**Execution example**:
 ```bash
 /task list
-/task list in-progress    # 특정 상태만
-/task list [담당자]       # 특정 담당자만
+/task list in-progress    # Specific status only
+/task list [owner]        # Specific owner only
 ```
 
-**출력**:
+**Output**:
 ```
-📋 Sprint 52 Stories (63개)
+📋 Sprint 52 Stories (63 total)
 
-| Status | 상태별 개수 |
-|--------|------------|
+| Status | Count |
+|--------|-------|
 | draft | 45 |
 | in-progress | 5 |
 | done | 13 |
 
 ## In Progress (5)
-- E-03-S-02: 대시보드 카드 컴포넌트 ([담당자], M)
-- E-04-S-01: 지표 시각화 UI ([담당자], L)
+- E-03-S-02: Dashboard Card Component ([owner], M)
+- E-04-S-01: Metrics Visualization UI ([owner], L)
 ...
 ```
 
 ---
 
-## 스프린트 자동 감지
+## Auto Sprint Detection
 
-현재 스프린트 번호는 `CLAUDE.md`에서 자동 추출:
+Current sprint number is automatically extracted from `CLAUDE.md`:
 
 ```markdown
-## 현재 스프린트: **52**
+## Current Sprint: **52**
 ```
 
-→ `.context/sprints/s52/stories/` 경로 사용
+→ Uses path `.context/sprints/s52/stories/`
 
 ---
 
-## VitePress 자동 반영
+## VitePress Auto-Reflection
 
-Story 파일 수정 시 VitePress 칸반 보드에 자동 반영:
-- 개발 서버 실행 중: Hot Reload로 즉시 반영
-- 빌드 시: 다음 빌드에 반영
+When Story files are modified, they are automatically reflected on the VitePress kanban board:
+- Dev server running: Instantly reflected via Hot Reload
+- On build: Reflected in next build
 
 ---
 
-## 예시 워크플로우
+## Example Workflow
 
 ```bash
-# 1. 작업 시작
+# 1. Start work
 /task status E-10-S-01 in-progress
 
-# 2. Task 완료할 때마다 체크
+# 2. Check off Tasks as completed
 /task done E-10-S-01 1.1
 /task done E-10-S-01 1.2 1.3
 
-# 3. Story 완료
+# 3. Complete Story
 /task status E-10-S-01 done
 
-# 4. 진행상황 확인
+# 4. Check progress
 /task list in-progress
 ```
 
 ---
 
-*관련 기능*: VitePress 칸반 보드 (`docs/kanban.md`)
-*데이터 소스*: `.context/sprints/s{N}/stories/*.md`
+*Related features*: VitePress kanban board (`docs/kanban.md`)
+*Data source*: `.context/sprints/s{N}/stories/*.md`

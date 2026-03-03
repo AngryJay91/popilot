@@ -1,202 +1,202 @@
-# /handoff - 에이전트 간 인수인계
+# /handoff - Inter-Agent Handoff
 
-에이전트 간 작업 인수인계를 표준화된 형식으로 수행합니다.
+Perform standardized handoffs between agents.
 
-## 사용법
-
-```
-/handoff           # 현재 작업의 핸드오프 문서 생성
-/handoff to penny  # Simon → Penny 핸드오프
-/handoff to vicky  # Penny → Vicky 핸드오프
-/handoff to simon  # Vicky → Simon 핸드오프
-/handoff to dev    # Penny → 개발팀 핸드오프
-```
-
----
-
-## 핸드오프 흐름
+## Usage
 
 ```
-🎯 Simon (PRD 완료)
-    ↓
-📋 Penny (스프린트 계획)
-    ↓
-👨‍💻 개발팀 (구현)
-    ↓
-📋 Penny (개발 완료 확인)
-    ↓
-📊 Vicky (검증)
-    ↓
-🎯 Simon (결과 해석 & 다음 가설)
+/handoff           # Generate handoff document for current work
+/handoff to penny  # Simon → Penny handoff
+/handoff to vicky  # Penny → Vicky handoff
+/handoff to simon  # Vicky → Simon handoff
+/handoff to dev    # Penny → Dev Team handoff
 ```
 
 ---
 
-## 🎯→📋 Simon → Penny (PRD 완료)
+## Handoff Flow
 
-`$ARGUMENTS`가 `to penny`이면:
+```
+🎯 Simon (PRD complete)
+    ↓
+📋 Penny (Sprint planning)
+    ↓
+👨‍💻 Dev Team (Implementation)
+    ↓
+📋 Penny (Dev completion confirmation)
+    ↓
+📊 Vicky (Validation)
+    ↓
+🎯 Simon (Result interpretation & next hypothesis)
+```
+
+---
+
+## 🎯→📋 Simon → Penny (PRD Complete)
+
+If `$ARGUMENTS` is `to penny`:
 
 ```markdown
-## 🎯→📋 핸드오프: [기능명]
+## 🎯→📋 Handoff: [Feature Name]
 
-### PRD 요약
-- **One Question**: [질문]
-- **가설**: IF [조건] THEN [결과] BECAUSE [이유]
-- **OMTM**: [지표] | Before: [값] | Target: [값]
-- **검증 기간**: [시작] ~ [종료]
+### PRD Summary
+- **One Question**: [Question]
+- **Hypothesis**: IF [condition] THEN [result] BECAUSE [reason]
+- **OMTM**: [Metric] | Before: [value] | Target: [value]
+- **Validation Period**: [start] ~ [end]
 
 ### Guard Rail
-- [지표]: ≤[기준]
+- [Metric]: ≤[threshold]
 
-### Penny에게 요청
-- [ ] 스프린트 계획 작성
-- [ ] 작업 분해 (개발팀용)
-- [ ] 핸드오프 체크리스트 점검
+### Request to Penny
+- [ ] Write sprint plan
+- [ ] Break down tasks (for dev team)
+- [ ] Review handoff checklist
 
-### 참고 문서
-- PRD: [노션 링크]
-- 디자인: [피그마 링크]
+### Reference Documents
+- PRD: [Notion link]
+- Design: [Figma link]
 ```
 
 ---
 
-## 📋→👨‍💻 Penny → 개발팀 (스토리)
+## 📋→👨‍💻 Penny → Dev Team (Story)
 
-`$ARGUMENTS`가 `to dev`이면:
+If `$ARGUMENTS` is `to dev`:
 
 ```markdown
-## 📋 핸드오프: [스토리명]
+## 📋 Handoff: [Story Name]
 
-### 배경
-- PRD: [링크]
-- 왜 필요한가: [한 줄 설명]
+### Background
+- PRD: [link]
+- Why needed: [one-line explanation]
 
-### 요구사항
-#### 기능 요구사항
-- [ ] FR1: [내용]
-- [ ] FR2: [내용]
+### Requirements
+#### Functional Requirements
+- [ ] FR1: [content]
+- [ ] FR2: [content]
 
-#### 비기능 요구사항
-- [ ] NFR1: [성능/보안 등]
+#### Non-Functional Requirements
+- [ ] NFR1: [performance/security etc.]
 
-### 완료 조건 (Definition of Done)
-- [ ] 기능이 정상 동작한다
-- [ ] 에러 케이스가 처리된다
-- [ ] 이벤트 로깅이 동작한다
-- [ ] QA 테스트 통과
+### Definition of Done
+- [ ] Feature works correctly
+- [ ] Error cases are handled
+- [ ] Event logging works
+- [ ] QA test passed
 
-### 이벤트 로깅
-| 이벤트명 | 트리거 | 파라미터 |
-|----------|--------|----------|
-| `event_name` | [액션] | param1, param2 |
+### Event Logging
+| Event Name | Trigger | Parameters |
+|------------|---------|------------|
+| `event_name` | [action] | param1, param2 |
 
-### 참고 자료
-- 디자인: [피그마 링크]
-- API 스펙: [링크]
+### Reference Materials
+- Design: [Figma link]
+- API Spec: [link]
 ```
 
 ---
 
-## 📋→📊 Penny → Vicky (검증 요청)
+## 📋→📊 Penny → Vicky (Validation Request)
 
-`$ARGUMENTS`가 `to vicky`이면:
+If `$ARGUMENTS` is `to vicky`:
 
 ```markdown
-## 📋→📊 핸드오프: [기능명] 검증 요청
+## 📋→📊 Handoff: [Feature Name] Validation Request
 
-### 개발 완료 내용
-- 배포일: [날짜]
-- 배포 범위: [전체/일부]
+### Development Complete
+- Deploy date: [date]
+- Deploy scope: [full/partial]
 
-### Vicky에게 요청
-- [ ] 베이스라인 데이터 수집 (Before)
-- [ ] 이벤트 로깅 정상 확인
-- [ ] 측정 기간 후 After 데이터 수집
-- [ ] 가설 검증 결과 보고
+### Request to Vicky
+- [ ] Collect baseline data (Before)
+- [ ] Confirm event logging is working
+- [ ] Collect After data after measurement period
+- [ ] Report hypothesis validation results
 
-### 측정 대상 이벤트
-| 이벤트명 | 설명 |
-|----------|------|
-| `event_1` | [설명] |
-| `event_2` | [설명] |
+### Measurement Target Events
+| Event Name | Description |
+|------------|-------------|
+| `event_1` | [description] |
+| `event_2` | [description] |
 
-### 성공/실패 기준
-- 성공: [지표] ≥ [값]
-- 실패: [지표] < [값]
+### Success/Failure Criteria
+- Success: [metric] ≥ [value]
+- Failure: [metric] < [value]
 ```
 
 ---
 
-## 📊→🎯 Vicky → Simon (검증 결과)
+## 📊→🎯 Vicky → Simon (Validation Results)
 
-`$ARGUMENTS`가 `to simon`이면:
+If `$ARGUMENTS` is `to simon`:
 
 ```markdown
-## 📊→🎯 검증 결과: [기능명]
+## 📊→🎯 Validation Results: [Feature Name]
 
-### 판정: ✅ 성공 / ❌ 실패 / 🟡 부분성공
+### Verdict: ✅ Success / ❌ Failure / 🟡 Partial Success
 
-### 측정 결과
-| 지표 | Before | After | 변화 | 목표 | 판정 |
-|------|--------|-------|------|------|------|
-| OMTM | [값] | [값] | +[N]% | [목표] | ✅/❌ |
+### Measurement Results
+| Metric | Before | After | Change | Target | Verdict |
+|--------|--------|-------|--------|--------|---------|
+| OMTM | [value] | [value] | +[N]% | [target] | ✅/❌ |
 
 ### Guard Rail
-| 지표 | Before | After | 허용범위 | 상태 |
-|------|--------|-------|----------|------|
-| [지표] | [값] | [값] | ≤[기준] | 🟢/🔴 |
+| Metric | Before | After | Allowed Range | Status |
+|--------|--------|-------|---------------|--------|
+| [metric] | [value] | [value] | ≤[threshold] | 🟢/🔴 |
 
-### 학습
-- ✅ 검증된 것: [내용]
-- ❌ 반증된 것: [내용]
-- 💡 새로운 발견: [내용]
+### Learnings
+- ✅ Validated: [content]
+- ❌ Disproved: [content]
+- 💡 New discovery: [content]
 
-### 다음 가설 제안
-- [제안 내용]
+### Next Hypothesis Proposal
+- [proposal content]
 ```
 
 ---
 
-## 핸드오프 체크리스트
+## Handoff Checklist
 
-### PRD → 스프린트 (Simon → Penny)
-- [ ] One Question이 명확한가?
-- [ ] 가설이 IF/THEN/BECAUSE 형식인가?
-- [ ] OMTM이 정량화되었는가?
-- [ ] Guard Rail이 설정되었는가?
+### PRD → Sprint (Simon → Penny)
+- [ ] Is the One Question clear?
+- [ ] Is the hypothesis in IF/THEN/BECAUSE format?
+- [ ] Is the OMTM quantified?
+- [ ] Are Guard Rails set?
 
-### 스토리 → 개발 (Penny → Dev)
-- [ ] 스펙 문서가 완성되었는가?
-- [ ] 디자인이 확정되었는가?
-- [ ] 이벤트 로깅이 정의되었는가?
-- [ ] 완료 조건(DoD)이 명확한가?
+### Story → Development (Penny → Dev)
+- [ ] Is the spec document complete?
+- [ ] Is the design finalized?
+- [ ] Is event logging defined?
+- [ ] Is the Definition of Done (DoD) clear?
 
-### 개발 → 검증 (Penny → Vicky)
-- [ ] 배포가 완료되었는가?
-- [ ] 이벤트 로깅이 동작하는가?
-- [ ] 베이스라인 데이터가 있는가?
-- [ ] 측정 기간이 설정되었는가?
+### Development → Validation (Penny → Vicky)
+- [ ] Is deployment complete?
+- [ ] Is event logging working?
+- [ ] Is baseline data available?
+- [ ] Is the measurement period set?
 
-### 검증 → 전략 (Vicky → Simon)
-- [ ] Before/After가 명확한가?
-- [ ] 통계적 유의성을 검토했는가?
-- [ ] Guard Rail을 점검했는가?
-- [ ] 학습 포인트가 정리되었는가?
-
----
-
-## 자동 핸드오프 제안
-
-작업 완료 시점에 자동으로 핸드오프 제안:
-
-| 상황 | 제안 |
-|------|------|
-| PRD 작성 완료 | "📋 Penny에게 핸드오프할까요?" |
-| 스토리 작성 완료 | "👨‍💻 개발팀에 핸드오프할까요?" |
-| 개발 완료 확인 | "📊 Vicky에게 검증 요청할까요?" |
-| 검증 완료 | "🎯 Simon에게 결과 전달할까요?" |
+### Validation → Strategy (Vicky → Simon)
+- [ ] Is the Before/After clear?
+- [ ] Has statistical significance been reviewed?
+- [ ] Have Guard Rails been checked?
+- [ ] Are learning points summarized?
 
 ---
 
-*연결 에이전트*: 🎯 Simon, 📋 Penny, 📊 Vicky
-*관련 커맨드*: `/strategy`, `/plan`, `/validate`, `/party`
+## Automatic Handoff Suggestions
+
+Automatically suggest handoff at work completion:
+
+| Situation | Suggestion |
+|-----------|-----------|
+| PRD writing complete | "Shall we hand off to 📋 Penny?" |
+| Story writing complete | "Shall we hand off to 👨‍💻 the dev team?" |
+| Development confirmed complete | "Shall we request validation from 📊 Vicky?" |
+| Validation complete | "Shall we deliver results to 🎯 Simon?" |
+
+---
+
+*Connected agents*: 🎯 Simon, 📋 Penny, 📊 Vicky
+*Related commands*: `/strategy`, `/plan`, `/validate`, `/party`

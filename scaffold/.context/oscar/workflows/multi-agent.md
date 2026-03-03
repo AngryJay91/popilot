@@ -1,82 +1,82 @@
-# 멀티 에이전트 조율 (Oscar 모듈)
+# Multi-Agent Coordination (Oscar Module)
 
-> orchestrator.md 코어에서 위임/병렬 실행이 필요할 때 참조
+> Referenced from orchestrator.md core when delegation/parallel execution is needed
 
 ---
 
-## 순차 투입
+## Sequential Deployment
 
 ```
-"Danny가 데이터 보고, 결과로 Simon이 가설 세우는 게 맞겠습니다."
+"Danny should look at the data first, then Simon can formulate hypotheses based on the results."
 
-Danny 분석 완료 → Oscar가 결과 전달 → Simon 가설 수립
+Danny analysis complete → Oscar passes results → Simon formulates hypothesis
 ```
 
-## 병렬 투입 (Task tool 병렬 호출)
+## Parallel Deployment (Parallel Task tool calls)
 
-Oscar는 **단일 응답에서 여러 Task tool을 동시 호출**하여 실제 병렬 실행합니다.
+Oscar **invokes multiple Task tools simultaneously in a single response** for actual parallel execution.
 
-### 구현 방식
+### Implementation Method
 
 ```markdown
-1. 요청 분석 → 병렬 실행 필요 판단
-2. 각 에이전트별 Task 생성 (같은 메시지에서 병렬 호출):
+1. Analyze request → Determine need for parallel execution
+2. Create Tasks per agent (parallel calls in the same message):
 
    Task #1 (Danny):
    - subagent_type: "general-purpose"
-   - prompt: "당신은 📈 Danny (Analyst)입니다.
-     [.context/agents/analyst.md 페르소나 참조]
-     {구체적 분석 요청}
-     DB 쿼리 시 무거운 테이블 주의."
+   - prompt: "You are 📈 Danny (Analyst).
+     [Refer to .context/agents/analyst.md persona]
+     {specific analysis request}
+     Be careful with heavy tables when running DB queries."
 
    Task #2 (Rita):
    - subagent_type: "general-purpose"
-   - prompt: "당신은 🎤 Rita (Researcher)입니다.
-     [.context/agents/researcher.md 페르소나 참조]
-     {구체적 리서치 요청}"
+   - prompt: "You are 🎤 Rita (Researcher).
+     [Refer to .context/agents/researcher.md persona]
+     {specific research request}"
 
-3. 결과 수집 후 종합
+3. Collect results and synthesize
 ```
 
-### 병렬 실행 트리거
+### Parallel Execution Triggers
 
-| 키워드/상황 | 병렬 대상 | 이유 |
-|-------------|-----------|------|
-| `이탈`, `churn`, `왜 떠나` | Danny + Rita | 정량 + 정성 동시 |
-| `전체 분석`, `종합적으로` | Danny + Rita + Vicky | 다각도 분석 |
-| `빠르게 파악`, `ASAP` | 관련 에이전트 전원 | 속도 우선 |
-| `브레인스톰`, `아이디어` | 5인 전원 | 파티 모드 병렬화 |
+| Keyword/Situation | Parallel Targets | Reason |
+|-------------------|-----------------|--------|
+| `churn`, `attrition`, `why leaving` | Danny + Rita | Quantitative + Qualitative simultaneously |
+| `full analysis`, `comprehensive` | Danny + Rita + Vicky | Multi-angle analysis |
+| `quick assessment`, `ASAP` | All relevant agents | Speed priority |
+| `brainstorm`, `ideas` | All 5 agents | Parallelized party mode |
 
-### 병렬 vs 순차 판단 기준
+### Parallel vs Sequential Decision Criteria
 
-| 상황 | 실행 방식 | 이유 |
-|------|-----------|------|
-| 독립적인 분석 2개 이상 | **병렬** | 시간 단축 |
-| 앞 결과가 뒤 작업에 필요 | **순차** | 의존성 |
-| DB 무거운 테이블 다수 접근 | **순차** | 부하 분산 |
-| 빠른 응답 필요 (ASAP) | **병렬** | 속도 우선 |
-| 심층 분석 필요 (딥다이브) | **순차** | 품질 우선 |
+| Situation | Execution Mode | Reason |
+|-----------|---------------|--------|
+| 2+ independent analyses | **Parallel** | Time savings |
+| Previous results needed for next task | **Sequential** | Dependencies |
+| Multiple heavy table DB accesses | **Sequential** | Load distribution |
+| Fast response needed (ASAP) | **Parallel** | Speed priority |
+| Deep analysis needed (deep dive) | **Sequential** | Quality priority |
 
-### 결과 종합 형식
+### Result Synthesis Format
 
 ```markdown
-🎩 Oscar: 병렬 분석 완료. 결과 종합합니다.
+🎩 Oscar: Parallel analysis complete. Synthesizing results.
 
-## 📈 Danny 분석 결과
-- {핵심 수치}
-- {패턴/인사이트}
+## 📈 Danny Analysis Results
+- {key metrics}
+- {patterns/insights}
 
-## 🎤 Rita 분석 결과
-- {주요 VOC}
-- {고객 심리}
+## 🎤 Rita Analysis Results
+- {key VOC}
+- {customer psychology}
 
-## 🎩 Oscar 종합
-- **공통점**: {교차 인사이트}
-- **다음 단계**: {후속 에이전트 제안}
+## 🎩 Oscar Synthesis
+- **Common findings**: {cross-insights}
+- **Next steps**: {follow-up agent suggestions}
 ```
 
-### 주의사항
+### Precautions
 
-1. **DB 동시 접근**: 무거운 테이블 동시 쿼리 주의, 각 Task에 LIMIT/WHERE 명시
-2. **MCP rate limit**: 같은 MCP 서버 동시 접근 시 순차 폴백
-3. **컨텍스트 일관성**: 각 Task에 동일한 기준 정보 전달, 결과 종합 시 기준 시점 명시
+1. **Concurrent DB access**: Be careful with simultaneous heavy table queries, specify LIMIT/WHERE in each Task
+2. **MCP rate limit**: Fall back to sequential when accessing the same MCP server concurrently
+3. **Context consistency**: Pass identical baseline information to each Task, specify reference timestamp when synthesizing results

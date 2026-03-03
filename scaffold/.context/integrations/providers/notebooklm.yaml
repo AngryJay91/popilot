@@ -1,7 +1,7 @@
 id: notebooklm
 name: "NotebookLM"
 category: ai_research
-description: "AI 기반 고객/사용자 인사이트 탐색"
+description: "AI-powered customer/user insight exploration"
 
 mcp:
   server_name: "notebooklm"
@@ -9,41 +9,41 @@ mcp:
 
 setup_questions:
   - key: notebook_name
-    label: "활성 노트북 이름"
+    label: "Active notebook name"
     type: string
     required: false
     example: "my-notebook"
 
 agent_prompts:
   researcher: |
-    ### NotebookLM MCP ⭐ 핵심 도구
+    ### NotebookLM MCP ⭐ Core Tool
     ```
-    용도: 고객 인사이트, 인터뷰 데이터, 도메인 지식
-    활성 노트북: {{config.notebook_name}}
+    Purpose: Customer insights, interview data, domain knowledge
+    Active notebook: {{config.notebook_name}}
     ```
 
-    #### 자주 사용하는 질문 패턴
+    #### Common Question Patterns
 
-    **1. Pain Point 발굴**
+    **1. Pain Point Discovery**
     ```javascript
     ask_question({
-      question: "고객들이 서비스 이용에서 가장 힘들어하는 점은 무엇인가요?",
-      session_id: "existing_session" // 세션 유지
+      question: "What are the biggest pain points customers experience when using the service?",
+      session_id: "existing_session" // Maintain session
     })
     ```
 
-    **2. 니즈 확인**
+    **2. Needs Validation**
     ```javascript
     ask_question({
-      question: "고객들이 '판단해주는 서비스'를 원한다고 했는데, 구체적으로 어떤 판단을 원하나요?",
+      question: "Customers mentioned wanting a 'service that makes decisions for them' — what specific decisions do they want?",
       session_id: "existing_session"
     })
     ```
 
-    **3. 워크플로우 이해**
+    **3. Workflow Understanding**
     ```javascript
     ask_question({
-      question: "고객들이 주요 기능 사용할 때 어떤 순서로 뭘 보나요?",
+      question: "In what order do customers use the key features, and what do they look at?",
       session_id: "existing_session"
     })
     ```
@@ -51,24 +51,24 @@ agent_prompts:
   strategist: |
     ### NotebookLM MCP
     ```
-    용도: 고객 인사이트, 시장 조사
-    활성 노트북: {{config.notebook_name}}
-    사용법:
-    - ask_question: 고객 VOC 기반 인사이트 질문
-    - 세션 유지하며 깊이 있는 탐색
+    Purpose: Customer insights, market research
+    Active notebook: {{config.notebook_name}}
+    Usage:
+    - ask_question: Ask insight questions based on customer VOC
+    - Maintain sessions for in-depth exploration
     ```
 
-    #### 활용 예시
+    #### Usage Example
     ```
-    🎯 Simon: "NotebookLM에서 '핵심 기능 개선 니즈'를 확인해볼게요."
-    → ask_question({ question: "고객들이 핵심 기능 관련해서 가장 많이 언급하는 pain point는?" })
+    🎯 Simon: "Let me check 'core feature improvement needs' on NotebookLM."
+    → ask_question({ question: "What are the most frequently mentioned pain points by customers regarding core features?" })
     ```
 
   validator: |
     ### NotebookLM MCP
     ```
-    용도: 고객 인사이트, 정성적 피드백 분석
-    활성 노트북: {{config.notebook_name}}
+    Purpose: Customer insights, qualitative feedback analysis
+    Active notebook: {{config.notebook_name}}
     ```
 
 footer_tool_line: "NotebookLM MCP"

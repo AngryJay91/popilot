@@ -1,78 +1,78 @@
-# 스프린트 회고 템플릿
+# Sprint Retrospective Template
 
-> 📋 Penny + 📊 Vicky 협력 템플릿
+> 📋 Penny + 📊 Vicky collaborative template
 
-## Sprint [N] 회고
+## Sprint [N] Retrospective
 
-### 스프린트 정보
-- **기간**: [시작일] ~ [종료일]
-- **목표**: [스프린트 목표]
+### Sprint Information
+- **Period**: [Start date] ~ [End date]
+- **Goal**: [Sprint goal]
 
 ---
 
-## 결과 요약 (📊 Vicky)
+## Results Summary (📊 Vicky)
 
-### KR 달성 현황
-| KR | 목표 | 결과 | 달성률 | 판정 |
-|----|------|------|--------|------|
-| KR1 | [목표] | [결과] | [%] | ✅/❌ |
-| KR2 | [목표] | [결과] | [%] | ✅/❌ |
-| KR3 | [목표] | [결과] | [%] | ✅/❌ |
+### KR Achievement Status
+| KR | Target | Result | Achievement Rate | Verdict |
+|----|--------|--------|-----------------|---------|
+| KR1 | [Target] | [Result] | [%] | ✅/❌ |
+| KR2 | [Target] | [Result] | [%] | ✅/❌ |
+| KR3 | [Target] | [Result] | [%] | ✅/❌ |
 
 ### Guard Rail
-| 지표 | 기준 | 결과 | 상태 |
-|------|------|------|------|
-| [지표1] | ≤ [값] | [값] | 🟢/🟡/🔴 |
+| Metric | Threshold | Result | Status |
+|--------|-----------|--------|--------|
+| [Metric 1] | ≤ [Value] | [Value] | 🟢/🟡/🔴 |
 
-### 주요 발견
-- [데이터에서 발견한 인사이트]
-
----
-
-## 회고 (📋 Penny)
-
-### 잘된 점 (Liked)
-- [잘된 것 1]
-- [잘된 것 2]
-
-### 배운 점 (Learned)
-- [배운 것 1]
-- [배운 것 2]
-
-### 부족했던 점 (Lacked)
-- [부족했던 것 1]
-- [부족했던 것 2]
-
-### 바랐던 점 (Longed for)
-- [바랐던 것 1]
-- [바랐던 것 2]
+### Key Findings
+- [Insight discovered from data]
 
 ---
 
-## 액션 아이템
+## Retrospective (📋 Penny)
 
-### 다음 스프린트에 반영
-| 액션 | 유형 | 담당 | 우선순위 |
-|------|------|------|----------|
-| [액션1] | Start | [담당] | P0/P1/P2 |
-| [액션2] | Stop | [담당] | P0/P1/P2 |
-| [액션3] | Continue | [담당] | P0/P1/P2 |
+### What Went Well (Liked)
+- [Good thing 1]
+- [Good thing 2]
 
-### 백로그 추가
-- [ ] [백로그 항목]
+### What We Learned (Learned)
+- [Learning 1]
+- [Learning 2]
 
----
+### What Was Lacking (Lacked)
+- [Shortcoming 1]
+- [Shortcoming 2]
 
-## 팀 건강도
-
-| 항목 | 점수 (1-5) | 코멘트 |
-|------|------------|--------|
-| 목표 명확성 | [점수] | [코멘트] |
-| 커뮤니케이션 | [점수] | [코멘트] |
-| 실행력 | [점수] | [코멘트] |
-| 학습 | [점수] | [코멘트] |
+### What We Wished For (Longed for)
+- [Wish 1]
+- [Wish 2]
 
 ---
 
-*회고 일자: [날짜]*
-*참여자: [참여자]*
+## Action Items
+
+### Apply to Next Sprint
+| Action | Type | Owner | Priority |
+|--------|------|-------|----------|
+| [Action 1] | Start | [Owner] | P0/P1/P2 |
+| [Action 2] | Stop | [Owner] | P0/P1/P2 |
+| [Action 3] | Continue | [Owner] | P0/P1/P2 |
+
+### Add to Backlog
+- [ ] [Backlog item]
+
+---
+
+## Team Health
+
+| Item | Score (1-5) | Comment |
+|------|-------------|---------|
+| Goal clarity | [Score] | [Comment] |
+| Communication | [Score] | [Comment] |
+| Execution | [Score] | [Comment] |
+| Learning | [Score] | [Comment] |
+
+---
+
+*Retrospective date: [Date]*
+*Participants: [Participants]*

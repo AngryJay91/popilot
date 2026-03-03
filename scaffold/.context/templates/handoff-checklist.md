@@ -1,197 +1,197 @@
-# 핸드오프 품질 검증 체크리스트
+# Handoff Quality Verification Checklist
 
-> 📋 Penny가 사용하는 스토리 핸드오프 전 품질 검증 (BMAD-METHOD 기반)
+> 📋 Pre-handoff story quality verification used by Penny (BMAD-METHOD based)
 
 ---
 
-## 검증 대상
+## Verification Target
 
-| 항목 | 값 |
-|------|-----|
+| Item | Value |
+|------|-------|
 | **Story ID** | [E-N-S-M] |
-| **스토리 제목** | [제목] |
-| **검증자** | [Penny / 사람 이름] |
-| **검증일** | [YYYY-MM-DD] |
+| **Story Title** | [Title] |
+| **Reviewer** | [Penny / Person name] |
+| **Review Date** | [YYYY-MM-DD] |
 
 ---
 
-## Phase 1: 문맥 & 요구사항 검증
+## Phase 1: Context & Requirements Verification
 
-### 사용자 스토리 검증
-- [ ] **역할(Role)**이 명확하게 정의되었는가?
-- [ ] **기능(Want)**이 구체적으로 기술되었는가?
-- [ ] **가치(So that)**가 비즈니스 목표와 연결되었는가?
+### User Story Verification
+- [ ] Is the **Role** clearly defined?
+- [ ] Is the **Feature (Want)** specifically described?
+- [ ] Is the **Value (So that)** connected to business goals?
 
-### 수락 기준 검증
-- [ ] 모든 수락 기준이 **테스트 가능**한가?
-- [ ] **Given-When-Then** 형식이 완전한가?
-- [ ] PRD/에픽과 **일관성**이 있는가?
-- [ ] **엣지 케이스**가 포함되었는가?
+### Acceptance Criteria Verification
+- [ ] Are all acceptance criteria **testable**?
+- [ ] Is the **Given-When-Then** format complete?
+- [ ] Is there **consistency** with PRD/Epic?
+- [ ] Are **edge cases** included?
 
-### 태스크 분해 검증
-- [ ] 태스크가 수락 기준과 **매핑**되었는가?
-- [ ] 서브태스크가 **구체적**인가?
-- [ ] 예상 작업량이 **현실적**인가?
-
----
-
-## Phase 2: 재해 예방 분석
-
-### 기능 중복 체크
-- [ ] 기존 코드에 **유사 기능**이 있는지 확인했는가?
-- [ ] **재사용 가능한 컴포넌트**를 식별했는가?
-- [ ] 중복 구현 시 **통합 계획**이 있는가?
-
-**발견된 중복**:
-```
-[없음 / 있으면 상세 기술]
-```
-
-### 기술 오류 체크
-- [ ] 사용할 **라이브러리 버전**이 호환되는가?
-- [ ] **API 계약** 변경 영향을 분석했는가?
-- [ ] **타입 정의**가 일관되는가?
-
-**기술 주의사항**:
-```
-[없음 / 있으면 상세 기술]
-```
-
-### 파일 구조 체크
-- [ ] 파일 생성 위치가 **프로젝트 컨벤션**에 맞는가?
-- [ ] **빌드 프로세스**에 영향이 없는가?
-- [ ] **import 경로**가 올바른가?
-
-### 회귀 오류 체크
-- [ ] **기존 테스트**가 통과하는가?
-- [ ] **영향 받는 기능 목록**을 작성했는가?
-- [ ] **사이드 이펙트** 가능성을 검토했는가?
-
-**영향 받는 기능**:
-```
-[없음 / 있으면 상세 기술]
-```
-
-### 구현 불명확성 체크
-- [ ] 모든 **엣지 케이스**가 정의되었는가?
-- [ ] **에러 처리 방법**이 명시되었는가?
-- [ ] **null/undefined 처리**가 정의되었는가?
-- [ ] **동시성/레이스 컨디션** 고려가 되었는가?
-
-**불명확한 부분**:
-```
-[없음 / 있으면 상세 기술 및 해결 방안]
-```
+### Task Breakdown Verification
+- [ ] Are tasks **mapped** to acceptance criteria?
+- [ ] Are subtasks **specific** enough?
+- [ ] Is the estimated workload **realistic**?
 
 ---
 
-## Phase 2.5: 화면정의서 검증 (UI Epic인 경우)
+## Phase 2: Disaster Prevention Analysis
 
-> UI가 포함된 Epic에서만 적용. 백엔드 only Epic은 N/A
+### Feature Duplication Check
+- [ ] Confirmed whether **similar functionality** exists in current code?
+- [ ] Identified **reusable components**?
+- [ ] Is there an **integration plan** if duplicated?
 
-### 화면정의서 완성도
+**Duplicates Found**:
+```
+[None / Detail if found]
+```
 
-- [ ] **Level 1~2** (IA/메인화면): 전체 구조와 레이아웃이 ASCII로 표현되었는가?
-- [ ] **Level 3** (컴포넌트): 모든 상태별 변형이 정의되었는가?
-- [ ] **Level 4** (모달): 유효성 검증과 저장 동작이 정의되었는가?
-- [ ] **Level 5** (외부연동): 기존 화면과의 연결이 정의되었는가?
-- [ ] **Level 6** (상태별 UI): 로딩/빈/에러 상태가 정의되었는가?
-- [ ] **Level 7** (정책): 모든 정책이 테이블로 정리되었는가?
+### Technical Error Check
+- [ ] Are **library versions** compatible?
+- [ ] Analyzed **API contract** change impact?
+- [ ] Are **type definitions** consistent?
 
-### 화면정의서 품질
+**Technical Cautions**:
+```
+[None / Detail if found]
+```
 
-- [ ] 모든 UI 요소에 **스펙(크기, 색상, 동작)**이 명시되었는가?
-- [ ] **ASCII 아트**가 개발자가 이해할 수 있는 수준인가?
-- [ ] Epic Spec의 **비즈니스 로직**이 화면정의서에 반영되었는가?
-- [ ] **엣지 케이스 UI**가 정의되었는가?
+### File Structure Check
+- [ ] Does file creation location follow **project conventions**?
+- [ ] No impact on **build process**?
+- [ ] Are **import paths** correct?
 
-### Story 연결
+### Regression Check
+- [ ] Do **existing tests** pass?
+- [ ] Created list of **affected features**?
+- [ ] Reviewed **side effect** possibilities?
 
-- [ ] 모든 관련 Story의 References에 화면정의서 **링크가 추가**되었는가?
-- [ ] Story의 태스크가 화면정의서 Level과 **매핑**되었는가?
+**Affected Features**:
+```
+[None / Detail if found]
+```
 
-**화면정의서 파일**:
+### Implementation Ambiguity Check
+- [ ] Are all **edge cases** defined?
+- [ ] Are **error handling methods** specified?
+- [ ] Is **null/undefined handling** defined?
+- [ ] Is **concurrency/race condition** considered?
+
+**Ambiguous Areas**:
+```
+[None / Detail with resolution plan if found]
+```
+
+---
+
+## Phase 2.5: Screen Spec Verification (For UI Epics)
+
+> Applies only to Epics with UI. N/A for backend-only Epics
+
+### Screen Spec Completeness
+
+- [ ] **Level 1~2** (IA/Main screen): Is the overall structure and layout expressed in ASCII?
+- [ ] **Level 3** (Components): Are all state variants defined?
+- [ ] **Level 4** (Modals): Are validation and save behavior defined?
+- [ ] **Level 5** (External integration): Are connections with existing screens defined?
+- [ ] **Level 6** (State-based UI): Are loading/empty/error states defined?
+- [ ] **Level 7** (Policies): Are all policies organized in tables?
+
+### Screen Spec Quality
+
+- [ ] Are **specs (size, color, behavior)** specified for all UI elements?
+- [ ] Are **ASCII diagrams** at a level developers can understand?
+- [ ] Is the Epic Spec **business logic** reflected in the screen spec?
+- [ ] Are **edge case UIs** defined?
+
+### Story Linkage
+
+- [ ] Is the screen spec **link added** to References in all related Stories?
+- [ ] Are Story tasks **mapped** to screen spec Levels?
+
+**Screen spec file**:
 ```
 sprints/s{N}/design/{Epic-ID}-screen-spec.md
 ```
 
-### spec-site 검증
-- [ ] 인터랙티브 목업이 AC와 일치하는가?
-- [ ] 모든 시나리오가 정의되었는가?
-- [ ] 빈 상태/에러 상태가 목업에 포함되었는가?
+### spec-site Verification
+- [ ] Does the interactive mockup match the ACs?
+- [ ] Are all scenarios defined?
+- [ ] Are empty/error states included in the mockup?
 
 ---
 
-## Phase 3: AI Agent 최적화 검증
+## Phase 3: AI Agent Optimization Verification
 
-### Dev Notes 검증
-- [ ] **아키텍처 패턴**이 명시되었는가?
-- [ ] **참고 구현**이 정확한 경로로 제공되었는가?
-- [ ] **피해야 할 것**이 명시되었는가?
+### Dev Notes Verification
+- [ ] Is the **architecture pattern** specified?
+- [ ] Is the **reference implementation** provided with accurate paths?
+- [ ] Are **things to avoid** specified?
 
-### 소스 트리 검증
-- [ ] **영향 받는 파일 목록**이 완전한가?
-- [ ] **신규 생성 파일**이 표시되었는가?
-- [ ] **변경 내용 요약**이 있는가?
+### Source Tree Verification
+- [ ] Is the **affected file list** complete?
+- [ ] Are **new files** marked?
+- [ ] Are **change summaries** present?
 
-### References 검증
-- [ ] PRD 링크가 **유효**한가?
-- [ ] 디자인 링크가 **최신**인가?
-- [ ] 기존 구현 참고 경로가 **정확**한가?
+### References Verification
+- [ ] Is the PRD link **valid**?
+- [ ] Is the design link **up to date**?
+- [ ] Are reference implementation paths **accurate**?
 
-### 충돌 감지 검증
-- [ ] 모든 충돌 항목이 **✅ 없음** 상태인가?
-- [ ] **⚠️ 주의** 항목에 대한 해결 방안이 있는가?
-
----
-
-## Phase 4: 최종 점검
-
-### 메타 정보
-- [ ] **Story ID**가 올바른가?
-- [ ] **Epic 연결**이 되어 있는가?
-- [ ] **우선순위**가 설정되었는가?
-- [ ] **규모(Size)**가 산정되었는가?
-
-### 이벤트 로깅
-- [ ] **필요한 이벤트**가 정의되었는가?
-- [ ] **파라미터**가 명시되었는가?
-- [ ] **GA4 여부**가 표시되었는가?
-
-### 상태
-- [ ] 상태가 **`ready-for-dev`**로 설정되었는가?
+### Conflict Detection Verification
+- [ ] Are all conflict items in **✅ None** status?
+- [ ] Are there resolution plans for **⚠️ Caution** items?
 
 ---
 
-## 검증 결과
+## Phase 4: Final Check
 
-### 총평
+### Meta Information
+- [ ] Is the **Story ID** correct?
+- [ ] Is the **Epic connection** established?
+- [ ] Is the **priority** set?
+- [ ] Is the **size** estimated?
 
-| 구분 | 결과 |
-|------|------|
-| Phase 1: 문맥 & 요구사항 | ✅ PASS / ❌ FAIL |
-| Phase 2: 재해 예방 | ✅ PASS / ❌ FAIL |
-| Phase 2.5: 화면정의서 | ✅ PASS / ❌ FAIL / ⏭️ N/A |
-| Phase 3: AI Agent 최적화 | ✅ PASS / ❌ FAIL |
-| Phase 4: 최종 점검 | ✅ PASS / ❌ FAIL |
+### Event Logging
+- [ ] Are **required events** defined?
+- [ ] Are **parameters** specified?
+- [ ] Is **GA4 status** indicated?
 
-### 최종 판정
-
-**✅ PASS** - 핸드오프 가능
-
-또는
-
-**❌ FAIL** - 수정 필요
-
-### 수정 필요 사항 (FAIL인 경우)
-
-| 우선순위 | 항목 | 설명 |
-|----------|------|------|
-| 필수 | [항목] | [수정 내용] |
-| 권장 | [항목] | [수정 내용] |
+### Status
+- [ ] Is the status set to **`ready-for-dev`**?
 
 ---
 
-**검증자**: [이름]
-**검증일**: [YYYY-MM-DD]
-**서명**: ✓
+## Verification Result
+
+### Overall Assessment
+
+| Phase | Result |
+|-------|--------|
+| Phase 1: Context & Requirements | ✅ PASS / ❌ FAIL |
+| Phase 2: Disaster Prevention | ✅ PASS / ❌ FAIL |
+| Phase 2.5: Screen Spec | ✅ PASS / ❌ FAIL / ⏭️ N/A |
+| Phase 3: AI Agent Optimization | ✅ PASS / ❌ FAIL |
+| Phase 4: Final Check | ✅ PASS / ❌ FAIL |
+
+### Final Verdict
+
+**✅ PASS** - Ready for handoff
+
+or
+
+**❌ FAIL** - Modifications required
+
+### Required Modifications (If FAIL)
+
+| Priority | Item | Description |
+|----------|------|-------------|
+| Required | [Item] | [Modification needed] |
+| Recommended | [Item] | [Modification needed] |
+
+---
+
+**Reviewer**: [Name]
+**Review Date**: [YYYY-MM-DD]
+**Signature**: ✓

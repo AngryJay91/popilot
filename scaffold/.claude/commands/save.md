@@ -1,440 +1,440 @@
-# /save - 세션 저장
+# /save - Save Session
 
-현재 세션을 저장합니다. 옵션에 따라 세션 종료 또는 산출물 공유도 가능합니다.
+Save the current session. Depending on options, you can also close the session or share outputs.
 
-## 사용법
+## Usage
 
 ```bash
-/save                     # 세션 저장, Lock 해제, status: idle
-/save --close             # 세션 저장 + archive로 이동 (세션 종료)
-/save --share "{제목}"    # 세션 저장 + shared/에 산출물 등록
+/save                     # Save session, release Lock, status: idle
+/save --close             # Save session + move to archive (close session)
+/save --share "{title}"   # Save session + register outputs in shared/
 ```
 
 ARGUMENTS: $ARGUMENTS
 
 ---
 
-## 실행 단계
+## Execution Steps
 
-### 1. 현재 세션 확인
+### 1. Check Current Session
 
-`index.yaml`에서 현재 활성 세션 (`status: active`) 찾기.
+Find the current active session (`status: active`) in `index.yaml`.
 
-활성 세션이 없으면:
+If no active session exists:
 ```markdown
-⚠️ 저장할 활성 세션이 없습니다.
-   `/start`로 세션을 시작하세요.
+⚠️ No active session to save.
+   Start a session with `/start`.
 ```
 
-### 2. 세션 파일 저장
+### 2. Save Session File
 
-`active/{id}.md` 파일 갱신:
+Update the `active/{id}.md` file:
 
 ```yaml
-# frontmatter 갱신
-updated_at: "{현재 시각}"
-manual_saved_at: "{현재 시각}"
-turn_count: {현재 턴 수}
+# frontmatter update
+updated_at: "{current time}"
+manual_saved_at: "{current time}"
+turn_count: {current turn count}
 ```
 
-**저장할 내용**:
-- 현재 상태 (진행 중, 마지막 작업, 다음 작업)
-- 작업 히스토리 (오늘 수행한 작업 요약)
-- 산출물 목록 (생성/수정한 파일)
-- 참고 자료 (사용한 공유 산출물 등)
+**Content to save**:
+- Current state (in progress, last work, next work)
+- Work history (summary of today's work)
+- Output list (created/modified files)
+- References (shared outputs used, etc.)
 
-### 3. index.yaml 갱신
+### 3. Update index.yaml
 
 ```yaml
-- id: "{세션 ID}"
-  updated_at: "{현재 시각}"
+- id: "{session ID}"
+  updated_at: "{current time}"
   status: idle                    # active → idle
   lock:
-    active: false                 # Lock 해제
+    active: false                 # Release Lock
     since: null
     expires: null
   auto_save:
-    dirty: false                  # 저장 완료
+    dirty: false                  # Save complete
 ```
 
-### 4. 저장 완료 메시지
+### 4. Save Complete Message
 
 ```markdown
-🎩 Oscar: 세션이 저장되었습니다.
+🎩 Oscar: Session has been saved.
 
-**세션**: {id}
-**주제**: {topic}
-**저장 시각**: {시각}
+**Session**: {id}
+**Topic**: {topic}
+**Saved at**: {time}
 
-다음에 `/start {id}`로 이어서 작업할 수 있습니다.
+You can continue later with `/start {id}`.
 ```
 
 ---
 
-## --close 옵션
+## --close Option
 
-세션을 저장하고 archive로 이동합니다.
+Save the session and move it to the archive.
 
-### 추가 단계
+### Additional Steps
 
-1. **세션 파일 이동**:
+1. **Move session file**:
    ```
    active/{id}.md → archive/{YYYY-MM}/{id}-{MMDD}.md
    ```
 
-2. **index.yaml 갱신**:
-   - `active` 배열에서 제거
-   - `recent_closed` 배열 앞에 추가 (최대 5개 유지)
+2. **Update index.yaml**:
+   - Remove from `active` array
+   - Add to the front of `recent_closed` array (keep max 5)
 
    ```yaml
    recent_closed:
-     - id: "{세션 ID}"
-       topic: "{주제}"
-       archived_at: "{현재 시각}"
+     - id: "{session ID}"
+       topic: "{topic}"
+       archived_at: "{current time}"
        path: "archive/{YYYY-MM}/{id}-{MMDD}.md"
    ```
 
-3. **완료 메시지**:
+3. **Completion message**:
    ```markdown
-   🎩 Oscar: 세션이 종료되었습니다.
+   🎩 Oscar: Session has been closed.
 
-   **세션**: {id}
-   **주제**: {topic}
-   **archive 위치**: archive/{YYYY-MM}/{id}-{MMDD}.md
+   **Session**: {id}
+   **Topic**: {topic}
+   **Archive location**: archive/{YYYY-MM}/{id}-{MMDD}.md
 
-   복원하려면 `/start recent`를 사용하세요.
+   To restore, use `/start recent`.
    ```
 
 ---
 
-## --share 옵션
+## --share Option
 
-세션을 저장하고 산출물을 공유 디렉토리에 등록합니다.
+Save the session and register outputs in the shared directory.
 
-### 사용법
+### Usage
 
 ```bash
-/save --share "S52 Story 목록"
+/save --share "S52 Story List"
 ```
 
-### 추가 단계
+### Additional Steps
 
-1. **공유 산출물 파일 생성**:
+1. **Create shared output file**:
    ```
    shared/{MMDD}-{slug}.md
    ```
 
-   파일 내용:
+   File content:
    ```markdown
    ---
    id: "{slug}"
-   title: "{제목}"
-   created_by: "{세션 ID}"
-   created_at: "{현재 시각}"
+   title: "{title}"
+   created_by: "{session ID}"
+   created_at: "{current time}"
    ---
 
-   # {제목}
+   # {title}
 
-   > 생성 세션: {세션 ID}
-   > 생성 시각: {현재 시각}
+   > Source session: {session ID}
+   > Created at: {current time}
 
-   ## 내용
+   ## Content
 
-   {사용자가 지정하거나 세션의 주요 산출물 요약}
+   {User-specified or summary of key session outputs}
 
    ---
 
-   ## 원본 참조
+   ## Original References
 
-   - 세션 파일: `active/{세션 ID}.md`
-   - 관련 파일: (세션에서 생성/수정한 파일 목록)
+   - Session file: `active/{session ID}.md`
+   - Related files: (list of files created/modified in session)
    ```
 
-2. **index.yaml 갱신**:
+2. **Update index.yaml**:
    ```yaml
    shared_outputs:
      - id: "{slug}"
-       title: "{제목}"
-       created_by: "{세션 ID}"
-       created_at: "{현재 시각}"
+       title: "{title}"
+       created_by: "{session ID}"
+       created_at: "{current time}"
        path: "shared/{MMDD}-{slug}.md"
    ```
 
-3. **완료 메시지**:
+3. **Completion message**:
    ```markdown
-   🎩 Oscar: 세션이 저장되고 산출물이 공유되었습니다.
+   🎩 Oscar: Session saved and outputs shared.
 
-   **세션**: {id}
-   **공유 산출물**: {제목}
-   **위치**: shared/{MMDD}-{slug}.md
+   **Session**: {id}
+   **Shared output**: {title}
+   **Location**: shared/{MMDD}-{slug}.md
 
-   다른 세션에서 이 산출물을 참조할 수 있습니다:
+   Other sessions can reference this output:
    `[[shared/{MMDD}-{slug}.md]]`
    ```
 
 ---
 
-## 세션 일기 (Session Diary) 자동 생성
+## Session Diary Auto-Generation
 
-세션 저장 시 Oscar가 **세션 일기**를 자동으로 작성합니다.
+When saving a session, Oscar automatically writes a **Session Diary**.
 
-### 세션 일기 구조
+### Session Diary Structure
 
 ```markdown
-## 📔 세션 일기
+## 📔 Session Diary
 
-> 세션 ID: {id}
-> 저장 시각: {timestamp}
-> 참여 에이전트: 🎩 Oscar, 📈 Danny, ...
+> Session ID: {id}
+> Saved at: {timestamp}
+> Participating agents: 🎩 Oscar, 📈 Danny, ...
 
 ---
 
 ### 🎩 Oscar (Orchestrator)
 
-**오늘의 핵심 (Highlights)**:
-- {세션에서 가장 중요했던 결정/발견 1-3개}
+**Highlights**:
+- {1-3 most important decisions/discoveries of the session}
 
-**느낀 점 (Feelings)**:
-- {협업 과정에서의 감정, 인상 깊었던 순간}
-- {어려웠던 점, 보람 있었던 점}
+**Feelings**:
+- {Emotions during collaboration, memorable moments}
+- {Difficulties, rewarding moments}
 
-**배운 것 (Learnings)**:
-- {다음 세션에 적용할 인사이트}
-- {개선할 점, 새로 알게 된 것}
+**Learnings**:
+- {Insights to apply in the next session}
+- {Things to improve, newly discovered information}
 
-**User Context 업데이트**:
-- {PO의 선호도, 작업 스타일에 대한 새로운 발견}
-- {기억해둘 맥락 정보}
-
----
-
-### 📈 Danny (참여 시)
-
-**분석 요약**: {수행한 분석의 핵심}
-**데이터 인사이트**: {발견한 패턴, 수치}
-**다음 분석 제안**: {후속 분석이 필요한 영역}
+**User Context Updates**:
+- {New discoveries about the PO's preferences and work style}
+- {Contextual information to remember}
 
 ---
 
-### 🎤 Rita (참여 시)
+### 📈 Danny (if participated)
 
-**VOC 핵심**: {수집한 고객 목소리 요약}
-**고객 심리**: {파악한 고객 니즈/페인포인트}
-**리서치 제안**: {더 깊이 알아볼 것}
-
----
-
-### 🎯 Simon (참여 시)
-
-**전략 결정**: {내린 전략적 결정}
-**가설 상태**: {수립/검증된 가설}
-**다음 전략 과제**: {후속 전략 작업}
+**Analysis Summary**: {Core of the analysis performed}
+**Data Insights**: {Patterns discovered, numbers}
+**Next Analysis Suggestions**: {Areas needing follow-up analysis}
 
 ---
 
-### 📋 Penny (참여 시)
+### 🎤 Rita (if participated)
 
-**실행 정리**: {정리한 태스크/스토리}
-**핸드오프 상태**: {개발팀 전달 현황}
-**일정 리스크**: {발견한 일정 이슈}
-
----
-
-### 📊 Vicky (참여 시)
-
-**검증 결과**: {Before/After 비교}
-**Guard Rail 상태**: {부작용 지표 점검}
-**다음 검증 계획**: {예정된 검증}
+**VOC Highlights**: {Summary of collected customer voice}
+**Customer Psychology**: {Identified customer needs/pain points}
+**Research Suggestions**: {Things to explore further}
 
 ---
 
-### 🔮 Sage (자문 시)
+### 🎯 Simon (if participated)
 
-**자문 요약**: {제공한 전략적 조언}
-**리스크 경고**: {지적한 위험 요소}
-**권고 사항**: {Oscar에게 제안한 방향}
+**Strategy Decisions**: {Strategic decisions made}
+**Hypothesis Status**: {Hypotheses established/validated}
+**Next Strategy Tasks**: {Follow-up strategy work}
+
+---
+
+### 📋 Penny (if participated)
+
+**Execution Summary**: {Organized tasks/stories}
+**Handoff Status**: {Dev team delivery status}
+**Schedule Risks**: {Discovered schedule issues}
+
+---
+
+### 📊 Vicky (if participated)
+
+**Validation Results**: {Before/After comparison}
+**Guard Rail Status**: {Side-effect metrics check}
+**Next Validation Plan**: {Planned validations}
+
+---
+
+### 🔮 Sage (if consulted)
+
+**Consultation Summary**: {Strategic advice provided}
+**Risk Warnings**: {Risk factors identified}
+**Recommendations**: {Directions suggested to Oscar}
 ```
 
-### 일기 작성 원칙
+### Diary Writing Principles
 
-1. **솔직하게**: 잘된 것뿐 아니라 어려웠던 것도 기록
-2. **구체적으로**: 추상적 표현보다 구체적 사례 중심
-3. **미래 지향적으로**: 다음 세션에 도움될 인사이트 강조
-4. **User Context 축적**: PO의 선호도/스타일 지속 학습
+1. **Be honest**: Record not only what went well but also what was difficult
+2. **Be specific**: Focus on concrete examples rather than abstract expressions
+3. **Be future-oriented**: Emphasize insights that will help in the next session
+4. **Accumulate User Context**: Continuously learn PO's preferences/style
 
-### 참여 에이전트 판별
+### Determining Participating Agents
 
-Oscar가 세션 중 다음 기준으로 참여 에이전트를 판별:
+Oscar determines participating agents during the session using these criteria:
 
-| 기준 | 참여로 판정 |
-|------|------------|
-| Task tool로 스폰됨 | ✅ |
-| `/strategy`, `/analytics` 등 직접 호출 | ✅ |
-| 키워드 트리거로 자동 투입 | ✅ |
-| Oscar가 역할 언급만 함 | ❌ |
+| Criterion | Counted as participation |
+|-----------|------------------------|
+| Spawned via Task tool | ✅ |
+| Directly invoked via `/strategy`, `/analytics`, etc. | ✅ |
+| Auto-deployed via keyword trigger | ✅ |
+| Oscar only mentioned the role | ❌ |
 
 ---
 
-## User Context 글로벌 병합 ⭐
+## User Context Global Merge ⭐
 
-세션 일기의 **User Context 업데이트** 항목이 있으면, `.context/user-context.yaml`에 병합합니다.
+If the session diary contains **User Context Updates**, merge them into `.context/user-context.yaml`.
 
-### 병합 로직
+### Merge Logic
 
-1. **세션 일기에서 User Context 항목 추출**
+1. **Extract User Context items from session diary**
    ```markdown
-   **User Context 업데이트**:
-   - 윤재님은 자연어 프롬프트를 선호 ("커밋하고 푸시해" 스타일)
-   - 형식보다 실제 동작 결과를 중시
+   **User Context Updates**:
+   - The user prefers natural language prompts ("commit and push" style)
+   - Values actual working results over formality
    ```
 
-2. **user-context.yaml 읽기**
+2. **Read user-context.yaml**
 
-3. **중복 체크 후 병합**
-   - 이미 있는 내용은 스킵
-   - 새로운 내용만 적절한 섹션에 추가
+3. **Check for duplicates and merge**
+   - Skip content that already exists
+   - Add only new content to the appropriate section
 
-4. **메타데이터 갱신**
+4. **Update metadata**
    ```yaml
    _meta:
-     updated_at: "{현재 날짜}"
+     updated_at: "{current date}"
      sources:
-       - "{이전 소스들}"
-       - "{현재 세션 ID}"  # 추가
+       - "{previous sources}"
+       - "{current session ID}"  # Added
    ```
 
-### 병합 대상 섹션
+### Merge Target Sections
 
-| 세션 일기 내용 | user-context.yaml 섹션 |
-|--------------|----------------------|
-| 커뮤니케이션 관련 | `communication:` |
-| 작업 방식 관련 | `work_style:` |
-| 선호도 관련 | `preferences:` |
+| Session diary content | user-context.yaml section |
+|----------------------|--------------------------|
+| Communication related | `communication:` |
+| Work style related | `work_style:` |
+| Preference related | `preferences:` |
 
-### 병합 예시
+### Merge Example
 
-**세션 일기:**
+**Session diary:**
 ```markdown
-**User Context 업데이트**:
-- 병렬 세션으로 여러 작업을 동시 진행하는 워크플로우 사용
+**User Context Updates**:
+- Uses a workflow of running multiple tasks simultaneously via parallel sessions
 ```
 
-**병합 후 user-context.yaml:**
+**user-context.yaml after merge:**
 ```yaml
 work_style:
-  - "WHY를 집요하게 추구하는 탐정 스타일"
-  - "가설/검증 기반 의사결정"
-  - "병렬 세션으로 여러 작업을 동시 진행"  # 추가됨
+  - "Tenacious detective style pursuing WHY"
+  - "Hypothesis/validation-based decision making"
+  - "Runs multiple tasks simultaneously via parallel sessions"  # Added
 
 _meta:
   updated_at: "2026-01-28"
   sources:
     - "oscar-system-improvement"
-    - "current-session-id"  # 추가됨
+    - "current-session-id"  # Added
 ```
 
-### 병합 완료 메시지
+### Merge Complete Message
 
 ```markdown
-🎩 Oscar: User Context가 업데이트되었습니다.
+🎩 Oscar: User Context has been updated.
 
-추가된 항목:
-- work_style: "병렬 세션으로 여러 작업을 동시 진행"
+Added items:
+- work_style: "Runs multiple tasks simultaneously via parallel sessions"
 ```
 
 ---
 
-## 저장 내용 자동 수집
+## Auto-Collected Save Content
 
-Oscar가 세션 저장 시 자동으로 수집하는 정보:
+Information Oscar automatically collects when saving a session:
 
-### 현재 상태
+### Current State
 
 ```markdown
-## 현재 상태
+## Current State
 
-**진행 중**: {마지막 작업 중이던 것}
-**마지막 작업**: {완료된 마지막 작업}
-**다음 작업**: {예정된 다음 작업}
+**In progress**: {Last thing being worked on}
+**Last work**: {Last completed work}
+**Next work**: {Planned next work}
 ```
 
-### 작업 히스토리
+### Work History
 
-세션 중 수행한 작업을 시간순으로 기록:
+Record work performed during the session in chronological order:
 
 ```markdown
-## 작업 히스토리
+## Work History
 
-### {날짜}
-- {작업 1}
-- {작업 2}
+### {date}
+- {Work 1}
+- {Work 2}
 - ...
 ```
 
-### 산출물
+### Outputs
 
-세션 중 생성/수정한 파일:
+Files created/modified during the session:
 
 ```markdown
-## 산출물
+## Outputs
 
-| 파일 | 변경 | 설명 |
-|------|------|------|
-| `path/to/file.md` | 생성 | 설명 |
-| `path/to/other.md` | 수정 | 설명 |
+| File | Change | Description |
+|------|--------|-------------|
+| `path/to/file.md` | Created | Description |
+| `path/to/other.md` | Modified | Description |
 ```
 
 ---
 
-## 컨텍스트 자동 업데이트
+## Automatic Context Updates
 
-데이터 분석 결과 중 **영구 보존이 필요한 정보**가 있으면 자동 반영:
+If data analysis results include **information that needs permanent retention**, automatically reflect them:
 
-| 유형 | 대상 파일 | 예시 |
-|------|----------|------|
-| 지표 데이터 | `.context/.secrets.yaml` | AD_METRICS, METRICS 섹션 |
-| 지표 문서화 | `.context/global/metrics.md` | 새로운 지표 섹션 추가 |
-| 도메인 인사이트 | `.context/domains/{domain}/` | 분석 결과, 패턴 발견 |
-| 전략 변경 | `.context/global/strategy.md` | 방향성 변경 시 |
+| Type | Target File | Example |
+|------|------------|---------|
+| Metrics data | `.context/.secrets.yaml` | AD_METRICS, METRICS sections |
+| Metrics documentation | `.context/global/metrics.md` | Add new metrics sections |
+| Domain insights | `.context/domains/{domain}/` | Analysis results, pattern discoveries |
+| Strategy changes | `.context/global/strategy.md` | When direction changes |
 
-**자동 업데이트 기준**:
-- DB 분석으로 얻은 **정량적 지표** (숫자)
-- 파티 모드 토론에서 **확정된 결정사항**
-- 향후 세션에서 **재사용할 데이터**
+**Auto-update criteria**:
+- **Quantitative metrics** (numbers) obtained from DB analysis
+- **Confirmed decisions** from party mode discussions
+- **Data to reuse** in future sessions
 
-**업데이트 하지 않는 것**:
-- 일회성 탐색 쿼리 결과
-- 아직 검증되지 않은 가설
-- 사용자가 명시적으로 거부한 내용
+**Not updated**:
+- One-time exploratory query results
+- Hypotheses not yet validated
+- Content explicitly rejected by the user
 
 ---
 
-## 에러 처리
+## Error Handling
 
-### 활성 세션 없음
+### No Active Session
 
 ```markdown
-⚠️ 저장할 활성 세션이 없습니다.
+⚠️ No active session to save.
 ```
 
-### 파일 쓰기 실패
+### File Write Failure
 
 ```markdown
-❌ 세션 저장 실패: {에러 메시지}
-   수동으로 저장을 시도하거나, 세션 내용을 복사해두세요.
+❌ Session save failed: {error message}
+   Try saving manually, or copy the session content.
 ```
 
 ---
 
-## 관련 커맨드
+## Related Commands
 
-- `/start` - 세션 시작/복원
-- `/sessions` - 전체 세션 현황
+- `/start` - Start/restore session
+- `/sessions` - Full session dashboard
 
 ---
 
-*파일 위치*:
-- 세션 인덱스: `.context/sessions/index.yaml`
-- 활성 세션: `.context/sessions/active/{id}.md`
-- 종료 세션: `.context/sessions/archive/{YYYY-MM}/{id}-{MMDD}.md`
-- 공유 산출물: `.context/sessions/shared/{date}-{title}.md`
+*File locations*:
+- Session index: `.context/sessions/index.yaml`
+- Active sessions: `.context/sessions/active/{id}.md`
+- Closed sessions: `.context/sessions/archive/{YYYY-MM}/{id}-{MMDD}.md`
+- Shared outputs: `.context/sessions/shared/{date}-{title}.md`

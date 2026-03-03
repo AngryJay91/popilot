@@ -1,99 +1,99 @@
-# 가설 검증 보고서 템플릿
+# Hypothesis Validation Report Template
 
-> 📊 Vicky가 사용하는 가설 검증 결과 보고 템플릿
+> 📊 Hypothesis validation result reporting template used by Vicky
 
-## 검증 결과: [가설/기능 이름]
+## Validation Result: [Hypothesis/Feature Name]
 
-### 요약
-| 항목 | 내용 |
-|------|------|
-| **판정** | ✅ 성공 / ❌ 실패 / ⚠️ 부분 성공 |
-| **OMTM 달성** | [Before] → [After] (목표: [Target]) |
-| **검증 기간** | [시작일] ~ [종료일] |
-
----
-
-### 가설
-> [IF] ______를 하면,
-> [THEN] ______가 개선될 것이다.
-> [BECAUSE] ______이기 때문이다.
+### Summary
+| Item | Content |
+|------|---------|
+| **Verdict** | ✅ Success / ❌ Failure / ⚠️ Partial Success |
+| **OMTM Achievement** | [Before] → [After] (Target: [Target]) |
+| **Validation Period** | [Start date] ~ [End date] |
 
 ---
 
-### 측정 결과
+### Hypothesis
+> [IF] we do ______,
+> [THEN] ______ will improve.
+> [BECAUSE] ______.
+
+---
+
+### Measurement Results
 
 #### Primary Metrics
-| 지표 | Before | After | 변화 | 목표 | 판정 |
-|------|--------|-------|------|------|------|
-| [지표1] | [값] | [값] | [+/-]% | [값] | ✅/❌ |
-| [지표2] | [값] | [값] | [+/-]% | [값] | ✅/❌ |
+| Metric | Before | After | Change | Target | Verdict |
+|--------|--------|-------|--------|--------|---------|
+| [Metric 1] | [Value] | [Value] | [+/-]% | [Value] | ✅/❌ |
+| [Metric 2] | [Value] | [Value] | [+/-]% | [Value] | ✅/❌ |
 
 #### Secondary Metrics
-| 지표 | Before | After | 변화 | 비고 |
-|------|--------|-------|------|------|
-| [지표1] | [값] | [값] | [+/-]% | [해석] |
+| Metric | Before | After | Change | Notes |
+|--------|--------|-------|--------|-------|
+| [Metric 1] | [Value] | [Value] | [+/-]% | [Interpretation] |
 
 #### Guard Rail
-| 지표 | Before | After | 기준 | 상태 |
-|------|--------|-------|------|------|
-| [지표1] | [값] | [값] | ≤ [값] | 🟢/🟡/🔴 |
+| Metric | Before | After | Threshold | Status |
+|--------|--------|-------|-----------|--------|
+| [Metric 1] | [Value] | [Value] | ≤ [Value] | 🟢/🟡/🔴 |
 
 ---
 
-### 분석
+### Analysis
 
-#### 결과 해석
-[숫자가 의미하는 바를 해석]
+#### Result Interpretation
+[Interpret what the numbers mean]
 
-#### 예상과 다른 점
-[예상했던 것과 실제 결과의 차이]
+#### Unexpected Findings
+[Differences between expectations and actual results]
 
-#### 외부 변수
-[결과에 영향을 줄 수 있었던 외부 요인]
-
----
-
-### 학습
-
-#### 검증된 것
-- [확인된 가정 1]
-- [확인된 가정 2]
-
-#### 반증된 것
-- [틀린 가정 1]
-- [틀린 가정 2]
-
-#### 새로운 발견
-- [예상치 못한 인사이트]
+#### External Variables
+[External factors that could have affected results]
 
 ---
 
-### 다음 액션
+### Learnings
 
-#### 즉시 실행
-- [ ] [액션1]
-- [ ] [액션2]
+#### Validated
+- [Confirmed assumption 1]
+- [Confirmed assumption 2]
 
-#### 후속 검증 필요
-- [ ] [추가 검증 항목]
+#### Disproved
+- [Incorrect assumption 1]
+- [Incorrect assumption 2]
 
-#### 다음 스프린트 반영
-- [ ] [다음 스프린트 백로그]
+#### New Discoveries
+- [Unexpected insight]
 
 ---
 
-### 데이터 출처
+### Next Actions
+
+#### Immediate Execution
+- [ ] [Action 1]
+- [ ] [Action 2]
+
+#### Follow-up Validation Needed
+- [ ] [Additional validation item]
+
+#### Next Sprint Backlog
+- [ ] [Next sprint backlog item]
+
+---
+
+### Data Sources
 - GA4 Property: [ID]
-- 측정 기간: [기간]
-- 세그먼트: [대상 유저]
-- 쿼리/대시보드: [링크]
+- Measurement period: [Period]
+- Segment: [Target users]
+- Query/Dashboard: [Link]
 
 ---
 
-## 체크리스트
-- [ ] Before/After가 동일 조건에서 측정되었는가?
-- [ ] 샘플 크기가 충분한가?
-- [ ] 외부 변수가 통제되었는가?
-- [ ] Guard Rail 지표가 확인되었는가?
-- [ ] 학습 포인트가 정리되었는가?
-- [ ] 다음 액션이 구체적인가?
+## Checklist
+- [ ] Were Before/After measured under identical conditions?
+- [ ] Is the sample size sufficient?
+- [ ] Were external variables controlled?
+- [ ] Were Guard Rail metrics verified?
+- [ ] Are learning points organized?
+- [ ] Are next actions specific?

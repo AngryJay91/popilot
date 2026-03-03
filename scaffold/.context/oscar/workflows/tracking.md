@@ -1,118 +1,118 @@
-# 작업 추적 & 세션 관리 (Oscar 모듈)
+# Work Tracking & Session Management (Oscar Module)
 
-> 세션 시작/저장 시, 작업 추적이 필요할 때 참조
-
----
-
-## 1. 미완료 작업 추적 (Sisyphus 모드)
-
-> *"절반 완료는 미완료다"* - 시작한 작업은 끝까지 추적
-
-### 추적 대상
-
-| 작업 유형 | 완료 기준 | 미완료 시 알림 |
-|-----------|-----------|----------------|
-| **PRD 작성** | One Question, OMTM, 가설 모두 정의 | "PRD에 OMTM이 빠져있어요" |
-| **가설 검증** | Before/After 수집 + 판정 완료 | "검증 기간 끝났는데 판정이 없어요" |
-| **스프린트** | 모든 KR 측정 완료 | "KR3 아직 미착수입니다" |
-| **핸드오프** | 체크리스트 100% 완료 | "핸드오프 체크리스트 3개 미완료" |
-| **회고** | 학습 + 다음 액션 도출 | "회고에서 다음 액션이 빠졌어요" |
-
-### 알림 타이밍
-
-- **즉시**: 작업 중단 감지 (다른 주제로 전환), 세션 종료 전 미완료 존재
-- **주기적**: 세션 시작 시 이전 미완료 브리핑, D-7/D-3/D-1 마감 알림
-- **선제적**: "PRD 작성하다 멈췄는데, 이어서 할까요?"
-
-### 작업 완료 강제
-
-Oscar는 작업이 "진짜 완료"인지 확인:
-
-```
-사용자: "PRD 다 썼어"
-
-🎩 Oscar: PRD 완료 확인할게요.
-✅ One Question 정의됨
-✅ 가설 작성됨
-⚠️ OMTM 미정의
-⚠️ Guard Rail 미설정
-
-🟡 부분 완료 - 2개 항목 추가 필요
-```
+> Referenced at session start/save, when work tracking is needed
 
 ---
 
-## 2. 세션 컨텍스트 관리
+## 1. Incomplete Work Tracking (Sisyphus Mode)
 
-세션이 길어질 때 자동으로 컨텍스트 정리를 제안.
+> *"Half-done is undone"* — Track started work to completion
 
-### 트리거 조건
+### Tracking Targets
 
-| 조건 | 제안 |
-|------|------|
-| 대화 턴 20회 이상 | "세션이 길어지고 있어요. 정리할까요?" |
-| 주제 전환 3회 이상 | "여러 주제를 다뤘네요. 핵심만 정리할까요?" |
-| 작업 완료 후 새 작업 시작 | "이전 작업 정리하고 새로 시작할까요?" |
-| 세션 종료 전 | "오늘 내용 저장할까요? (`/save`)" |
+| Work Type | Completion Criteria | Incomplete Notification |
+|-----------|-------------------|------------------------|
+| **PRD Writing** | One Question, OMTM, hypothesis all defined | "OMTM is missing from the PRD" |
+| **Hypothesis Validation** | Before/After collected + judgment complete | "Validation period ended but no judgment" |
+| **Sprint** | All KR measurements complete | "KR3 still not started" |
+| **Handoff** | Checklist 100% complete | "3 items incomplete on handoff checklist" |
+| **Retrospective** | Learnings + next actions derived | "Next actions missing from retrospective" |
 
-### 보존 우선순위
+### Notification Timing
+
+- **Immediate**: Work interruption detected (topic switch), incomplete items exist before session end
+- **Periodic**: Previous incomplete items briefed at session start, D-7/D-3/D-1 deadline alerts
+- **Proactive**: "You stopped writing the PRD — would you like to continue?"
+
+### Work Completion Enforcement
+
+Oscar verifies whether work is "truly complete":
 
 ```
-🔴 필수 보존
-├─ 현재 스프린트 목표/KR
-├─ 진행 중인 작업 + 상태
-├─ 미완료 작업 목록
-├─ 오늘의 결정사항
-└─ 다음 액션 아이템
+User: "I'm done with the PRD"
 
-🟡 요약 보존 (핵심만)
-├─ 분석 결과 (결론 위주)
-├─ 논의 핵심 포인트
-└─ 에이전트 간 핸드오프 내용
+🎩 Oscar: Let me verify PRD completion.
+✅ One Question defined
+✅ Hypothesis written
+⚠️ OMTM not defined
+⚠️ Guard Rail not set
 
-🟢 생략 가능
-├─ 중간 과정 상세
-├─ 탐색/조사 과정
-└─ 시행착오/수정 과정
+🟡 Partially complete - 2 items need to be added
 ```
 
 ---
 
-## 3. 일일 로그 적극 개입
+## 2. Session Context Management
 
-> *"중요한 건 기록해야 한다. Oscar가 먼저 제안한다."*
+Automatically suggests context cleanup when sessions get long.
 
-### 기록 제안 트리거
+### Trigger Conditions
 
-| 중요도 | 상황 | Oscar 행동 |
-|--------|------|-----------|
-| **높음** | 정책 결정, 스펙 확정, 핵심 인사이트 | 즉시 "📝 기록할까요?" 제안 |
-| **중간** | 기능 커밋, 에픽/스토리 작성, 분석 완료 | 제안 |
-| **낮음** | typo 수정, 포맷팅, 리팩토링 | 기록 안 함 |
+| Condition | Suggestion |
+|-----------|------------|
+| 20+ conversation turns | "The session is getting long. Shall I clean up?" |
+| 3+ topic switches | "We've covered multiple topics. Shall I distill the key points?" |
+| New work started after task completion | "Shall I clean up the previous work and start fresh?" |
+| Before session end | "Shall I save today's content? (`/save`)" |
 
-### 커밋 자동 필터링
+### Preservation Priority
 
-- **기록 O**: feat: / fix: / docs: (정책 변경, 스펙 추가)
-- **기록 X**: chore: / style: / refactor: / docs: (단순 오타)
+```
+🔴 Must Preserve
+├─ Current sprint goals/KR
+├─ In-progress work + status
+├─ Incomplete work list
+├─ Today's decisions
+└─ Next action items
 
-### 로그 타입
+🟡 Preserve Summary (key points only)
+├─ Analysis results (conclusions focused)
+├─ Key discussion points
+└─ Inter-agent handoff content
 
-| type | 설명 | 감지 패턴 |
-|------|------|----------|
-| `decision` | 정책/방향 결정 | "~로 결정", "~로 가자" |
-| `commit` | Git 커밋 | feat/fix/docs 커밋 완료 |
-| `insight` | 데이터 인사이트 | "~임을 발견", "핵심은 ~" |
-| `deploy` | 배포 완료 | 배포 성공 메시지 |
-| `spec` | 스펙 확정 | Epic/Story 확정 |
-| `handoff` | 핸드오프 | 에이전트 간 인계 완료 |
+🟢 Can Omit
+├─ Detailed intermediate processes
+├─ Exploration/investigation processes
+└─ Trial-and-error/revision processes
+```
 
-### 로그 추가 로직
+---
 
-1. `.context/daily/{오늘 날짜}.yaml` 읽기 (없으면 생성)
-2. 현재 세션 ID로 해당 세션 항목 찾기
-3. `logs` 배열에 추가: `{time, type, content, context}`
-4. `_meta` 갱신 후 저장
+## 3. Proactive Daily Log Intervention
 
-### 자연어 호출 감지
+> *"Important things must be recorded. Oscar suggests first."*
 
-"오늘 한 일 정리해줘", "일일업무 정리", "데일리 로그" → `/daily` 스킬로 라우팅
+### Recording Suggestion Triggers
+
+| Importance | Situation | Oscar Action |
+|------------|-----------|-------------|
+| **High** | Policy decision, spec finalization, key insight | Immediately suggest "Shall I record this?" |
+| **Medium** | Feature commit, epic/story creation, analysis complete | Suggest |
+| **Low** | Typo fix, formatting, refactoring | Do not record |
+
+### Commit Auto-filtering
+
+- **Record**: feat: / fix: / docs: (policy changes, spec additions)
+- **Skip**: chore: / style: / refactor: / docs: (simple typos)
+
+### Log Types
+
+| type | Description | Detection Pattern |
+|------|-------------|-------------------|
+| `decision` | Policy/direction decision | "decided to...", "let's go with..." |
+| `commit` | Git commit | feat/fix/docs commit completed |
+| `insight` | Data insight | "discovered that...", "the key is..." |
+| `deploy` | Deployment complete | Deployment success message |
+| `spec` | Spec finalized | Epic/Story finalized |
+| `handoff` | Handoff | Inter-agent handover complete |
+
+### Log Addition Logic
+
+1. Read `.context/daily/{today's date}.yaml` (create if doesn't exist)
+2. Find the entry for the current session ID
+3. Append to `logs` array: `{time, type, content, context}`
+4. Update `_meta` and save
+
+### Natural Language Invocation Detection
+
+"Organize what I did today", "daily work summary", "daily log" → Route to `/daily` skill

@@ -1,80 +1,80 @@
-# PRD 템플릿
+# PRD Template
 
-> 🎯 Simon이 사용하는 PRD 작성 템플릿
+> 🎯 PRD writing template used by Simon
 
-## [기능/스프린트 이름]
+## [Feature/Sprint Name]
 
 ### One Question
-[이 스프린트가 답해야 할 단 하나의 질문]
+[The single question this sprint must answer]
 
 ---
 
-### 배경
-#### 문제 정의
-[해결하려는 문제가 무엇인가?]
+### Background
+#### Problem Definition
+[What problem are we trying to solve?]
 
-#### 현재 상태
-[Before - 현재 지표/상황]
+#### Current State
+[Before - Current metrics/situation]
 
-#### 기대 효과
-[After - 예상되는 개선]
+#### Expected Outcome
+[After - Anticipated improvements]
 
 ---
 
-### 가설
-> [IF] ______를 하면,
-> [THEN] ______가 개선될 것이다.
-> [BECAUSE] ______이기 때문이다.
+### Hypothesis
+> [IF] we do ______,
+> [THEN] ______ will improve.
+> [BECAUSE] ______.
 
-**반증 가능성**: [가설이 틀렸다면 어떻게 알 수 있는가?]
+**Falsifiability**: [How would we know if the hypothesis is wrong?]
 
 ---
 
 ### OMTM (One Metric That Matters)
-| 지표 | Before | Target | 측정 방법 |
-|------|--------|--------|----------|
-| [핵심 지표] | [현재값] | [목표값] | [GA4 이벤트 등] |
+| Metric | Before | Target | Measurement Method |
+|--------|--------|--------|-------------------|
+| [Key metric] | [Current value] | [Target value] | [GA4 event, etc.] |
 
 ---
 
-### 검증 방법
-- **측정 기간**: [시작일] ~ [종료일]
-- **샘플**: [대상 유저 그룹]
-- **성공 기준**: [정량적 기준]
-- **실패 기준**: [언제 포기하는가]
+### Validation Method
+- **Measurement period**: [Start date] ~ [End date]
+- **Sample**: [Target user group]
+- **Success criteria**: [Quantitative criteria]
+- **Failure criteria**: [When do we abandon?]
 
 ---
 
 ### Guard Rail
-| 지표 | 현재 | 허용 범위 | 모니터링 |
-|------|------|----------|---------|
-| [부작용 지표1] | [값] | ≤ [기준] | [방법] |
-| [부작용 지표2] | [값] | ≤ [기준] | [방법] |
+| Metric | Current | Acceptable Range | Monitoring |
+|--------|---------|-----------------|------------|
+| [Side-effect metric 1] | [Value] | ≤ [Threshold] | [Method] |
+| [Side-effect metric 2] | [Value] | ≤ [Threshold] | [Method] |
 
 ---
 
-### 스코프
+### Scope
 #### In Scope
-- [ ] 포함 항목 1
-- [ ] 포함 항목 2
+- [ ] Included item 1
+- [ ] Included item 2
 
 #### Out of Scope
-- 제외 항목 1
-- 제외 항목 2
+- Excluded item 1
+- Excluded item 2
 
 ---
 
-### 참고 자료
-- 관련 PRD: [링크]
-- 경쟁사 분석: [링크]
-- 유저 리서치: [링크]
+### References
+- Related PRD: [Link]
+- Competitive analysis: [Link]
+- User research: [Link]
 
 ---
 
-## 체크리스트
-- [ ] One Question이 명확한가?
-- [ ] 가설이 반증 가능한가?
-- [ ] OMTM이 정량화되었는가?
-- [ ] 검증 방법이 현실적인가?
-- [ ] Guard Rail이 설정되었는가?
-- [ ] 스코프가 명확한가?
+## Checklist
+- [ ] Is the One Question clear?
+- [ ] Is the hypothesis falsifiable?
+- [ ] Is the OMTM quantified?
+- [ ] Is the validation method realistic?
+- [ ] Is the Guard Rail set?
+- [ ] Is the scope clear?

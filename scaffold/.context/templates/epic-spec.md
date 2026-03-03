@@ -1,225 +1,225 @@
-# Epic Spec 템플릿
+# Epic Spec Template
 
-> PO가 작성하는 에픽별 상세 기획서
-> Story 작성 전 반드시 이 문서가 확정되어야 함
+> Detailed epic specification written by the PO
+> This document must be finalized before Story creation
 
 ---
 
-## [Epic ID]: [에픽 이름]
+## [Epic ID]: [Epic Name]
 
-### 메타
+### Meta
 
-| 항목 | 값 |
-|------|-----|
+| Item | Value |
+|------|-------|
 | **Epic ID** | E-XX |
 | **Sprint** | SXX |
-| **상태** | `draft` / `review` / `approved` |
-| **PO 승인일** | YYYY-MM-DD |
-| **담당 개발자** | - |
+| **Status** | `draft` / `review` / `approved` |
+| **PO Approval Date** | YYYY-MM-DD |
+| **Assigned Developer** | - |
 
 ---
 
-## 1. WHY: 왜 이 기능이 필요한가?
+## 1. WHY: Why is this feature needed?
 
-### 문제 정의
+### Problem Definition
 
-[해결하려는 문제가 무엇인가? 구체적인 상황 설명]
-
-```
-[예시]
-현재 사용자는 대시보드 지표를 보고도 "이게 좋은 건지 나쁜 건지" 판단하지 못한다.
-핵심 지표가 목표 대비 어떤 상태인지 알 수 없어서, 적절한 의사결정을 내리지 못한다.
-```
-
-### 근거 데이터
-
-| 지표 | 수치 | 출처 |
-|------|------|------|
-| [문제 심각도 지표] | [값] | [GA4/DB/VOC] |
+[What problem are we trying to solve? Describe the specific situation]
 
 ```
-[예시]
-| 지표 | 수치 | 출처 |
-|------|------|------|
-| 상세 페이지 진입 후 액션 없음 | 64% | GA4 |
-| "지표 의미 모르겠음" VOC | 12건/월 | 채널톡 |
+[Example]
+Currently, users cannot determine "whether this is good or bad" even after viewing dashboard metrics.
+They cannot tell what their key metrics look like relative to their goals, preventing them from making appropriate decisions.
 ```
 
-### 기대 효과
+### Supporting Data
 
-[이 기능이 배포되면 어떤 변화가 예상되는가?]
+| Metric | Value | Source |
+|--------|-------|--------|
+| [Problem severity metric] | [Value] | [GA4/DB/VOC] |
+
+```
+[Example]
+| Metric | Value | Source |
+|--------|-------|--------|
+| No action after entering detail page | 64% | GA4 |
+| "Don't understand what the metrics mean" VOC | 12/month | Channel.io |
+```
+
+### Expected Outcome
+
+[What changes are expected when this feature is deployed?]
 
 ---
 
-## 2. WHAT: 상세 요구사항
+## 2. WHAT: Detailed Requirements
 
-### 핵심 기능
+### Core Features
 
-| # | 기능 | 설명 | 필수 여부 |
-|---|------|------|----------|
-| 1 | [기능명] | [설명] | 필수/선택 |
-| 2 | [기능명] | [설명] | 필수/선택 |
+| # | Feature | Description | Required |
+|---|---------|-------------|----------|
+| 1 | [Feature name] | [Description] | Required/Optional |
+| 2 | [Feature name] | [Description] | Required/Optional |
 
-### 비즈니스 로직
+### Business Logic
 
-#### [로직 1: 이름]
-
-```
-[상세한 계산식/규칙/조건 명시]
-
-예시:
-전환율 = (전환 수 / 방문 수) × 100
-목표 달성률 = (현재값 / 목표값) × 100
-
-조건:
-- 목표값이 없으면 → "목표를 설정하면 더 정확해요" 안내
-- 달성률이 기준 미달이면 → "주의" 표시, 빨간색
-```
-
-#### [로직 2: 이름]
+#### [Logic 1: Name]
 
 ```
-[상세한 계산식/규칙/조건 명시]
+[Detailed formulas/rules/conditions]
+
+Example:
+Conversion rate = (Conversions / Visits) × 100
+Goal achievement rate = (Current value / Target value) × 100
+
+Conditions:
+- If no target value → Show "Set a goal for more accuracy" guidance
+- If achievement rate is below threshold → Show "Warning", red color
 ```
 
-### 사용자 시나리오
+#### [Logic 2: Name]
 
 ```
-[구체적인 사용 흐름]
+[Detailed formulas/rules/conditions]
+```
 
-1. 사용자가 대시보드 페이지에 진입한다
-2. "항목 A" 카드에서 전환율 15% 옆에 "목표 대비 75% 달성" 표시를 본다
-3. 사용자는 "목표까지 25% 남았구나" 이해한다
+### User Scenarios
+
+```
+[Concrete usage flow]
+
+1. User enters the dashboard page
+2. Sees "75% of goal achieved" displayed next to 15% conversion rate on the "Item A" card
+3. User understands "I have 25% left to reach my goal"
 4. ...
 ```
 
 ---
 
-## 3. HOW: 플로우 & 화면
+## 3. HOW: Flow & Screens
 
-### 사용자 플로우
+### User Flow
 
 ```
-[시작] → [단계1] → [단계2] → [분기] → [완료]
+[Start] → [Step 1] → [Step 2] → [Branch] → [Complete]
                               ↓
-                           [예외]
+                           [Exception]
 ```
 
-### 와이어프레임
+### Wireframe
 
 ```
-[ASCII 또는 Figma 링크]
+[ASCII or Figma link]
 
 ┌────────────────────────────────────────┐
-│ 항목 A                      🟢 양호     │
+│ Item A                      🟢 Good    │
 ├────────────────────────────────────────┤
 │                                        │
-│ 전환율 15%                              │
+│ Conversion Rate 15%                    │
 │ ───────────────────────                │
-│ 📊 목표 대비 75% 달성                    │
+│ 📊 75% of goal achieved               │
 │                                        │
-│ [상세 보기 →]                           │
+│ [View Details →]                       │
 └────────────────────────────────────────┘
 ```
 
-### 디자인 요청사항
+### Design Requirements
 
-| 항목 | 내용 |
-|------|------|
-| 톤앤매너 | [예: 친근하고 쉬운 표현] |
-| 컬러 | [예: 양수=초록, 음수=빨강] |
-| 참고 디자인 | [링크] |
-
----
-
-## 4. EDGE: 예외 & 엣지 케이스
-
-### 데이터 예외
-
-| 상황 | 처리 방법 |
-|------|----------|
-| 필수 입력값 누락 | [어떻게 처리?] |
-| 데이터 값 0 | [어떻게 처리?] |
-| 데이터 없음 | [어떻게 처리?] |
-
-### 사용자 예외
-
-| 상황 | 처리 방법 |
-|------|----------|
-| [예외 상황] | [처리 방법] |
-
-### 시스템 예외
-
-| 상황 | 처리 방법 |
-|------|----------|
-| API 실패 | [어떻게 처리?] |
-| 타임아웃 | [어떻게 처리?] |
+| Item | Content |
+|------|---------|
+| Tone & Manner | [e.g., Friendly and easy expressions] |
+| Colors | [e.g., Positive=green, Negative=red] |
+| Reference Design | [Link] |
 
 ---
 
-## 5. 성공 지표
+## 4. EDGE: Exceptions & Edge Cases
 
-### 이 에픽의 성공 기준
+### Data Exceptions
 
-| 지표 | Before | Target | 측정 방법 |
-|------|--------|--------|----------|
-| [지표1] | [현재값] | [목표값] | [방법] |
-| [지표2] | [현재값] | [목표값] | [방법] |
+| Situation | Handling Method |
+|-----------|----------------|
+| Required input missing | [How to handle?] |
+| Data value is 0 | [How to handle?] |
+| No data available | [How to handle?] |
 
-### GA4 이벤트 정의
+### User Exceptions
 
-| 이벤트명 | 트리거 | 파라미터 |
-|----------|--------|----------|
-| [event_name] | [언제] | [무엇] |
+| Situation | Handling Method |
+|-----------|----------------|
+| [Exception scenario] | [Handling method] |
 
----
+### System Exceptions
 
-## 6. 의존성 & 제약
-
-### 기술 의존성
-
-| 의존 항목 | 상태 | 비고 |
-|----------|------|------|
-| [API/데이터/기능] | 확인됨/미확인 | [설명] |
-
-### 제약 조건
-
-- [제약 1: 예) 기존 UI 레이아웃 유지]
-- [제약 2: 예) 모바일 미지원]
+| Situation | Handling Method |
+|-----------|----------------|
+| API failure | [How to handle?] |
+| Timeout | [How to handle?] |
 
 ---
 
-## 7. 스토리 목록 (예정)
+## 5. Success Metrics
 
-> Epic Spec 확정 후 📋 Penny가 분해
+### Success Criteria for This Epic
 
-| Story ID | 제목 | 규모 | 상태 |
-|----------|------|------|------|
-| E-XX-S-01 | [제목] | S/M/L | draft |
-| E-XX-S-02 | [제목] | S/M/L | draft |
+| Metric | Before | Target | Measurement Method |
+|--------|--------|--------|-------------------|
+| [Metric 1] | [Current value] | [Target value] | [Method] |
+| [Metric 2] | [Current value] | [Target value] | [Method] |
 
----
+### GA4 Event Definitions
 
-## 체크리스트
-
-### PO 승인 전 체크
-
-- [ ] 문제 정의가 명확한가?
-- [ ] 비즈니스 로직이 구체적인가? (계산식, 조건 등)
-- [ ] 와이어프레임/플로우가 있는가?
-- [ ] 엣지 케이스가 정의되었는가?
-- [ ] 성공 지표가 측정 가능한가?
-- [ ] 기술 의존성이 확인되었는가?
-
-### 승인
-
-| 항목 | 확인 |
-|------|------|
-| PO 승인 | ☐ |
-| 승인일 | YYYY-MM-DD |
-| 비고 | - |
+| Event Name | Trigger | Parameters |
+|------------|---------|------------|
+| [event_name] | [When] | [What] |
 
 ---
 
-*작성일: YYYY-MM-DD*
-*최종 수정: YYYY-MM-DD*
+## 6. Dependencies & Constraints
+
+### Technical Dependencies
+
+| Dependency | Status | Notes |
+|-----------|--------|-------|
+| [API/Data/Feature] | Confirmed/Unconfirmed | [Description] |
+
+### Constraints
+
+- [Constraint 1: e.g., Maintain existing UI layout]
+- [Constraint 2: e.g., No mobile support]
+
+---
+
+## 7. Story List (Planned)
+
+> To be broken down by 📋 Penny after Epic Spec is finalized
+
+| Story ID | Title | Size | Status |
+|----------|-------|------|--------|
+| E-XX-S-01 | [Title] | S/M/L | draft |
+| E-XX-S-02 | [Title] | S/M/L | draft |
+
+---
+
+## Checklist
+
+### Pre-PO Approval Check
+
+- [ ] Is the problem definition clear?
+- [ ] Is the business logic specific? (formulas, conditions, etc.)
+- [ ] Is there a wireframe/flow?
+- [ ] Are edge cases defined?
+- [ ] Are success metrics measurable?
+- [ ] Are technical dependencies confirmed?
+
+### Approval
+
+| Item | Confirmation |
+|------|-------------|
+| PO Approval | ☐ |
+| Approval Date | YYYY-MM-DD |
+| Notes | - |
+
+---
+
+*Created: YYYY-MM-DD*
+*Last Modified: YYYY-MM-DD*

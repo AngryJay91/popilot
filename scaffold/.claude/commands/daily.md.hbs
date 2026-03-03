@@ -1,168 +1,168 @@
-# /daily - 일일업무 정리
+# /daily - Daily Work Log
 
 {{#if capabilities.pm_tool}}
-오늘 작업한 내용을 취합하여 PM 도구에 업로드합니다.
+Compile today's work and upload to the PM tool.
 {{else}}
-오늘 작업한 내용을 취합하여 정리합니다.
+Compile and organize today's work.
 {{/if}}
 
-## 사용법
+## Usage
 
 ```bash
-/daily                  # 오늘 작업 정리{{#if capabilities.pm_tool}} → PM 도구 업로드{{/if}}
-/daily 2026-02-01       # 특정 날짜 작업 정리
-/daily --dry-run        # 미리보기만{{#if capabilities.pm_tool}} (업로드 X){{/if}}
+/daily                  # Organize today's work{{#if capabilities.pm_tool}} → upload to PM tool{{/if}}
+/daily 2026-02-01       # Organize work for a specific date
+/daily --dry-run        # Preview only{{#if capabilities.pm_tool}} (no upload){{/if}}
 ```
 
 ARGUMENTS: $ARGUMENTS
 
 ---
 
-## 실행 단계
+## Execution Steps
 
-### 1. 날짜 결정
+### 1. Determine Date
 
-- 인자 없으면 오늘 날짜 사용
-- 날짜 인자가 있으면 해당 날짜 사용
+- If no argument, use today's date
+- If a date argument is provided, use that date
 
-### 2. Daily 로그 파일 확인
+### 2. Check Daily Log File
 
-`.context/daily/{YYYY-MM-DD}.yaml` 파일 존재 여부 확인.
+Check if `.context/daily/{YYYY-MM-DD}.yaml` file exists.
 
 ```
-파일 있음 → 해당 파일 기반으로 정리
-파일 없음 → 세션 파일에서 추출 시도
+File exists → Organize based on that file
+File missing → Attempt extraction from session files
 ```
 
-### 3. 세션 파일에서 추출 (daily 파일 없을 경우)
+### 3. Extract from Session Files (if no daily file)
 
-1. `index.yaml`에서 해당 날짜에 `updated_at`이 있는 세션들 필터링
-2. 각 세션의 `active/{id}.md` 또는 `archive/` 파일 읽기
-3. "작업 히스토리"에서 해당 날짜 섹션 추출
-4. 취합하여 정리
+1. Filter sessions with `updated_at` on the target date from `index.yaml`
+2. Read each session's `active/{id}.md` or `archive/` file
+3. Extract the target date section from "Work History"
+4. Compile and organize
 
 {{#if capabilities.pm_tool}}
-### 4. PM 도구 업로드
+### 4. Upload to PM Tool
 
 {{INTEGRATION_PROMPTS}}
 {{/if}}
 
-### {{#if capabilities.pm_tool}}5{{else}}4{{/if}}. 콘텐츠 포맷팅
+### {{#if capabilities.pm_tool}}5{{else}}4{{/if}}. Content Formatting
 
-{{#if capabilities.pm_tool}}PM 도구에 업로드할 마크다운 형식:{{else}}출력할 마크다운 형식:{{/if}}
+{{#if capabilities.pm_tool}}Markdown format for PM tool upload:{{else}}Markdown format for output:{{/if}}
 
 ```markdown
-# {YYYY-MM-DD} ({요일})
+# {YYYY-MM-DD} ({Day of Week})
 
-## 요약
-- 작업 세션 {N}개
-- 주요 성과: {핵심 성과 1-2개}
+## Summary
+- {N} work sessions
+- Key accomplishments: {1-2 core achievements}
 
 ---
 
-## {세션 ID}
-**주제**: {topic}
+## {Session ID}
+**Topic**: {topic}
 
-### 완료
-- {완료 작업 1}
-- {완료 작업 2}
+### Completed
+- {Completed work 1}
+- {Completed work 2}
 
-### 결정사항
-- {의사결정 내용}
+### Decisions
+- {Decision content}
 
-### 커밋
+### Commits
 - `{hash}`: {message}
 
-### 인사이트
-- {발견한 인사이트}
+### Insights
+- {Discovered insight}
 
 ---
 
-## {다음 세션}
+## {Next session}
 ...
 
 ---
 
-## 로그 통계
-| 유형 | 건수 |
-|------|------|
-| 결정 | {N} |
-| 커밋 | {N} |
-| 인사이트 | {N} |
-| 배포 | {N} |
+## Log Statistics
+| Type | Count |
+|------|-------|
+| Decisions | {N} |
+| Commits | {N} |
+| Insights | {N} |
+| Deploys | {N} |
 ```
 
 {{#if capabilities.pm_tool}}
-### {{#if capabilities.pm_tool}}6{{else}}5{{/if}}. 완료 메시지
+### {{#if capabilities.pm_tool}}6{{else}}5{{/if}}. Completion Message
 
 ```markdown
-🎩 Oscar: 일일업무 정리가 완료되었습니다.
+🎩 Oscar: Daily work log has been organized.
 
-**날짜**: {YYYY-MM-DD}
-**세션**: {N}개
-**로그**: {N}건
+**Date**: {YYYY-MM-DD}
+**Sessions**: {N}
+**Logs**: {N} entries
 
-PM 도구: {업로드 URL}
+PM Tool: {upload URL}
 ```
 {{else}}
-### 5. 완료 메시지
+### 5. Completion Message
 
 ```markdown
-🎩 Oscar: 일일업무 정리가 완료되었습니다.
+🎩 Oscar: Daily work log has been organized.
 
-**날짜**: {YYYY-MM-DD}
-**세션**: {N}개
-**로그**: {N}건
+**Date**: {YYYY-MM-DD}
+**Sessions**: {N}
+**Logs**: {N} entries
 ```
 {{/if}}
 
 ---
 
-## --dry-run 옵션
+## --dry-run Option
 
 {{#if capabilities.pm_tool}}
-업로드하지 않고 미리보기만 표시:
+Preview only without uploading:
 
 ```markdown
-🎩 Oscar: [미리보기] 일일업무 정리
+🎩 Oscar: [Preview] Daily Work Log
 
-{포맷된 내용}
+{formatted content}
 
 ---
-PM 도구에 업로드하시겠습니까? (y/n)
+Upload to PM tool? (y/n)
 ```
 {{else}}
-정리된 내용을 미리보기로 표시:
+Display organized content as preview:
 
 ```markdown
-🎩 Oscar: [미리보기] 일일업무 정리
+🎩 Oscar: [Preview] Daily Work Log
 
-{포맷된 내용}
+{formatted content}
 ```
 {{/if}}
 
 ---
 
-## Daily 로그 파일 포맷
+## Daily Log File Format
 
 `.context/daily/{YYYY-MM-DD}.yaml`:
 
 ```yaml
 date: "2026-02-02"
-day_of_week: "일"
+day_of_week: "Sun"
 
 sessions:
   - id: s52-policy-adjustment
-    topic: "스프린트 52 세부 정책 조정"
+    topic: "Sprint 52 detailed policy adjustment"
     logs:
       - time: "14:00"
         type: decision
-        content: "FIRST100 발급 조건: 회원가입 시 즉시 (현행 유지)"
-        context: "개발팀 ANL 문서 분석 후 정책 확정"
+        content: "FIRST100 issuance condition: immediate on signup (maintain current)"
+        context: "Policy confirmed after analyzing dev team ANL document"
 
       - time: "14:30"
         type: commit
-        content: "docs(E-07): FIRST100 쿠폰 발급 조건을 현행에 맞춰 수정"
+        content: "docs(E-07): Update FIRST100 coupon issuance condition to match current policy"
         hash: "a04a701"
 
 _meta:
@@ -171,131 +171,131 @@ _meta:
   total_logs: 9
 ```
 
-### 로그 타입
+### Log Types
 
-| type | 설명 | 자동 기록 조건 |
-|------|------|---------------|
-| `decision` | 정책/방향 결정 | Oscar 제안 → 사용자 승인 |
-| `commit` | Git 커밋 | feat/fix/docs 커밋 (chore/style 제외) |
-| `insight` | 데이터 인사이트 | 분석 결과 핵심 발견 |
-| `deploy` | 배포 완료 | Vercel/Amplify 배포 |
-| `infra` | 인프라 변경 | 설정/환경 변경 |
-| `handoff` | 핸드오프 | 에이전트 간 인계 |
-| `spec` | 스펙 확정 | Epic/Story 확정 |
+| type | Description | Auto-record Condition |
+|------|-------------|----------------------|
+| `decision` | Policy/direction decision | Oscar suggestion → user approval |
+| `commit` | Git commit | feat/fix/docs commits (excluding chore/style) |
+| `insight` | Data insight | Key finding from analysis results |
+| `deploy` | Deploy complete | Vercel/Amplify deployment |
+| `infra` | Infrastructure change | Config/environment changes |
+| `handoff` | Handoff | Inter-agent handoff |
+| `spec` | Spec confirmed | Epic/Story confirmed |
 
 ---
 
-## Oscar의 적극적 개입
+## Oscar's Proactive Involvement
 
-### 기록 제안 트리거
+### Record Suggestion Triggers
 
-Oscar가 다음 상황에서 "기록할까요?" 제안:
+Oscar suggests "Shall I record this?" in these situations:
 
-| 상황 | 제안 내용 |
-|------|----------|
-| 정책 결정 완료 | "일일 로그에 기록할까요? → 결정: {내용}" |
-| 핵심 인사이트 도출 | "중요한 발견이네요. 기록할까요?" |
-| 주요 커밋 완료 | (자동 기록, 제안 없음) |
-| 스펙 확정 | "스펙이 확정되었습니다. 기록할까요?" |
+| Situation | Suggestion |
+|-----------|-----------|
+| Policy decision complete | "Record in daily log? → Decision: {content}" |
+| Key insight discovered | "Important finding. Record it?" |
+| Major commit complete | (Auto-recorded, no suggestion) |
+| Spec confirmed | "Spec confirmed. Record it?" |
 
-### 커밋 자동 필터링
+### Commit Auto-Filtering
 
 ```
-기록 O (중요 커밋):
-- feat: / fix: / docs(중요 변경):
-- 정책 변경, 스펙 추가, 기능 구현
+Record O (important commits):
+- feat: / fix: / docs(significant changes):
+- Policy changes, spec additions, feature implementation
 
-기록 X (사소한 커밋):
+Record X (minor commits):
 - chore: / style: / refactor:
-- typo, 포맷팅, 주석 수정
-- docs: (단순 오타/링크)
+- typos, formatting, comment edits
+- docs: (simple typo/link fixes)
 ```
 
-### 제안 예시
+### Suggestion Example
 
 ```markdown
-🎩 Oscar: FIRST100 발급 조건을 "회원가입 시 즉시"로 확정했습니다.
+🎩 Oscar: FIRST100 issuance condition confirmed as "immediate on signup."
 
-일일 로그에 기록할까요?
-→ "결정: FIRST100 회원가입 시 즉시 발급 (현행 유지)"
+Record in daily log?
+→ "Decision: FIRST100 immediate issuance on signup (maintain current)"
 ```
 
-사용자 응답:
-- "ㅇㅇ", "응", "기록해" → 로그에 추가
-- 무시 또는 다른 대화 → 스킵
+User response:
+- "yes", "ok", "record it" → Add to log
+- Ignore or different conversation → Skip
 
 ---
 
-## 로그 추가 API
+## Log Addition API
 
-Oscar가 로그를 추가할 때 사용하는 내부 로직:
+Internal logic Oscar uses when adding logs:
 
 ```yaml
-# 새 로그 항목 추가
+# Add new log entry
 new_log:
-  time: "{현재 시각 HH:MM}"
+  time: "{current time HH:MM}"
   type: "{decision|commit|insight|...}"
-  content: "{핵심 내용}"
-  context: "{배경 설명 - 선택}"
-  hash: "{커밋 해시 - commit 타입만}"
+  content: "{core content}"
+  context: "{background explanation - optional}"
+  hash: "{commit hash - commit type only}"
 ```
 
-1. `.context/daily/{오늘 날짜}.yaml` 파일 읽기 (없으면 생성)
-2. 현재 세션 ID 찾기 (없으면 세션 항목 추가)
-3. 해당 세션의 `logs` 배열에 새 항목 추가
-4. `_meta.updated_at`, `_meta.total_logs` 갱신
-5. 파일 저장
+1. Read `.context/daily/{today's date}.yaml` file (create if it doesn't exist)
+2. Find current session ID (add session entry if it doesn't exist)
+3. Add new entry to that session's `logs` array
+4. Update `_meta.updated_at` and `_meta.total_logs`
+5. Save file
 
 ---
 
-## 에러 처리
+## Error Handling
 
-### Daily 로그 없음 + 세션 기록 없음
+### No Daily Log + No Session Records
 
 ```markdown
-{날짜}의 작업 기록을 찾을 수 없습니다.
+No work records found for {date}.
 
-확인 사항:
-1. 해당 날짜에 작업한 세션이 있는지 확인
-2. 세션이 저장되었는지 확인 (/save)
-3. 수동으로 로그를 추가하려면: /log "{내용}"
+Check:
+1. Verify there are sessions from that date
+2. Verify sessions were saved (/save)
+3. To manually add a log: /log "{content}"
 ```
 
 {{#if capabilities.pm_tool}}
-### PM 도구 업로드 실패
+### PM Tool Upload Failure
 
 ```markdown
-업로드 실패: {에러 메시지}
+Upload failed: {error message}
 
-정리된 내용은 아래와 같습니다. 수동으로 복사해주세요:
+The organized content is below. Please copy manually:
 
-{포맷된 내용}
+{formatted content}
 ```
 {{/if}}
 
 ---
 
-## 자연어 호출
+## Natural Language Invocation
 
-다음 표현들도 `/daily`로 처리:
+These expressions are also handled as `/daily`:
 
-- "오늘 한 일 정리해줘"
-- "일일업무 정리"
+- "organize today's work"
+- "daily work log"
 {{#if capabilities.pm_tool}}
-- "오늘 작업 올려줘"
+- "upload today's work"
 {{/if}}
-- "데일리 로그"
+- "daily log"
 
 ---
 
-## 관련 파일
+## Related Files
 
-- Daily 로그: `.context/daily/{YYYY-MM-DD}.yaml`
-- 세션 파일: `.context/sessions/active/{id}.md`
+- Daily logs: `.context/daily/{YYYY-MM-DD}.yaml`
+- Session files: `.context/sessions/active/{id}.md`
 
 ---
 
-## 관련 커맨드
+## Related Commands
 
-- `/save` - 세션 저장 (세션별 작업 기록)
-- `/sessions` - 전체 세션 현황
+- `/save` - Save session (per-session work records)
+- `/sessions` - Full session dashboard

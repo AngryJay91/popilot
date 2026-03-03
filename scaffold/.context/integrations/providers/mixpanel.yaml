@@ -1,7 +1,7 @@
 id: mixpanel
 name: "Mixpanel"
 category: analytics
-description: "프로덕트 분석, 퍼널, 리텐션"
+description: "Product analytics, funnels, retention"
 
 mcp:
   server_name: "mixpanel"
@@ -14,7 +14,7 @@ setup_questions:
     required: true
     example: "2843271"
   - key: api_secret
-    label: "Mixpanel API Secret (secrets.yaml 참조)"
+    label: "Mixpanel API Secret (see secrets.yaml)"
     type: string
     required: false
 
@@ -22,13 +22,13 @@ agent_prompts:
   analyst: |
     ### Mixpanel MCP
     ```
-    용도: 프로덕트 분석, 퍼널, 리텐션 분석
+    Purpose: Product analytics, funnel analysis, retention analysis
     project_id: {{config.project_id}}
     ```
 
-    #### 자주 사용하는 패턴
+    #### Common Patterns
 
-    **1. 이벤트 추이 분석**
+    **1. Event Trend Analysis**
     ```javascript
     query_jql({
       project_id: "{{config.project_id}}",
@@ -38,7 +38,7 @@ agent_prompts:
     })
     ```
 
-    **2. 퍼널 분석**
+    **2. Funnel Analysis**
     ```javascript
     get_funnel({
       project_id: "{{config.project_id}}",
@@ -48,7 +48,7 @@ agent_prompts:
     })
     ```
 
-    **3. 리텐션 분석**
+    **3. Retention Analysis**
     ```javascript
     get_retention({
       project_id: "{{config.project_id}}",
@@ -62,12 +62,12 @@ agent_prompts:
   validator: |
     ### Mixpanel MCP
     ```
-    용도: 가설 검증 데이터 조회, A/B 테스트 분석
+    Purpose: Hypothesis validation data queries, A/B test analysis
     project_id: {{config.project_id}}
     ```
 
 command_prompts:
   analytics: |
-    - **Mixpanel MCP 서버** (프로덕트 분석, 퍼널, 리텐션)
+    - **Mixpanel MCP Server** (Product analytics, funnels, retention)
 
 footer_tool_line: "Mixpanel MCP"

@@ -1,72 +1,72 @@
-# 스프린트 계획 템플릿
+# Sprint Plan Template
 
-> 📋 Penny가 사용하는 스프린트 계획 템플릿
+> 📋 Sprint planning template used by Penny
 
-## Sprint [N] 계획
+## Sprint [N] Plan
 
-### 스프린트 정보
-- **기간**: [시작일] ~ [종료일]
-- **목표**: [한 문장으로 표현]
+### Sprint Information
+- **Period**: [Start date] ~ [End date]
+- **Goal**: [Express in one sentence]
 
 ---
 
 ### Key Results
-| KR | 현재 | 목표 | 담당 | 상태 |
-|----|------|------|------|------|
-| KR1: [내용] | [값] | [값] | [담당] | 🔴/🟡/🟢 |
-| KR2: [내용] | [값] | [값] | [담당] | 🔴/🟡/🟢 |
-| KR3: [내용] | [값] | [값] | [담당] | 🔴/🟡/🟢 |
+| KR | Current | Target | Owner | Status |
+|----|---------|--------|-------|--------|
+| KR1: [Content] | [Value] | [Value] | [Owner] | 🔴/🟡/🟢 |
+| KR2: [Content] | [Value] | [Value] | [Owner] | 🔴/🟡/🟢 |
+| KR3: [Content] | [Value] | [Value] | [Owner] | 🔴/🟡/🟢 |
 
 ---
 
-### 작업 목록
+### Task List
 
 #### Week 1
-| 작업 | 우선순위 | 담당 | 의존성 | 상태 |
-|------|----------|------|--------|------|
-| [작업1] | P0 | [담당] | - | ⬜ |
-| [작업2] | P1 | [담당] | 작업1 | ⬜ |
+| Task | Priority | Owner | Dependencies | Status |
+|------|----------|-------|-------------|--------|
+| [Task 1] | P0 | [Owner] | - | ⬜ |
+| [Task 2] | P1 | [Owner] | Task 1 | ⬜ |
 
 #### Week 2
-| 작업 | 우선순위 | 담당 | 의존성 | 상태 |
-|------|----------|------|--------|------|
-| [작업3] | P0 | [담당] | - | ⬜ |
+| Task | Priority | Owner | Dependencies | Status |
+|------|----------|-------|-------------|--------|
+| [Task 3] | P0 | [Owner] | - | ⬜ |
 
 ---
 
-### 마일스톤
-| 일자 | 마일스톤 | 완료 조건 |
-|------|----------|----------|
-| [날짜] | [마일스톤1] | [조건] |
-| [날짜] | [마일스톤2] | [조건] |
+### Milestones
+| Date | Milestone | Completion Criteria |
+|------|-----------|-------------------|
+| [Date] | [Milestone 1] | [Criteria] |
+| [Date] | [Milestone 2] | [Criteria] |
 
 ---
 
-### 리스크 & 블로커
-| 리스크 | 영향도 | 대응 방안 |
-|--------|--------|----------|
-| [리스크1] | 높음/중간/낮음 | [대응] |
+### Risks & Blockers
+| Risk | Impact | Mitigation |
+|------|--------|-----------|
+| [Risk 1] | High/Medium/Low | [Response] |
 
 ---
 
-### 의존성
-- **외부 의존성**: [다른 팀/서비스]
-- **내부 의존성**: [선행 작업]
+### Dependencies
+- **External dependencies**: [Other teams/services]
+- **Internal dependencies**: [Prerequisite work]
 
 ---
 
-### 핸드오프 준비
-- [ ] PRD 확정됨
-- [ ] 디자인 확정됨
-- [ ] 개발 스펙 문서 작성됨
-- [ ] 베이스라인 데이터 확보됨
-- [ ] 이벤트 로깅 정의됨
+### Handoff Preparation
+- [ ] PRD finalized
+- [ ] Design finalized
+- [ ] Dev spec document written
+- [ ] Baseline data obtained
+- [ ] Event logging defined
 
 ---
 
-## 체크리스트
-- [ ] KR이 정량화되었는가?
-- [ ] 작업이 분해되었는가?
-- [ ] 의존성이 파악되었는가?
-- [ ] 담당자가 지정되었는가?
-- [ ] 리스크가 식별되었는가?
+## Checklist
+- [ ] Are KRs quantified?
+- [ ] Are tasks broken down?
+- [ ] Are dependencies identified?
+- [ ] Are owners assigned?
+- [ ] Are risks identified?

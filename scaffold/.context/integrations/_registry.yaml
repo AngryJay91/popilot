@@ -2,37 +2,37 @@ version: "1.0"
 
 categories:
   analytics:
-    label: "데이터 분석"
-    description: "사용자 행동, 퍼널, 이벤트 분석"
+    label: "Analytics"
+    description: "User behavior, funnel, event analysis"
     agents: [analyst, validator]
     commands: [analytics]
 
   database:
-    label: "데이터베이스"
-    description: "운영/분석 DB 직접 쿼리"
+    label: "Database"
+    description: "Direct queries on production/analytics DB"
     agents: [analyst]
     commands: [analytics]
     system_files: [CLAUDE.md, WORKFLOW.md]
 
   pm_tool:
-    label: "프로젝트 관리"
-    description: "태스크, 문서, 로드맵 관리"
+    label: "Project Management"
+    description: "Task, document, roadmap management"
     agents: [strategist, planner]
     commands: [daily]
     system_files: [WORKFLOW.md]
 
   customer_feedback:
-    label: "고객 피드백"
-    description: "CS 상담, VOC 수집/분석"
+    label: "Customer Feedback"
+    description: "CS chat, VOC collection/analysis"
     agents: [validator, researcher]
 
   ai_research:
-    label: "AI 리서치"
-    description: "AI 기반 지식 탐색, 인사이트 도출"
+    label: "AI Research"
+    description: "AI-powered knowledge exploration, insight extraction"
     agents: [researcher, strategist, validator]
 
   knowledge:
-    label: "지식 관리"
-    description: "크로스소스 지식 검색, 의사결정 추적, 피처 타임라인"
+    label: "Knowledge Management"
+    description: "Cross-source knowledge search, decision tracking, feature timeline"
     agents: [researcher, strategist, planner, validator, analyst]
     system_files: [WORKFLOW.md]

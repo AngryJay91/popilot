@@ -1,123 +1,123 @@
-# /metrics - 지표 확인 및 업데이트
+# /metrics - Metrics Review and Update
 
-비즈니스 지표를 확인하고 필요시 업데이트합니다.
+Review business metrics and update as needed.
 
-## 사용법
+## Usage
 
 ```bash
-/metrics              # 현재 지표 요약 표시
-/metrics update       # 전체 지표 파일 업데이트
-/metrics update [domain]   # 특정 도메인 지표만 업데이트
+/metrics              # Display current metrics summary
+/metrics update       # Update all metrics files
+/metrics update [domain]   # Update specific domain metrics only
 ```
 
 ARGUMENTS: $ARGUMENTS
 
 ---
 
-## 실행 단계
+## Execution Steps
 
-### 1. 지표 파일 로드
+### 1. Load Metrics Files
 
-`.context/metrics/` 폴더의 YAML 파일들을 읽습니다:
-- `business.yaml` - 핵심 KPI, 퍼널, 목표
-- `[domain].yaml` - 도메인별 지표
-- `segments.yaml` - 세그먼트별 지표
-- `team.yaml` - 팀/담당자 정보
+Read YAML files in the `.context/metrics/` folder:
+- `business.yaml` - Core KPIs, funnel, targets
+- `[domain].yaml` - Domain-specific metrics
+- `segments.yaml` - Segment-level metrics
+- `team.yaml` - Team/owner information
 
-### 2. 인자에 따른 분기
+### 2. Branch Based on Arguments
 
-#### Case A: `/metrics` (인자 없음)
+#### Case A: `/metrics` (no arguments)
 
-현재 지표 요약 표시:
+Display current metrics summary:
 
 ```markdown
-📈 **비즈니스 지표 현황** (업데이트: 2026-01-26)
+📈 **Business Metrics Overview** (Updated: 2026-01-26)
 
-## 핵심 KPI
-| 지표 | 값 | 목표 대비 |
-|------|-----|----------|
-| 유료 사용자 | 81명 | 54% (목표 150명) |
+## Core KPIs
+| Metric | Value | vs Target |
+|--------|-------|-----------|
+| Paid Users | 81 | 54% (target 150) |
 | MRR | ₩5,163,480 | - |
 | ARPU | ₩63,747 | - |
-| 월간 이탈률 | 12% | ⚠️ 목표 10% 초과 |
+| Monthly Churn | 12% | ⚠️ Exceeds 10% target |
 
-## 퍼널 (2025년 누적)
-가입 3,645 → 연동 476 (13%) → 유료 132 (3.6%)
+## Funnel (2025 Cumulative)
+Signup 3,645 → Linked 476 (13%) → Paid 132 (3.6%)
 
-## 도메인별 지표
-- 핵심 지표 달성률: --%
-- 활성 사용자: --명
+## Domain Metrics
+- Core metric achievement rate: --%
+- Active users: --
 
-📊 대시보드: [배포 URL]
+📊 Dashboard: [Deployment URL]
 ```
 
 #### Case B: `/metrics update`
 
-전체 지표 업데이트:
+Full metrics update:
 
 1. **business.yaml**:
-   - MCP `prod-db`에서 유료 사용자, MRR 조회
-   - 날짜별 집계 쿼리 실행
+   - Query paid users, MRR from MCP `prod-db`
+   - Execute date-based aggregation queries
 
 2. **[domain].yaml**:
-   - MCP `prod-db`의 도메인 관련 테이블 조회
-   - 핵심 지표 계산
+   - Query domain-related tables from MCP `prod-db`
+   - Calculate core metrics
 
 3. **segments.yaml**:
-   - 세그먼트별 리텐션, 전환율 계산
+   - Calculate segment-level retention, conversion rates
 
-4. 각 파일의 `_meta.updated_at` 갱신
+4. Update `_meta.updated_at` in each file
 
-5. 변경 사항 요약 출력
+5. Output summary of changes
 
 #### Case C: `/metrics update [domain]`
 
-특정 도메인 지표만 업데이트:
+Update specific domain metrics only:
 
-1. `[domain].yaml`만 갱신
-2. 변경 전/후 비교 표시
+1. Update only `[domain].yaml`
+2. Display before/after comparison
 
 ---
 
-## 지표 파일 구조
+## Metrics File Structure
 
 ```
 .context/metrics/
-├── README.md         # 구조 설명
-├── business.yaml     # MRR, ARPU, 퍼널, 목표
-├── [domain].yaml     # 도메인별 지표
-├── segments.yaml     # 세그먼트별 지표
-└── team.yaml         # 팀/담당자 정보
+├── README.md         # Structure description
+├── business.yaml     # MRR, ARPU, funnel, targets
+├── [domain].yaml     # Domain-specific metrics
+├── segments.yaml     # Segment-level metrics
+└── team.yaml         # Team/owner information
 ```
 
 ---
 
-## 데이터 소스
+## Data Sources
 
-| 지표 | 소스 | 쿼리 주의사항 |
-|------|------|--------------|
-| MRR/ARPU | prod-db | Settlement 테이블 주의 (무거움) |
-| 퍼널 | GA4 MCP | - |
-| 도메인 지표 | prod-db | snapshot 테이블 권장 |
-| 세그먼트 | prod-db | 인덱스 컬럼 필수 |
-
----
-
-## VitePress 대시보드 연동
-
-지표 업데이트 후:
-1. `npm run build` (VitePress 빌드)
-2. `git push` (Vercel 자동 배포)
-3. 대시보드 반영
+| Metric | Source | Query Notes |
+|--------|--------|------------|
+| MRR/ARPU | prod-db | Caution with Settlement table (heavy) |
+| Funnel | GA4 MCP | - |
+| Domain metrics | prod-db | Snapshot table recommended |
+| Segments | prod-db | Index column required |
 
 ---
 
-## 관련 커맨드
+## VitePress Dashboard Integration
 
-- `/analytics` - 📈 Danny 활성화 (심층 분석)
-- `/validate` - 📊 Vicky 활성화 (가설 검증)
+After metrics update:
+1. `npm run build` (VitePress build)
+2. `git push` (Vercel auto-deploy)
+3. Dashboard updated
 
 ---
 
-*파일 위치*: `.context/metrics/`
-*대시보드*: `/dashboard`
+## Related Commands
+
+- `/analytics` - Activate 📈 Danny (deep analysis)
+- `/validate` - Activate 📊 Vicky (hypothesis validation)
+
+---
+
+*File location*: `.context/metrics/`
+*Dashboard*: `/dashboard`

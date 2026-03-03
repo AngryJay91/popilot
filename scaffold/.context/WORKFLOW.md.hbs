@@ -1,48 +1,48 @@
-# PO 워크플로우
+# PO Workflow
 
-> Oscar 중심 운영, 에이전트 라우팅, 선제적 알림 등은 `agents/orchestrator.md` 참조
-> 세션 관리는 `.claude/commands/start.md`, `save.md` 참조
+> Oscar-centric operations, agent routing, proactive alerts, etc. — see `agents/orchestrator.md`
+> Session management — see `.claude/commands/start.md`, `save.md`
 
 ---
 
-## 코드베이스 컨텍스트 분석
+## Codebase Context Analysis
 
 {{#if dev_scope.service_repo}}
-### 저장소 분리 (중요)
+### Repository Separation (Important)
 
-Oscar 시스템과 서비스 코드베이스는 **별도의 Git 저장소**:
+The Oscar system and service codebase are in **separate Git repositories**:
 
-| 저장소 | 경로 | 내용 |
-|--------|------|------|
-| **Oscar 시스템** | 현재 디렉토리 | 에이전트, 컨텍스트, 워크플로우, 세션 |
-| **서비스 코드** | `~/{{dev_scope.service_repo}}/` | 프론트엔드, 백엔드 |
+| Repository | Path | Contents |
+|------------|------|----------|
+| **Oscar System** | Current directory | Agents, context, workflows, sessions |
+| **Service Code** | `~/{{dev_scope.service_repo}}/` | Frontend, backend |
 
-**주의:**
-- 코드베이스 분석 결과는 `.context/global/product/`에 저장
-- 서비스 코드 분석 시 `~/{{dev_scope.service_repo}}/`로 이동 필요
-- 두 저장소의 커밋 히스토리는 완전히 독립적
+**Important:**
+- Codebase analysis results are stored in `.context/global/product/`
+- When analyzing service code, navigate to `~/{{dev_scope.service_repo}}/`
+- The two repositories have completely independent commit histories
 {{/if}}
 
-### 언제 분석이 필요한가?
+### When Is Analysis Needed?
 
-| 상황 | 필요한 분석 |
-|------|------------|
-| 새 도메인 스펙 논의 시작 | 해당 도메인 FE/BE 전체 분석 |
-| 기존 기능 수정 논의 | 관련 컴포넌트/서비스 분석 |
-| 버그 원인 파악 | 해당 로직 상세 분석 |
-| API 스펙 확인 | 컨트롤러/DTO 분석 |
+| Situation | Required Analysis |
+|-----------|-------------------|
+| Starting a new domain spec discussion | Full FE/BE analysis for that domain |
+| Discussing modifications to existing features | Related component/service analysis |
+| Identifying bug causes | Detailed logic analysis |
+| Checking API specs | Controller/DTO analysis |
 
-### 분석 결과 저장
+### Storing Analysis Results
 
 ```
 .context/global/product/{domain}.md
 ```
 
 {{#if domains}}
-### 도메인별 컨텍스트 파일
+### Per-Domain Context Files
 
-| 도메인 | 컨텍스트 파일 |
-|--------|--------------|
+| Domain | Context File |
+|--------|-------------|
 {{#each domains}}
 | **{{name}}** | `global/product/{{id}}.md` |
 {{/each}}
@@ -50,11 +50,11 @@ Oscar 시스템과 서비스 코드베이스는 **별도의 Git 저장소**:
 
 ---
 
-## 에이전트 간 핸드오프 흐름
+## Agent Handoff Flow
 
 ```
                        🎩 Oscar
-                  (라우팅 & 조율)
+                  (Routing & Coordination)
                          │
        ┌─────────────────┼─────────────────┐
        │                 │                 │
@@ -68,122 +68,122 @@ Oscar 시스템과 서비스 코드베이스는 **별도의 Git 저장소**:
    📊 Vicky ◄────────────┘
        │
        ▼
-   🎯 Simon (다음 가설)
+   🎯 Simon (next hypothesis)
 ```
 
-| From | To | 상황 | Oscar 역할 |
-|------|-----|------|-----------|
-| 🎯 Simon | 📋 Penny | PRD 완료 | 핸드오프 체크 |
-| 📋 Penny | 📊 Vicky | 개발 완료 | 검증 준비 확인 |
-| 📊 Vicky | 🎯 Simon | 검증 완료 | 학습 정리 촉구 |
-| 📊 Vicky | 📈 Danny | 이상 징후 | 심층 분석 요청 |
-| 📈 Danny | 🎯 Simon | 인사이트 | 전략 연결 제안 |
-| 🎤 Rita | 🎯 Simon | VOC 분석 | 가설 연결 제안 |
+| From | To | Situation | Oscar's Role |
+|------|-----|-----------|-------------|
+| 🎯 Simon | 📋 Penny | PRD completed | Handoff check |
+| 📋 Penny | 📊 Vicky | Development completed | Confirm validation readiness |
+| 📊 Vicky | 🎯 Simon | Validation completed | Prompt learning summary |
+| 📊 Vicky | 📈 Danny | Anomaly detected | Request deep analysis |
+| 📈 Danny | 🎯 Simon | Insight discovered | Suggest strategic connection |
+| 🎤 Rita | 🎯 Simon | VOC analysis done | Suggest hypothesis connection |
 
 ---
 
-## 스프린트 전환 워크플로우
+## Sprint Transition Workflow
 
-Sprint 종료 시:
+At sprint end:
 ```
-1. 현재 스프린트 폴더에 results.md 작성
-2. 새 스프린트 폴더 생성 (예: sprints/s{N+1}/)
-3. context.md 초기화 (목표, KR, 주요 작업)
-4. 필요시 이전 스프린트 → _archive/ 이동
+1. Write results.md in the current sprint folder
+2. Create new sprint folder (e.g., sprints/s{N+1}/)
+3. Initialize context.md (goals, KRs, key tasks)
+4. Move previous sprint to _archive/ if needed
 ```
 
 ---
 
-## 기획 → 개발 워크플로우
+## Planning → Development Workflow
 
-> PO 상세기획 → 개발자 핸드오프까지의 완전한 문서 체계
+> Complete document hierarchy from PO detailed planning to developer handoff
 
-### 문서 계층 구조
-
-```
-Level 1: Sprint PRD (스프린트 레벨)
-   └─→ One Question, 가설, OMTM
-   └─→ 담당: 🎯 Simon / 템플릿: templates/prd.md
-
-Level 2: Epic Spec (에픽 레벨) ⭐ 핵심
-   └─→ WHY, WHAT, HOW(개요), EDGE
-   └─→ 담당: PO (🎯 Simon 지원) / 템플릿: templates/epic-spec.md
-
-Level 3: Story (스토리 레벨)
-   └─→ Epic Spec 기반, AC (Given-When-Then), 태스크 분해
-   └─→ 담당: 📋 Penny / 템플릿: templates/story-v2.md
-```
-
-### 순서 엄수
+### Document Hierarchy
 
 ```
-Epic Spec 확정 전에는 Story 작성 금지!
+Level 1: Sprint PRD (Sprint level)
+   └─→ One Question, hypothesis, OMTM
+   └─→ Owner: 🎯 Simon / Template: templates/prd.md
 
-[올바른 순서]
-Sprint PRD → Epic Spec (PO 확정) → Story 분해 → 개발
+Level 2: Epic Spec (Epic level) ⭐ Core
+   └─→ WHY, WHAT, HOW (overview), EDGE
+   └─→ Owner: PO (🎯 Simon support) / Template: templates/epic-spec.md
 
-[금지]
-Sprint PRD → (Epic Spec 없이) Story 작성 ❌
+Level 3: Story (Story level)
+   └─→ Based on Epic Spec, AC (Given-When-Then), task breakdown
+   └─→ Owner: 📋 Penny / Template: templates/story-v2.md
 ```
 
-### 5단계 스토리 상태
+### Order Is Mandatory
+
+```
+No Story writing before Epic Spec is finalized!
+
+[Correct order]
+Sprint PRD → Epic Spec (PO finalized) → Story breakdown → Development
+
+[Prohibited]
+Sprint PRD → (without Epic Spec) Story writing ❌
+```
+
+### 5-Stage Story Status
 
 ```
 draft → backlog → ready-for-dev → in-progress → review → done
 ```
 
-| 상태 | 의미 | 진입 조건 |
-|------|------|----------|
-| `draft` | 초안 (Epic Spec 미확정) | - |
-| `backlog` | Epic Spec 확정됨 | Epic Spec 완료 |
-| `ready-for-dev` | 핸드오프 완료 | Story 검증 통과 |
-| `in-progress` | 개발 중 | - |
-| `done` | 완료 | 📊 Vicky 검증 |
+| Status | Meaning | Entry Condition |
+|--------|---------|-----------------|
+| `draft` | Draft (Epic Spec not finalized) | — |
+| `backlog` | Epic Spec finalized | Epic Spec completed |
+| `ready-for-dev` | Handoff completed | Story verification passed |
+| `in-progress` | In development | — |
+| `done` | Completed | 📊 Vicky validation |
 
-### 워크플로우 단계
+### Workflow Stages
 
-**Phase 1: 기획 (PO 주도)**
-1. Sprint PRD 작성 (🎯 Simon)
-2. Epic Spec 작성 (PO) → ✅ PO 승인 후 다음 단계
+**Phase 1: Planning (PO-led)**
+1. Write Sprint PRD (🎯 Simon)
+2. Write Epic Spec (PO) → ✅ Proceed after PO approval
 
-**Phase 2: 핸드오프 (📋 Penny)**
-3. Story 분해 (templates/story-v2.md)
-4. 화면정의서 작성 - UI Epic인 경우 (templates/screen-spec.md)
-5. 품질 검증 (templates/handoff-checklist.md) → 상태: ready-for-dev
+**Phase 2: Handoff (📋 Penny)**
+3. Story breakdown (templates/story-v2.md)
+4. Screen spec — for UI Epics (templates/screen-spec.md)
+5. Quality verification (templates/handoff-checklist.md) → Status: ready-for-dev
 
-**Phase 3: 개발 (AI Agent)**
-6. Story 태스크 순서대로 구현
-7. 리뷰 & 완료 → done
+**Phase 3: Development (AI Agent)**
+6. Implement story tasks in order
+7. Review & complete → done
 
-### 재해 예방 분석 (5가지)
+### Disaster Prevention Analysis (5 checks)
 
-핸드오프 전 반드시 체크:
-1. **기능 중복** - 기존 코드에 유사 기능?
-2. **기술 오류** - 라이브러리 버전, API 계약
-3. **파일 구조** - 컨벤션, 빌드 프로세스
-4. **회귀 오류** - 기존 테스트, 사이드 이펙트
-5. **구현 불명확** - 엣지 케이스, 에러 처리
+Must check before handoff:
+1. **Feature duplication** — Similar functionality in existing code?
+2. **Technical errors** — Library versions, API contracts
+3. **File structure** — Conventions, build process
+4. **Regression errors** — Existing tests, side effects
+5. **Implementation ambiguity** — Edge cases, error handling
 
 ---
 
-## spec-site: 인터랙티브 스펙 도구
+## spec-site: Interactive Spec Tool
 
-spec-site는 Vue3 + Vite 기반의 인터랙티브 스펙 뷰어입니다.
-정적 마크다운 대신 동적 목업과 시나리오 기반 스펙을 제공합니다.
+spec-site is a Vue 3 + Vite based interactive spec viewer.
+It provides dynamic mockups and scenario-based specs instead of static markdown.
 
-### 페이지 추가 패턴
+### Page Addition Pattern
 
-1. `src/pages/{feature}/` 폴더 생성
-2. 3개 파일 작성:
-   - `{feature}Data.ts` — 시나리오, 스펙 영역, 버전 정보
-   - `{Feature}Mockup.vue` — 인터랙티브 목업
-   - `{Feature}SpecPanel.vue` — 스펙 문서 패널
-3. `wireframeRegistry.ts`에 등록
-4. `navigation.ts`에 추가
+1. Create `src/pages/{feature}/` folder
+2. Write 3 files:
+   - `{feature}Data.ts` — Scenarios, spec areas, version info
+   - `{Feature}Mockup.vue` — Interactive mockup
+   - `{Feature}SpecPanel.vue` — Spec document panel
+3. Register in `wireframeRegistry.ts`
+4. Add to `navigation.ts`
 
-### 레이아웃 표준: SplitPaneLayout
+### Layout Standard: SplitPaneLayout
 
-좌: 인터랙티브 목업 / 우: 스펙 패널 (드래그 가능)
+Left: Interactive mockup / Right: Spec panel (draggable)
 
 ```
 ┌────────────────────────────────────────────────┐
@@ -191,8 +191,8 @@ spec-site는 Vue3 + Vite 기반의 인터랙티브 스펙 뷰어입니다.
 ├─────────────────────┬──────────────────────────┤
 │                     │                          │
 │    MockupShell      │     SpecPanel            │
-│    (시나리오별 목업)  │     (스펙 문서)          │
-│                     │                          │
+│    (per-scenario    │     (spec document)      │
+│     mockup)         │                          │
 │                     │                          │
 │                     │                          │
 ├─────────────────────┴──────────────────────────┤
@@ -200,25 +200,25 @@ spec-site는 Vue3 + Vite 기반의 인터랙티브 스펙 뷰어입니다.
 └────────────────────────────────────────────────┘
 ```
 
-### 시나리오 시스템
+### Scenario System
 
-ScenarioSwitcher로 사용자 유형별/상태별 목업 전환.
-각 시나리오는 `{feature}Data.ts`에 정의되며, `useScenario` composable로 provide/inject.
+ScenarioSwitcher enables mockup switching by user type / state.
+Each scenario is defined in `{feature}Data.ts` and provided/injected via `useScenario` composable.
 
-### Data 파일 구조
+### Data File Structure
 
 ```typescript
 // {feature}Data.ts
 import type { Scenario, SpecArea, PageVersion } from '../data/types'
 
 export const scenarios: Scenario<FeatureState>[] = [
-  { id: 'default', label: '기본', state: { /* ... */ } },
-  { id: 'empty', label: '빈 상태', state: { /* ... */ } },
+  { id: 'default', label: 'Default', state: { /* ... */ } },
+  { id: 'empty', label: 'Empty state', state: { /* ... */ } },
 ]
 
 export const specAreas: SpecArea[] = [
-  { id: 'layout', label: '레이아웃' },
-  { id: 'components', label: '컴포넌트 상세' },
+  { id: 'layout', label: 'Layout' },
+  { id: 'components', label: 'Component Details' },
 ]
 
 export const version: PageVersion = {
@@ -228,104 +228,104 @@ export const version: PageVersion = {
 }
 ```
 
-### Epic Spec 연동
+### Epic Spec Integration
 
-Epic Spec은 `.context/sprints/s{N}/epic-specs/E-XX.md`에 마크다운으로 작성.
-spec-site의 PolicyIndex / PolicyDetail 페이지에서 자동 렌더링됨.
+Epic Specs are written in markdown at `.context/sprints/s{N}/epic-specs/E-XX.md`.
+They are automatically rendered on spec-site's PolicyIndex / PolicyDetail pages.
 
-### 회고 도구 (RetroPage)
+### Retrospective Tool (RetroPage)
 
-Turso(LibSQL) 기반 팀 회고 보드. `/retro` 라우트.
-- 카테고리별 카드 (잘한 점/개선점/액션)
-- 스프린트별 필터링
-
----
-
-## 체크리스트
-
-### PRD 완성도
-- [ ] One Question 정의됨
-- [ ] OMTM 설정됨
-- [ ] 가설/검증 방법 명확
-- [ ] Guard Rail 지표 있음
-
-### 스프린트 Ready
-- [ ] KR 정량화됨
-- [ ] 개발 스펙 문서 링크
-- [ ] 베이스라인 데이터 확보
-
-### 가설 검증
-- [ ] Before 데이터 수집 완료
-- [ ] 측정 기간 설정됨
-- [ ] 성공/실패 기준 명확
+Turso (LibSQL) based team retrospective board. Route: `/retro`.
+- Category-based cards (went well / needs improvement / action items)
+- Sprint-based filtering
 
 ---
 
-## 템플릿
+## Checklists
 
-### 기획 (PO 주도)
+### PRD Completeness
+- [ ] One Question defined
+- [ ] OMTM set
+- [ ] Hypothesis/validation method clear
+- [ ] Guard Rail metrics present
 
-| 템플릿 | 담당 | 파일 | 순서 |
-|--------|------|------|------|
+### Sprint Ready
+- [ ] KRs quantified
+- [ ] Dev spec document linked
+- [ ] Baseline data secured
+
+### Hypothesis Validation
+- [ ] Before data collection complete
+- [ ] Measurement period set
+- [ ] Success/failure criteria clear
+
+---
+
+## Templates
+
+### Planning (PO-led)
+
+| Template | Owner | File | Order |
+|----------|-------|------|-------|
 | Sprint PRD | 🎯 Simon | `templates/prd.md` | 1 |
 | Epic Spec | PO | `templates/epic-spec.md` | 2 |
 
-### 핸드오프 (📋 Penny 주도)
+### Handoff (📋 Penny-led)
 
-| 템플릿 | 파일 | 순서 |
-|--------|------|------|
-| 스토리 v2 | `templates/story-v2.md` | 3 |
-| 화면정의서 | `templates/screen-spec.md` | 4 |
-| 핸드오프 체크리스트 | `templates/handoff-checklist.md` | 5 |
-| 스프린트 상태 | `templates/sprint-status.yaml` | - |
-| 개발자 가이드 | `templates/dev-guide.md` | - |
+| Template | File | Order |
+|----------|------|-------|
+| Story v2 | `templates/story-v2.md` | 3 |
+| Screen Spec | `templates/screen-spec.md` | 4 |
+| Handoff Checklist | `templates/handoff-checklist.md` | 5 |
+| Sprint Status | `templates/sprint-status.yaml` | — |
+| Dev Guide | `templates/dev-guide.md` | — |
 
-### 검증/회고
+### Validation/Retrospective
 
-| 템플릿 | 담당 | 파일 |
-|--------|------|------|
-| 검증 보고서 | 📊 Vicky | `templates/validation-report.md` |
+| Template | Owner | File |
+|----------|-------|------|
+| Validation Report | 📊 Vicky | `templates/validation-report.md` |
 | Guard Rail | 📊 Vicky | `templates/guardrail.md` |
-| 회고 | Penny + Vicky | `templates/retrospective.md` |
+| Retrospective | Penny + Vicky | `templates/retrospective.md` |
 
 ---
 
 ---
 
-## 문서 관리 도구 역할 분담
+## Document Management Tool Roles
 
-### spec-site — 인터랙티브 스펙 + Epic Spec 열람
+### spec-site — Interactive Specs + Epic Spec Viewing
 
-| 문서 | 경로 |
-|------|------|
-| 스프린트 문서 | `.context/sprints/s{N}/` |
+| Document | Path |
+|----------|------|
+| Sprint documents | `.context/sprints/s{N}/` |
 | Epic Specs | `.context/sprints/s{N}/epic-specs/` |
-| 인터랙티브 목업 | `spec-site/src/pages/` |
-| 회고 보드 | spec-site `/retro` |
+| Interactive mockups | `spec-site/src/pages/` |
+| Retro board | spec-site `/retro` |
 {{#if spec_site.deploy_url}}
 
-**배포 URL**: {{spec_site.deploy_url}}
+**Deploy URL**: {{spec_site.deploy_url}}
 {{/if}}
 
 {{#if capabilities.pm_tool}}
-### PM 도구 — 프로젝트 관리
+### PM Tool — Project Management
 
-| 용도 | 설명 |
-|------|------|
-| 칸반 보드 | 태스크 상태 추적, 담당자 배정 |
-| 스프린트 관리 | 진행률, 워크로드 모니터링 |
-| 회의록/로드맵 | 미팅 기록, OKR |
+| Purpose | Description |
+|---------|-------------|
+| Kanban board | Task status tracking, assignee management |
+| Sprint management | Progress, workload monitoring |
+| Meeting notes / Roadmap | Meeting records, OKR |
 {{/if}}
 
-### 지표 데이터
+### Metrics Data
 
-**위치:** `.context/metrics/`
+**Location:** `.context/metrics/`
 
-| 파일 | 내용 | 주기 |
-|------|------|------|
-| `business.yaml` | MRR, ARPU, 퍼널 | 월 1회 |
-| `segments.yaml` | 세그먼트별 지표 | 월 1회 |
-| `team.yaml` | 팀/담당자 정보 | 스프린트 시작 시 |
+| File | Contents | Frequency |
+|------|----------|-----------|
+| `business.yaml` | MRR, ARPU, funnel | Monthly |
+| `segments.yaml` | Per-segment metrics | Monthly |
+| `team.yaml` | Team/member info | At sprint start |
 
 ---
 

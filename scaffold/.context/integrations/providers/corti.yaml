@@ -1,7 +1,7 @@
 id: corti
 name: "Corti"
 category: knowledge
-description: "크로스소스 지식 검색, 의사결정 추적"
+description: "Cross-source knowledge search, decision tracking"
 
 mcp:
   server_name: "corti"
@@ -9,36 +9,36 @@ mcp:
 
 setup_questions:
   - key: workspace_id
-    label: "Corti 워크스페이스 ID"
+    label: "Corti workspace ID"
     type: string
     required: true
     example: "ws_abc123"
   - key: default_domain
-    label: "의사결정 기본 도메인"
+    label: "Default domain for decisions"
     type: string
     required: false
     example: "product"
 
 agent_prompts:
   researcher: |
-    ### Corti MCP ⭐ 핵심 도구
+    ### Corti MCP ⭐ Core Tool
     ```
-    용도: 크로스소스 지식 검색, 과거 논의 맥락 추적
-    워크스페이스: {{config.workspace_id}}
+    Purpose: Cross-source knowledge search, past discussion context tracking
+    Workspace: {{config.workspace_id}}
     ```
 
-    #### 자주 사용하는 패턴
+    #### Common Patterns
 
-    **1. VOC 크로스소스 검색**
+    **1. VOC Cross-source Search**
     ```javascript
     corti_search({
       workspace_id: "{{config.workspace_id}}",
-      query: "사용자 불만 핵심 기능",
+      query: "user complaints core features",
       sources: ["slack", "notion", "linear"]
     })
     ```
 
-    **2. 과거 논의 맥락 조회**
+    **2. Past Discussion Context Retrieval**
     ```javascript
     corti_get_document({
       workspace_id: "{{config.workspace_id}}",
@@ -46,43 +46,43 @@ agent_prompts:
     })
     ```
 
-    **3. 관련 의사결정 히스토리**
+    **3. Related Decision History**
     ```javascript
     corti_get_decisions({
       workspace_id: "{{config.workspace_id}}",
-      query: "온보딩 플로우 변경"
+      query: "onboarding flow changes"
     })
     ```
 
-    #### 활용 예시
+    #### Usage Example
     ```
-    🎤 Rita: "Slack, Notion, Linear에서 '핵심 지표' 관련 논의를 종합 검색해볼게요."
-    → corti_search({ query: "핵심 지표 개선 피드백" })
-    → 결과를 VOC 인사이트로 종합 정리
+    🎤 Rita: "Let me do a comprehensive search for discussions about 'key metrics' across Slack, Notion, and Linear."
+    → corti_search({ query: "key metric improvement feedback" })
+    → Synthesize results into VOC insights
     ```
 
   strategist: |
-    ### Corti MCP ⭐ 핵심 도구
+    ### Corti MCP ⭐ Core Tool
     ```
-    용도: 의사결정 기록/관리, PRD 맥락 수집
-    워크스페이스: {{config.workspace_id}}
-    기본 도메인: {{config.default_domain}}
+    Purpose: Decision recording/management, PRD context gathering
+    Workspace: {{config.workspace_id}}
+    Default domain: {{config.default_domain}}
     ```
 
-    #### 자주 사용하는 패턴
+    #### Common Patterns
 
-    **1. 의사결정 기록**
+    **1. Record Decision**
     ```javascript
     corti_record_decision({
       workspace_id: "{{config.workspace_id}}",
-      title: "온보딩 3단계 → 2단계 축소",
+      title: "Reduce onboarding from 3 steps to 2",
       domain: "{{config.default_domain}}",
-      rationale: "퍼널 이탈률 40% → 목표 20% 이하",
+      rationale: "Funnel drop-off rate 40% → target below 20%",
       status: "candidate"
     })
     ```
 
-    **2. 기존 결정 조회**
+    **2. Retrieve Existing Decisions**
     ```javascript
     corti_get_decisions({
       workspace_id: "{{config.workspace_id}}",
@@ -91,113 +91,113 @@ agent_prompts:
     })
     ```
 
-    **3. PRD 관련 맥락 수집**
+    **3. Gather PRD-related Context**
     ```javascript
     corti_search({
       workspace_id: "{{config.workspace_id}}",
-      query: "가격 정책 변경 논의"
+      query: "pricing policy change discussion"
     })
     ```
 
-    #### 활용 예시
+    #### Usage Example
     ```
-    🎯 Simon: "이 PRD의 핵심 결정을 Corti에 기록할게요."
+    🎯 Simon: "Let me record the key decisions from this PRD in Corti."
     → corti_record_decision({ title: "...", rationale: "..." })
     ```
 
   planner: |
     ### Corti MCP
     ```
-    용도: 관련 의사결정 확인 후 스토리 작성
-    워크스페이스: {{config.workspace_id}}
-    사용법:
-    - corti_get_decisions: 관련 결정 확인
-    - corti_search: 스토리 배경 맥락 검색
+    Purpose: Check related decisions before writing stories
+    Workspace: {{config.workspace_id}}
+    Usage:
+    - corti_get_decisions: Check related decisions
+    - corti_search: Search story background context
     ```
 
-    #### 활용 예시
+    #### Usage Example
     ```
-    📋 Penny: "이 기능 관련 기존 결정 확인해볼게요."
-    → corti_get_decisions({ query: "결제 플로우" })
-    → 관련 결정 반영하여 스토리 AC 작성
+    📋 Penny: "Let me check existing decisions related to this feature."
+    → corti_get_decisions({ query: "payment flow" })
+    → Reflect related decisions in story AC
     ```
 
   validator: |
     ### Corti MCP
     ```
-    용도: 검증 결과로 의사결정 승인/거부
-    워크스페이스: {{config.workspace_id}}
-    사용법:
-    - corti_get_decisions: 검증 대상 결정 조회
-    - corti_confirm_decision: 검증 통과 시 승인
-    - corti_reject_decision: 검증 실패 시 거부 (사유 포함)
+    Purpose: Approve/reject decisions based on validation results
+    Workspace: {{config.workspace_id}}
+    Usage:
+    - corti_get_decisions: Retrieve decisions for validation
+    - corti_confirm_decision: Approve when validation passes
+    - corti_reject_decision: Reject when validation fails (reason required)
     ```
 
-    #### 활용 예시
+    #### Usage Example
     ```
-    📊 Vicky: "가설 검증 결과 데이터가 지지하므로 결정을 승인합니다."
-    → corti_confirm_decision({ decision_id: "dec_xxx", evidence: "CVR 15% 증가 확인" })
+    📊 Vicky: "The hypothesis validation data supports it, so I approve the decision."
+    → corti_confirm_decision({ decision_id: "dec_xxx", evidence: "CVR 15% increase confirmed" })
     ```
 
   analyst: |
     ### Corti MCP
     ```
-    용도: 분석 맥락 검색, 과거 데이터 관련 논의 조회
-    워크스페이스: {{config.workspace_id}}
-    사용법:
-    - corti_search: 분석 관련 맥락 검색
-    - corti_get_document: 상세 문서 조회
+    Purpose: Search analysis context, retrieve past data-related discussions
+    Workspace: {{config.workspace_id}}
+    Usage:
+    - corti_search: Search analysis-related context
+    - corti_get_document: Retrieve detailed documents
     ```
 
-    #### 활용 예시
+    #### Usage Example
     ```
-    📈 Danny: "이전 분기 리텐션 분석 관련 논의를 찾아볼게요."
-    → corti_search({ query: "리텐션 분석 Q4" })
+    📈 Danny: "Let me find discussions related to retention analysis from the previous quarter."
+    → corti_search({ query: "retention analysis Q4" })
     ```
 
 workflow_rules:
   - content: |
-      ## Corti 의사결정 추적
+      ## Corti Decision Tracking
 
-      ### MCP 도구 목록
+      ### MCP Tool List
 
-      | 도구 | 권한 | 용도 |
-      |------|------|------|
-      | `corti_search` | 읽기 | 크로스소스 지식 검색 (Slack, GitHub, Notion 등) |
-      | `corti_get_document` | 읽기 | 특정 문서 상세 조회 |
-      | `corti_get_decisions` | 읽기 | 의사결정 목록 조회 (필터링 가능) |
-      | `corti_get_decision_history` | 읽기 | 특정 결정의 변경 이력 |
-      | `corti_record_decision` | 쓰기 | 새 의사결정 기록 (candidate 상태) |
-      | `corti_confirm_decision` | 쓰기 | 의사결정 승인 (evidence 필수) |
-      | `corti_reject_decision` | 쓰기 | 의사결정 거부 (reason 필수) |
-      | `corti_update_decision` | 쓰기 | 의사결정 내용 수정 |
+      | Tool | Permission | Purpose |
+      |------|------------|---------|
+      | `corti_search` | Read | Cross-source knowledge search (Slack, GitHub, Notion, etc.) |
+      | `corti_get_document` | Read | Retrieve specific document details |
+      | `corti_get_decisions` | Read | Query decision list (filterable) |
+      | `corti_get_decision_history` | Read | View change history of a specific decision |
+      | `corti_record_decision` | Write | Record new decision (candidate status) |
+      | `corti_confirm_decision` | Write | Approve decision (evidence required) |
+      | `corti_reject_decision` | Write | Reject decision (reason required) |
+      | `corti_update_decision` | Write | Modify decision content |
 
-      ### 기록 대상
+      ### What to Record
 
-      - PRD 핵심 결정 (기능 범위, 우선순위, 트레이드오프)
-      - 가설 검증 결과 (채택/기각 사유)
-      - 팀 토론 합의 사항
-      - 전략 방향 전환 (피봇, 스코프 변경)
+      - PRD key decisions (feature scope, priorities, trade-offs)
+      - Hypothesis validation results (adoption/rejection rationale)
+      - Team discussion consensus items
+      - Strategic direction changes (pivots, scope changes)
 
-      ### 기록 비대상
+      ### What NOT to Record
 
-      - 일상적 구현 세부사항 (변수명, 스타일 등)
-      - 임시 실험/PoC 결과 (확정 전)
-      - 개인 메모, 브레인스토밍 초안
+      - Routine implementation details (variable names, styles, etc.)
+      - Temporary experiments/PoC results (before finalization)
+      - Personal notes, brainstorming drafts
 
-      ### 결정 상태 플로우
+      ### Decision Status Flow
 
       ```
-      candidate → active      (검증 통과, confirm)
-      candidate → rejected    (검증 실패, reject)
-      active    → superseded  (새 결정으로 대체)
+      candidate → active      (validation passed, confirm)
+      candidate → rejected    (validation failed, reject)
+      active    → superseded  (replaced by new decision)
       ```
 
-      ### Oscar 통합 가이드
+      ### Oscar Integration Guide
 
-      다음 시점에 Oscar가 Corti 기록을 제안:
-      - **PRD 확정 시**: Simon이 PRD를 완성하면 핵심 결정 기록 제안
-      - **가설 검증 완료 시**: Vicky가 검증을 마치면 confirm/reject 제안
-      - **팀 토론 합의 시**: Party 모드에서 합의가 도출되면 기록 제안
+      Oscar suggests Corti recording at the following points:
+      - **When PRD is finalized**: Suggest recording key decisions after Simon completes PRD
+      - **When hypothesis validation is complete**: Suggest confirm/reject after Vicky finishes validation
+      - **When team discussion reaches consensus**: Suggest recording when consensus is reached in Party mode
 
 footer_tool_line: "Corti MCP"

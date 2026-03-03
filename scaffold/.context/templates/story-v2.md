@@ -1,228 +1,228 @@
 # Story Template v2
 
-> 📋 Penny가 사용하는 AI Agent 최적화 스토리 템플릿 (BMAD-METHOD 기반)
+> 📋 AI Agent-optimized story template used by Penny (BMAD-METHOD based)
 
 ---
 
-# Story: [스토리 제목]
+# Story: [Story Title]
 
-## 메타
+## Meta
 
-| 항목 | 값 |
-|------|-----|
+| Item | Value |
+|------|-------|
 | **Story ID** | E-[N]-S-[M] |
-| **Epic** | [에픽 제목 + 링크] |
-| **상태** | `ready-for-dev` |
-| **우선순위** | P0 / P1 / P2 |
-| **규모** | S / M / L / XL |
-| **담당 개발자** | [이름] |
+| **Epic** | [Epic title + link] |
+| **Status** | `ready-for-dev` |
+| **Priority** | P0 / P1 / P2 |
+| **Size** | S / M / L / XL |
+| **Assigned Developer** | [Name] |
 
 ---
 
-## 사용자 스토리
+## User Story
 
-> As a **[역할]**,
-> I want **[기능/행동]**,
-> So that **[혜택/가치]**.
-
----
-
-## 수락 기준 (Acceptance Criteria)
-
-### AC-01: [기준 제목]
-
-| 항목 | 내용 |
-|------|------|
-| **Given** | [전제 조건: 사용자/시스템 상태] |
-| **When** | [트리거: 사용자 액션] |
-| **Then** | [예상 결과: 시스템 반응] |
-
-### AC-02: [기준 제목]
-
-| 항목 | 내용 |
-|------|------|
-| **Given** | [전제 조건] |
-| **When** | [트리거] |
-| **Then** | [예상 결과] |
-
-### AC-03: [기준 제목] (엣지 케이스)
-
-| 항목 | 내용 |
-|------|------|
-| **Given** | [예외 상황] |
-| **When** | [트리거] |
-| **Then** | [에러 처리/폴백] |
+> As a **[role]**,
+> I want **[feature/action]**,
+> So that **[benefit/value]**.
 
 ---
 
-## 태스크 분해
+## Acceptance Criteria
 
-### Task 1: [태스크명] `AC-01`
+### AC-01: [Criteria Title]
 
-- [ ] **1.1**: [상세 작업 - 구체적으로]
-- [ ] **1.2**: [상세 작업]
-- [ ] **1.3**: [상세 작업]
+| Item | Content |
+|------|---------|
+| **Given** | [Precondition: user/system state] |
+| **When** | [Trigger: user action] |
+| **Then** | [Expected result: system response] |
 
-### Task 2: [태스크명] `AC-02`
+### AC-02: [Criteria Title]
 
-- [ ] **2.1**: [상세 작업]
-- [ ] **2.2**: [상세 작업]
+| Item | Content |
+|------|---------|
+| **Given** | [Precondition] |
+| **When** | [Trigger] |
+| **Then** | [Expected result] |
 
-### Task 3: 테스트 작성 `AC-01, AC-02, AC-03`
+### AC-03: [Criteria Title] (Edge Case)
 
-- [ ] **3.1**: 단위 테스트 작성
-- [ ] **3.2**: 통합 테스트 작성
-- [ ] **3.3**: 엣지 케이스 테스트
-
-### Task 4: 마무리
-
-- [ ] **4.1**: 코드 정리 및 주석
-- [ ] **4.2**: 이벤트 로깅 확인
-- [ ] **4.3**: PR 생성
+| Item | Content |
+|------|---------|
+| **Given** | [Exception scenario] |
+| **When** | [Trigger] |
+| **Then** | [Error handling/fallback] |
 
 ---
 
-## Dev Notes (AI Agent 최적화)
+## Task Breakdown
 
-### 아키텍처 패턴
+### Task 1: [Task Name] `AC-01`
 
-| 항목 | 내용 |
-|------|------|
-| **사용할 패턴** | [예: Repository Pattern, CQRS, Event Sourcing 등] |
-| **참고 구현** | [기존 코드 경로 - 유사한 구현 예시] |
-| **피해야 할 것** | [안티패턴, 주의사항] |
+- [ ] **1.1**: [Detailed work - be specific]
+- [ ] **1.2**: [Detailed work]
+- [ ] **1.3**: [Detailed work]
 
-### 영향 받는 소스 트리
+### Task 2: [Task Name] `AC-02`
+
+- [ ] **2.1**: [Detailed work]
+- [ ] **2.2**: [Detailed work]
+
+### Task 3: Write Tests `AC-01, AC-02, AC-03`
+
+- [ ] **3.1**: Write unit tests
+- [ ] **3.2**: Write integration tests
+- [ ] **3.3**: Edge case tests
+
+### Task 4: Wrap-up
+
+- [ ] **4.1**: Code cleanup and comments
+- [ ] **4.2**: Verify event logging
+- [ ] **4.3**: Create PR
+
+---
+
+## Dev Notes (AI Agent Optimized)
+
+### Architecture Pattern
+
+| Item | Content |
+|------|---------|
+| **Pattern to Use** | [e.g., Repository Pattern, CQRS, Event Sourcing, etc.] |
+| **Reference Implementation** | [Existing code path - similar implementation example] |
+| **Things to Avoid** | [Anti-patterns, cautions] |
+
+### Affected Source Tree
 
 ```
 src/
-├── [수정할 디렉터리1]/
-│   ├── [수정할 파일1.ts]      # [변경 내용 요약]
-│   └── [수정할 파일2.ts]      # [변경 내용 요약]
-├── [수정할 디렉터리2]/
-│   └── [신규 파일.ts]         # 🆕 신규 생성
+├── [directory1-to-modify]/
+│   ├── [file1-to-modify.ts]      # [Change summary]
+│   └── [file2-to-modify.ts]      # [Change summary]
+├── [directory2-to-modify]/
+│   └── [new-file.ts]             # 🆕 New file
 └── tests/
-    └── [테스트 파일.test.ts]  # 🆕 신규 생성
+    └── [test-file.test.ts]       # 🆕 New file
 ```
 
-### 기술 스택
+### Tech Stack
 
-| 항목 | 사용 기술 | 버전 |
-|------|----------|------|
-| 프레임워크 | [예: Next.js] | [버전] |
-| 라이브러리 | [예: React Query] | [버전] |
-| DB | [예: PostgreSQL] | [버전] |
+| Item | Technology | Version |
+|------|-----------|---------|
+| Framework | [e.g., Next.js] | [Version] |
+| Library | [e.g., React Query] | [Version] |
+| DB | [e.g., PostgreSQL] | [Version] |
 
-### 테스트 기준
+### Test Criteria
 
-| 유형 | 필요 여부 | 대상/시나리오 |
-|------|----------|--------------|
-| 단위 테스트 | ✅/❌ | [대상 함수/클래스] |
-| 통합 테스트 | ✅/❌ | [API 엔드포인트] |
-| E2E 테스트 | ✅/❌ | [사용자 시나리오] |
+| Type | Required | Target/Scenario |
+|------|----------|----------------|
+| Unit Test | ✅/❌ | [Target function/class] |
+| Integration Test | ✅/❌ | [API endpoint] |
+| E2E Test | ✅/❌ | [User scenario] |
 
-### 충돌 감지
+### Conflict Detection
 
-| 항목 | 상태 | 설명 |
-|------|------|------|
-| 기존 코드 충돌 | ✅ 없음 / ⚠️ 주의 | [상세 설명] |
-| API 계약 변경 | ✅ 없음 / ⚠️ 주의 | [상세 설명] |
-| DB 스키마 변경 | ✅ 없음 / ⚠️ 주의 | [마이그레이션 필요 여부] |
-| 환경 변수 변경 | ✅ 없음 / ⚠️ 주의 | [추가할 변수] |
+| Item | Status | Description |
+|------|--------|-------------|
+| Existing code conflict | ✅ None / ⚠️ Caution | [Detailed description] |
+| API contract change | ✅ None / ⚠️ Caution | [Detailed description] |
+| DB schema change | ✅ None / ⚠️ Caution | [Migration needed?] |
+| Environment variable change | ✅ None / ⚠️ Caution | [Variables to add] |
 
 ---
 
 ## References
 
-| 출처 | 경로/링크 | 참조 섹션 |
-|------|----------|----------|
-| PRD | [노션 링크] | [섹션명] |
-| Epic Spec | [epic-specs/E-XX-xxx.md](../epic-specs/E-XX-xxx.md) | [섹션명] |
-| **화면정의서** | [design/E-XX-screen-spec.md](../design/E-XX-screen-spec.md) | Level [N] |
-| 디자인 | [Figma 링크] | [프레임명] |
-| API 스펙 | [Swagger 링크] | [엔드포인트] |
-| 기존 구현 참고 | `src/[경로]/[파일]` | [함수/클래스명] |
-| 외부 문서 | [링크] | [관련 내용] |
+| Source | Path/Link | Reference Section |
+|--------|----------|-------------------|
+| PRD | [Notion link] | [Section name] |
+| Epic Spec | [epic-specs/E-XX-xxx.md](../epic-specs/E-XX-xxx.md) | [Section name] |
+| **Screen Spec** | [design/E-XX-screen-spec.md](../design/E-XX-screen-spec.md) | Level [N] |
+| Design | [Figma link] | [Frame name] |
+| API Spec | [Swagger link] | [Endpoint] |
+| Reference Implementation | `src/[path]/[file]` | [Function/class name] |
+| External Docs | [Link] | [Related content] |
 
-### spec-site 연동 (선택)
+### spec-site Integration (Optional)
 
-인터랙티브 목업이 있는 경우 spec-site 링크를 추가:
+When interactive mockups exist, add spec-site link:
 
-| 출처 | 경로 | 참조 |
-|------|------|------|
-| **spec-site 목업** | `spec-site/src/pages/{feature}/` | 시나리오별 인터랙티브 목업 |
+| Source | Path | Reference |
+|--------|------|-----------|
+| **spec-site Mockup** | `spec-site/src/pages/{feature}/` | Per-scenario interactive mockup |
 
 ---
 
-## 이벤트 로깅
+## Event Logging
 
-| 이벤트명 | 트리거 | 파라미터 | GA4 여부 |
-|----------|--------|----------|----------|
-| `[event_name]` | [언제 발생] | `{key: value}` | ✅/❌ |
-| `[event_name]` | [언제 발생] | `{key: value}` | ✅/❌ |
+| Event Name | Trigger | Parameters | GA4 |
+|------------|---------|------------|-----|
+| `[event_name]` | [When triggered] | `{key: value}` | ✅/❌ |
+| `[event_name]` | [When triggered] | `{key: value}` | ✅/❌ |
 
 ---
 
 ## Dev Agent Record
 
-| 항목 | 값 |
-|------|-----|
-| **생성 Agent** | [모델명: Claude Opus 4.5 등] |
-| **생성일** | [YYYY-MM-DD] |
-| **마지막 수정** | [YYYY-MM-DD] |
-| **검증자** | [Penny / 사람 이름] |
+| Item | Value |
+|------|-------|
+| **Created By Agent** | [Model name: Claude Opus 4.5, etc.] |
+| **Created Date** | [YYYY-MM-DD] |
+| **Last Modified** | [YYYY-MM-DD] |
+| **Reviewer** | [Penny / Person name] |
 
-### 완료 노트
-
-```
-[개발 완료 후 기록]
-- 특이사항:
-- 변경된 부분:
-- 추가 고려사항:
-```
-
-### 수정된 파일 목록
+### Completion Notes
 
 ```
-[개발 완료 후 자동/수동 기록]
+[Recorded after development completion]
+- Notable items:
+- Changed parts:
+- Additional considerations:
+```
+
+### Modified File List
+
+```
+[Recorded automatically/manually after development completion]
 - src/...
 - src/...
 - tests/...
 ```
 
-### 관련 PR
+### Related PR
 
-- PR #[번호]: [제목]
-
----
-
-## 핸드오프 전 체크리스트
-
-### 문맥 & 요구사항
-- [ ] 사용자 스토리가 명확한가? (역할, 기능, 가치)
-- [ ] 수락 기준이 Given-When-Then 형식인가?
-- [ ] 모든 엣지 케이스가 정의되었는가?
-
-### 재해 예방
-- [ ] 기존 코드에 유사 기능 확인했는가?
-- [ ] 충돌 감지 항목에 ⚠️가 없는가?
-- [ ] 라이브러리 버전 호환성 확인했는가?
-
-### AI Agent 최적화
-- [ ] Dev Notes가 충분히 상세한가?
-- [ ] References가 정확한가?
-- [ ] 태스크 분해가 구체적인가?
-
-### 최종 점검
-- [ ] 이벤트 로깅이 정의되었는가?
-- [ ] 상태가 `ready-for-dev`로 설정되었는가?
+- PR #[Number]: [Title]
 
 ---
 
-**검증 결과**: ✅ PASS / ❌ FAIL
-**검증일**: [YYYY-MM-DD]
+## Pre-Handoff Checklist
+
+### Context & Requirements
+- [ ] Is the user story clear? (role, feature, value)
+- [ ] Are acceptance criteria in Given-When-Then format?
+- [ ] Are all edge cases defined?
+
+### Disaster Prevention
+- [ ] Checked for similar functionality in existing code?
+- [ ] No ⚠️ items in conflict detection?
+- [ ] Verified library version compatibility?
+
+### AI Agent Optimization
+- [ ] Are Dev Notes sufficiently detailed?
+- [ ] Are References accurate?
+- [ ] Is the task breakdown specific enough?
+
+### Final Check
+- [ ] Is event logging defined?
+- [ ] Is status set to `ready-for-dev`?
 
 ---
 
-*생성일: [날짜]*
-*마지막 수정: [날짜]*
+**Validation Result**: ✅ PASS / ❌ FAIL
+**Validation Date**: [YYYY-MM-DD]
+
+---
+
+*Created: [Date]*
+*Last Modified: [Date]*

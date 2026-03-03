@@ -1,9 +1,9 @@
-# Project Configuration - Oscar Setup 인터뷰를 통해 생성/갱신됨
-# 이 파일은 프로젝트의 핵심 컨텍스트를 담고 있습니다.
-# Setup Wizard (/start)가 인터뷰를 통해 이 파일을 자동 생성합니다.
+# Project Configuration - Generated/updated through Oscar Setup interview
+# This file contains the core context of the project.
+# The Setup Wizard (/start) automatically generates this file through an interview.
 
 # ============================================================
-# 프로젝트 기본 정보
+# Project Basic Information
 # ============================================================
 project:
   name: ""           # {{project.name}}
@@ -11,7 +11,7 @@ project:
   type: ""           # brownfield | greenfield
 
 # ============================================================
-# 문제 & 시장
+# Problem & Market
 # ============================================================
 problem:
   core: ""
@@ -20,7 +20,7 @@ problem:
   timing: ""
 
 # ============================================================
-# 솔루션 & 차별점
+# Solution & Differentiation
 # ============================================================
 solution:
   approach: ""
@@ -28,7 +28,7 @@ solution:
   outcome: []
 
 # ============================================================
-# 현재 상태
+# Current State
 # ============================================================
 current_state:
   stage: ""          # idea | prototype | mvp | launched | pmf | growth
@@ -37,7 +37,7 @@ current_state:
   next_milestone: ""
 
 # ============================================================
-# 검증 & 학습
+# Validation & Learning
 # ============================================================
 validation:
   confirmed: []
@@ -45,7 +45,7 @@ validation:
   customer_feedback: ""
 
 # ============================================================
-# 운영 설정
+# Operations Settings
 # ============================================================
 operations:
   sprint:
@@ -56,8 +56,8 @@ operations:
 
   domains: []
   # Example:
-  # - { id: growth, name: "그로스", path: "domains/growth/" }
-  # - { id: marketing, name: "마케팅", path: "domains/marketing/" }
+  # - { id: growth, name: "Growth", path: "domains/growth/" }
+  # - { id: marketing, name: "Marketing", path: "domains/marketing/" }
 
   integrations:
     ga4:
@@ -93,7 +93,7 @@ operations:
     deploy_url: ""             # {{spec_site.deploy_url}}
 
 # ============================================================
-# 메타데이터
+# Metadata
 # ============================================================
 _meta:
   created_at: ""

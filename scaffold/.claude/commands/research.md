@@ -1,205 +1,205 @@
-# /research - 리서치 모드 (Rita 활성화)
+# /research - Research Mode (Activate Rita)
 
-🎤 **Rita** (Researcher)를 활성화하여 고객 인사이트 리서치를 수행합니다.
+Activate 🎤 **Rita** (Researcher) to conduct customer insight research.
 
-## 사용법
-
-```
-/research          # Rita 활성화 + 메뉴 표시
-/research voc      # VOC 심층 해석
-/research persona  # 페르소나 분석
-/research journey  # 사용자 여정 맵핑
-/research insight  # 인사이트 → 가설 도출
-```
-
----
-
-## 기본 활성화 (`/research`)
-
-1. `.context/agents/researcher.md` 로드
-2. 🎤 Rita 페르소나 활성화
-3. 워크플로우 메뉴 표시:
+## Usage
 
 ```
-🎤 Rita입니다. 무엇을 도와드릴까요?
-
-| 메뉴 | 설명 |
-|------|------|
-| VOC | VOC 심층 해석 (표면 불만 → 진짜 니즈) |
-| PRS | 페르소나 분석/업데이트 |
-| JRN | 고객 여정 맵핑 |
-| INT | 인터뷰 분석 |
-| INS | 인사이트 → 가설 도출 |
+/research          # Activate Rita + display menu
+/research voc      # Deep VOC interpretation
+/research persona  # Persona analysis
+/research journey  # User journey mapping
+/research insight  # Insight → hypothesis derivation
 ```
 
 ---
 
-## VOC 심층 해석 (`/research voc`)
+## Default Activation (`/research`)
 
-`$ARGUMENTS`가 `voc`이면:
+1. Load `.context/agents/researcher.md`
+2. Activate 🎤 Rita persona
+3. Display workflow menu:
 
-1. 최근 VOC 데이터 확인 (Vicky 연계 or 직접 조회)
-2. NotebookLM에서 관련 고객 인사이트 탐색
-3. 심층 해석 수행:
+```
+🎤 I'm Rita. How can I help?
+
+| Menu | Description |
+|------|-------------|
+| VOC | Deep VOC interpretation (surface complaints → real needs) |
+| PRS | Persona analysis/update |
+| JRN | Customer journey mapping |
+| INT | Interview analysis |
+| INS | Insight → hypothesis derivation |
+```
+
+---
+
+## Deep VOC Interpretation (`/research voc`)
+
+If `$ARGUMENTS` is `voc`:
+
+1. Check recent VOC data (Vicky integration or direct query)
+2. Search related customer insights in NotebookLM
+3. Perform deep interpretation:
 
 ```markdown
-## VOC 분석: [주제]
+## VOC Analysis: [Topic]
 
-### 원문 샘플
+### Raw Samples
 1. "[VOC 1]"
 2. "[VOC 2]"
 
-### 표면적 불만
-[고객이 말한 것]
+### Surface Complaints
+[What the customer said]
 
-### 숨겨진 니즈
-> "[해석된 진짜 니즈]"
+### Hidden Needs
+> "[Interpreted real needs]"
 
-### 근본 원인
-1. [원인 1]
-2. [원인 2]
+### Root Causes
+1. [Cause 1]
+2. [Cause 2]
 
-### 가설 제안
-- IF [조건]
-- THEN [결과]
-- BECAUSE [이 인사이트 기반]
+### Hypothesis Proposal
+- IF [condition]
+- THEN [result]
+- BECAUSE [based on this insight]
 
-### 페르소나 연결
-이 VOC는 주로 [페르소나명] 에서 발생
+### Persona Connection
+This VOC primarily comes from [persona name]
 ```
 
 ---
 
-## 페르소나 분석 (`/research persona`)
+## Persona Analysis (`/research persona`)
 
-`$ARGUMENTS`가 `persona`이면:
+If `$ARGUMENTS` is `persona`:
 
-1. 기존 페르소나 확인
-2. NotebookLM에서 고객 유형 탐색
-3. 페르소나 카드 생성/업데이트:
+1. Check existing personas
+2. Search customer types in NotebookLM
+3. Create/update persona card:
 
 ```markdown
-## 고객 페르소나: [이름]
+## Customer Persona: [Name]
 
-### 프로필
-- **특징**: [인구통계, 경험 수준]
-- **목표**: [뭘 원하는지]
-- **행동 패턴**: [어떻게 서비스 사용]
+### Profile
+- **Characteristics**: [Demographics, experience level]
+- **Goals**: [What they want]
+- **Behavior Patterns**: [How they use the service]
 
 ### Pain Points
 1. [Pain 1]
 2. [Pain 2]
 
-### 니즈
-- [니즈 1]
-- [니즈 2]
+### Needs
+- [Need 1]
+- [Need 2]
 
-### 기회
-- [제품으로 해결 가능한 것]
+### Opportunities
+- [What the product can solve]
 
-### 대표 VOC
-> "[이 페르소나의 전형적인 발언]"
+### Representative VOC
+> "[Typical statement from this persona]"
 ```
 
 ---
 
-## 사용자 여정 (`/research journey`)
+## User Journey (`/research journey`)
 
-`$ARGUMENTS`가 `journey`이면:
+If `$ARGUMENTS` is `journey`:
 
-1. 특정 기능/플로우 지정
-2. 고객 관점에서 여정 맵핑:
+1. Specify a particular feature/flow
+2. Map the journey from the customer's perspective:
 
 ```markdown
-## 고객 여정: [기능/플로우명]
+## Customer Journey: [Feature/Flow Name]
 
-### 단계별 여정
-| 단계 | 고객 행동 | 생각/감정 | Pain Point | 기회 |
-|------|----------|-----------|------------|------|
-| 1. 인지 | | | | |
-| 2. 탐색 | | | | |
-| 3. 사용 | | | | |
-| 4. 확인 | | | | |
+### Step-by-Step Journey
+| Step | Customer Action | Thoughts/Feelings | Pain Point | Opportunity |
+|------|----------------|-------------------|------------|-------------|
+| 1. Awareness | | | | |
+| 2. Exploration | | | | |
+| 3. Usage | | | | |
+| 4. Confirmation | | | | |
 
-### 이탈 지점
-- [어디서 왜 이탈하는지]
+### Drop-off Points
+- [Where and why they drop off]
 
-### 개선 제안
-- [어떻게 여정을 개선할지]
+### Improvement Suggestions
+- [How to improve the journey]
 ```
 
 ---
 
-## 인사이트 도출 (`/research insight`)
+## Insight Derivation (`/research insight`)
 
-`$ARGUMENTS`가 `insight`이면:
+If `$ARGUMENTS` is `insight`:
 
-1. 최근 리서치 결과 종합
-2. Simon에게 전달할 가설 형태로 정리:
+1. Consolidate recent research results
+2. Organize into hypothesis format for Simon:
 
 ```markdown
-## 🎤→🎯 핸드오프: [주제] 인사이트
+## 🎤→🎯 Handoff: [Topic] Insights
 
-### Top 인사이트
+### Top Insights
 
-#### 1. [인사이트 제목]
-- **VOC**: "[근거 인용]"
-- **해석**: [왜 중요한지]
-- **가설 제안**:
-  - IF [조건]
-  - THEN [결과]
-  - BECAUSE [근거]
+#### 1. [Insight Title]
+- **VOC**: "[Supporting quote]"
+- **Interpretation**: [Why it matters]
+- **Hypothesis Proposal**:
+  - IF [condition]
+  - THEN [result]
+  - BECAUSE [evidence]
 
-### Simon에게 요청
-- [ ] 가설 우선순위 결정
-- [ ] PRD 반영 여부 판단
-- [ ] OMTM 설정
+### Request to Simon
+- [ ] Prioritize hypotheses
+- [ ] Decide on PRD inclusion
+- [ ] Set OMTM
 ```
 
 ---
 
-## MCP 도구 자동 연동
+## MCP Tool Auto-Integration
 
 ### NotebookLM
 ```javascript
-// 세션 시작
+// Start session
 ask_question({
-  question: "[고객 관련 질문]",
+  question: "[Customer-related question]",
   notebook_id: "my-notebook"
 })
 
-// 후속 질문 (세션 유지)
+// Follow-up question (maintain session)
 ask_question({
-  question: "[구체적 질문]",
-  session_id: "[이전 세션 ID]"
+  question: "[Specific question]",
+  session_id: "[previous session ID]"
 })
 ```
 
-### 채널톡 연계
-Vicky가 수집한 VOC 데이터를 해석:
+### Channel Talk Integration
+Interpret VOC data collected by Vicky:
 ```markdown
 📊 Vicky → 🎤 Rita
-- 수집된 VOC: [N]건
-- 주제별 분류: [카테고리]
-→ Rita가 심층 해석 진행
+- Collected VOC: [N] items
+- Category breakdown: [Categories]
+→ Rita proceeds with deep interpretation
 ```
 
 ---
 
-## 핸드오프 흐름
+## Handoff Flow
 
 ```
-📊 Vicky (VOC 수집)
+📊 Vicky (VOC collection)
     ↓
-🎤 Rita (해석 + 인사이트)
+🎤 Rita (Interpretation + insights)
     ↓
-🎯 Simon (가설 + PRD)
+🎯 Simon (Hypothesis + PRD)
     ↓
-📋 Penny (실행 계획)
+📋 Penny (Execution plan)
 ```
 
 ---
 
-*에이전트*: 🎤 Rita (Researcher)
-*연결*: 📊 Vicky (VOC 수집), 🎯 Simon (가설 전달)
-*도구*: NotebookLM MCP, 채널톡 API
+*Agent*: 🎤 Rita (Researcher)
+*Connections*: 📊 Vicky (VOC collection), 🎯 Simon (hypothesis delivery)
+*Tools*: NotebookLM MCP, Channel Talk API

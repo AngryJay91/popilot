@@ -1,7 +1,7 @@
 id: ga4
 name: "Google Analytics 4"
 category: analytics
-description: "이벤트 기반 사용자 행동 분석"
+description: "Event-based user behavior analysis"
 
 mcp:
   server_name: "ga4"
@@ -19,13 +19,13 @@ agent_prompts:
     ### GA4 MCP
 
     ```
-    용도: 이벤트 기반 행동 데이터 분석
+    Purpose: Event-based behavioral data analysis
     property_id: {{config.property_id}}
     ```
 
-    #### 자주 사용하는 패턴
+    #### Common Patterns
 
-    **1. 코호트 리텐션 (월별 가입자)**
+    **1. Cohort Retention (Monthly Signups)**
     ```javascript
     run_report({
       property_id: "{{config.property_id}}",
@@ -35,7 +35,7 @@ agent_prompts:
     })
     ```
 
-    **2. 세그먼트별 행동 비교**
+    **2. Segment-level Behavior Comparison**
     ```javascript
     run_report({
       property_id: "{{config.property_id}}",
@@ -45,7 +45,7 @@ agent_prompts:
     })
     ```
 
-    **3. 이상치 탐지 (일별 추이)**
+    **3. Anomaly Detection (Daily Trends)**
     ```javascript
     run_report({
       property_id: "{{config.property_id}}",
@@ -57,15 +57,15 @@ agent_prompts:
     ```
 
   validator: |
-    ### GA4 MCP ⭐ 핵심 도구
+    ### GA4 MCP ⭐ Core Tool
     ```
-    용도: 이벤트 데이터 조회, 퍼널 분석, 지표 측정
+    Purpose: Event data queries, funnel analysis, metric measurement
     property_id: {{config.property_id}}
     ```
 
-    #### 자주 사용하는 쿼리 패턴
+    #### Common Query Patterns
 
-    **1. 이벤트 카운트 조회**
+    **1. Event Count Query**
     ```javascript
     run_report({
       property_id: "{{config.property_id}}",
@@ -75,7 +75,7 @@ agent_prompts:
     })
     ```
 
-    **2. 퍼널 분석 (페이지별)**
+    **2. Funnel Analysis (By Page)**
     ```javascript
     run_report({
       property_id: "{{config.property_id}}",
@@ -85,7 +85,7 @@ agent_prompts:
     })
     ```
 
-    **3. 특정 이벤트 상세**
+    **3. Specific Event Details**
     ```javascript
     run_report({
       property_id: "{{config.property_id}}",
@@ -98,7 +98,7 @@ agent_prompts:
     })
     ```
 
-    **4. 일별 추이**
+    **4. Daily Trends**
     ```javascript
     run_report({
       property_id: "{{config.property_id}}",
@@ -111,6 +111,6 @@ agent_prompts:
 
 command_prompts:
   analytics: |
-    - **GA4 MCP 서버** (이벤트 데이터 분석)
+    - **GA4 MCP Server** (Event data analysis)
 
 footer_tool_line: "GA4 MCP"

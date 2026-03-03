@@ -1,94 +1,94 @@
-# Guard Rail 점검 템플릿
+# Guard Rail Inspection Template
 
-> 📊 Vicky가 사용하는 부작용 모니터링 템플릿
+> 📊 Side-effect monitoring template used by Vicky
 
-## Guard Rail 점검 보고서
+## Guard Rail Inspection Report
 
-### 점검 정보
-- **점검 일자**: [날짜]
-- **점검 기간**: [시작일] ~ [종료일]
-- **관련 스프린트**: Sprint [N]
-- **관련 기능**: [기능명]
-
----
-
-## Guard Rail 지표 현황
-
-### 핵심 Guard Rail
-| 지표 | 기준 | Before | After | 변화 | 상태 |
-|------|------|--------|-------|------|------|
-| [지표1] | ≤ [값] | [값] | [값] | [+/-]% | 🟢/🟡/🔴 |
-| [지표2] | ≥ [값] | [값] | [값] | [+/-]% | 🟢/🟡/🔴 |
-| [지표3] | ≤ [값] | [값] | [값] | [+/-]% | 🟢/🟡/🔴 |
-
-### 상태 정의
-- 🟢 **정상**: 기준 충족, 안정적
-- 🟡 **주의**: 기준 근접 (±10%), 모니터링 필요
-- 🔴 **경고**: 기준 초과, 즉시 조치 필요
+### Inspection Information
+- **Inspection date**: [Date]
+- **Inspection period**: [Start date] ~ [End date]
+- **Related sprint**: Sprint [N]
+- **Related feature**: [Feature name]
 
 ---
 
-## 상세 분석
+## Guard Rail Metric Status
 
-### 🟢 정상 지표
-| 지표 | 상태 | 비고 |
-|------|------|------|
-| [지표] | 기준 대비 양호 | [추가 코멘트] |
+### Core Guard Rail
+| Metric | Threshold | Before | After | Change | Status |
+|--------|-----------|--------|-------|--------|--------|
+| [Metric 1] | ≤ [Value] | [Value] | [Value] | [+/-]% | 🟢/🟡/🔴 |
+| [Metric 2] | ≥ [Value] | [Value] | [Value] | [+/-]% | 🟢/🟡/🔴 |
+| [Metric 3] | ≤ [Value] | [Value] | [Value] | [+/-]% | 🟢/🟡/🔴 |
 
-### 🟡 주의 지표
-| 지표 | 현재 값 | 기준 | 트렌드 | 권장 조치 |
-|------|---------|------|--------|----------|
-| [지표] | [값] | [기준] | ↑/↓/→ | [조치] |
-
-### 🔴 경고 지표
-| 지표 | 현재 값 | 기준 | 초과폭 | 즉시 조치 |
-|------|---------|------|--------|----------|
-| [지표] | [값] | [기준] | [+/-]% | [조치] |
+### Status Definitions
+- 🟢 **Normal**: Threshold met, stable
+- 🟡 **Caution**: Near threshold (±10%), monitoring needed
+- 🔴 **Warning**: Threshold exceeded, immediate action required
 
 ---
 
-## 경고 상세
+## Detailed Analysis
 
-### [경고 지표명]
+### 🟢 Normal Metrics
+| Metric | Status | Notes |
+|--------|--------|-------|
+| [Metric] | Within threshold | [Additional comment] |
 
-**상황**
-- 현재 값: [값]
-- 기준: [기준]
-- 초과폭: [%]
+### 🟡 Caution Metrics
+| Metric | Current Value | Threshold | Trend | Recommended Action |
+|--------|--------------|-----------|-------|-------------------|
+| [Metric] | [Value] | [Threshold] | ↑/↓/→ | [Action] |
 
-**원인 분석**
-- [추정 원인 1]
-- [추정 원인 2]
-
-**즉시 조치**
-- [ ] [조치 1]
-- [ ] [조치 2]
-
-**모니터링 계획**
-- 다음 점검: [날짜]
-- 담당자: [담당]
+### 🔴 Warning Metrics
+| Metric | Current Value | Threshold | Excess | Immediate Action |
+|--------|--------------|-----------|--------|-----------------|
+| [Metric] | [Value] | [Threshold] | [+/-]% | [Action] |
 
 ---
 
-## 권장 사항
+## Warning Details
 
-### 즉시 실행
-- [ ] [액션 1]
+### [Warning Metric Name]
 
-### 다음 점검 시 확인
-- [ ] [확인 항목]
+**Situation**
+- Current value: [Value]
+- Threshold: [Threshold]
+- Excess: [%]
 
-### 장기 개선
-- [ ] [개선 항목]
+**Root Cause Analysis**
+- [Suspected cause 1]
+- [Suspected cause 2]
+
+**Immediate Actions**
+- [ ] [Action 1]
+- [ ] [Action 2]
+
+**Monitoring Plan**
+- Next inspection: [Date]
+- Responsible: [Owner]
 
 ---
 
-## 다음 점검
+## Recommendations
 
-- **예정일**: [날짜]
-- **중점 확인**: [지표]
+### Immediate Execution
+- [ ] [Action 1]
+
+### Verify at Next Inspection
+- [ ] [Verification item]
+
+### Long-term Improvement
+- [ ] [Improvement item]
 
 ---
 
-*작성: 📊 Vicky*
-*작성일: [날짜]*
+## Next Inspection
+
+- **Scheduled date**: [Date]
+- **Focus area**: [Metric]
+
+---
+
+*Written by: 📊 Vicky*
+*Written date: [Date]*

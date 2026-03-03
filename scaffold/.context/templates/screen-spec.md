@@ -1,560 +1,560 @@
-# {Epic명} 화면 정의서
+# {Epic Name} Screen Specification
 
-> **Note**: Level 2/3 수준의 상세 UI 스펙은 spec-site Vue 컴포넌트({Feature}Mockup.vue)로 대체 가능합니다.
-> 정적 ASCII 아트 대신 인터랙티브 목업을 사용하면 상태별 분기를 실시간으로 보여줄 수 있습니다.
+> **Note**: Level 2/3 detailed UI specs can be replaced with spec-site Vue components ({Feature}Mockup.vue).
+> Using interactive mockups instead of static ASCII art allows real-time demonstration of state-based branching.
 >
-> spec-site 페이지 구조:
-> - `{feature}Data.ts` — 시나리오 + 스펙 영역 정의
-> - `{Feature}Mockup.vue` — 인터랙티브 목업
-> - `{Feature}SpecPanel.vue` — 스펙 문서 패널
+> spec-site page structure:
+> - `{feature}Data.ts` — Scenario + spec area definitions
+> - `{Feature}Mockup.vue` — Interactive mockup
+> - `{Feature}SpecPanel.vue` — Spec document panel
 
-> 📋 Penny가 작성하는 서비스기획자 수준의 상세 화면 스펙
-> Epic Spec → Story 분해 후, 핸드오프 전에 작성
+> 📋 Detailed screen specification at service planner level, written by Penny
+> Written after Epic Spec → Story breakdown, before handoff
 
 ---
 
-## 메타
+## Meta
 
-| 항목 | 값 |
-|------|-----|
+| Item | Value |
+|------|-------|
 | **Epic ID** | E-XX |
-| **문서 유형** | 화면 정의서 (Screen Specification) |
-| **작성일** | YYYY-MM-DD |
-| **버전** | v1.0 |
-| **상태** | `draft` / `review` / `approved` |
-| **관련 문서** | [E-XX Epic Spec](../epic-specs/E-XX-xxx.md) |
+| **Document Type** | Screen Specification |
+| **Created Date** | YYYY-MM-DD |
+| **Version** | v1.0 |
+| **Status** | `draft` / `review` / `approved` |
+| **Related Document** | [E-XX Epic Spec](../epic-specs/E-XX-xxx.md) |
 
-> 버전 관리: 주요 변경 시 버전 업데이트 + 변경사항 섹션에 기록
-
----
-
-## 목차
-
-1. [Level 1. 전체 IA & 진입점](#level-1-전체-ia--진입점)
-2. [Level 2. 메인 화면](#level-2-메인-화면)
-3. [Level 3. 컴포넌트 상세](#level-3-컴포넌트-상세)
-4. [Level 4. 모달 & 다이얼로그](#level-4-모달--다이얼로그)
-5. [Level 5. 외부 연동](#level-5-외부-연동)
-6. [Level 6. 상태별 UI](#level-6-상태별-ui)
-7. [Level 7. 정책 총정리](#level-7-정책-총정리)
+> Version management: Update version on major changes + record in changelog section
 
 ---
 
-## Level 1. 전체 IA & 진입점
+## Table of Contents
 
-> 이 기능이 전체 서비스 구조에서 어디에 위치하는지 정의
+1. [Level 1. Overall IA & Entry Points](#level-1-overall-ia--entry-points)
+2. [Level 2. Main Screen](#level-2-main-screen)
+3. [Level 3. Component Details](#level-3-component-details)
+4. [Level 4. Modals & Dialogs](#level-4-modals--dialogs)
+5. [Level 5. External Integration](#level-5-external-integration)
+6. [Level 6. State-based UI](#level-6-state-based-ui)
+7. [Level 7. Policy Summary](#level-7-policy-summary)
 
-### 1.1 정보 구조 (IA)
+---
+
+## Level 1. Overall IA & Entry Points
+
+> Define where this feature sits within the overall service structure
+
+### 1.1 Information Architecture (IA)
 
 ```
-[상위 메뉴] (GNB/LNB)
-├── [기존 메뉴 1]
-│   └── (기존 구조)
+[Top Menu] (GNB/LNB)
+├── [Existing Menu 1]
+│   └── (existing structure)
 │
-├── [기존 메뉴 2]
-│   └── (기존 구조)
+├── [Existing Menu 2]
+│   └── (existing structure)
 │
-└── [신규/변경 기능] ← 이 화면정의서의 범위
-    ├── [하위 요소 1]
-    │   ├── [세부 요소 a]
-    │   └── [세부 요소 b]
-    └── [하위 요소 2]
+└── [New/Changed Feature] ← Scope of this screen spec
+    ├── [Sub-element 1]
+    │   ├── [Detail a]
+    │   └── [Detail b]
+    └── [Sub-element 2]
 ```
 
-### 1.2 진입점별 플로우
+### 1.2 Entry Point Flows
 
-| 진입점 | 위치 | 사용자 액션 | 시스템 반응 | 비고 |
-|--------|------|------------|------------|------|
-| **A** | [위치 상세] | [클릭/탭 등] | [화면 이동/모달 오픈 등] | [우선순위/빈도] |
-| **B** | [위치 상세] | [클릭/탭 등] | [화면 이동/모달 오픈 등] | |
-| **C** | [위치 상세] | [클릭/탭 등] | [화면 이동/모달 오픈 등] | |
+| Entry Point | Location | User Action | System Response | Notes |
+|-------------|----------|-------------|-----------------|-------|
+| **A** | [Location detail] | [Click/tap, etc.] | [Navigate/modal open, etc.] | [Priority/frequency] |
+| **B** | [Location detail] | [Click/tap, etc.] | [Navigate/modal open, etc.] | |
+| **C** | [Location detail] | [Click/tap, etc.] | [Navigate/modal open, etc.] | |
 
-### 1.3 메뉴 위치 정책
+### 1.3 Menu Position Policy
 
-| 항목 | 정책 | 근거 |
-|------|------|------|
-| **메뉴 위치** | [GNB/LNB/탭 등] | [사용자 접근성, 정보 구조 등] |
-| **메뉴명** | "[메뉴명]" | [명명 규칙, 사용자 언어 등] |
-| **아이콘** | [아이콘 이름/이모지] | [시각적 연상, 일관성 등] |
-| **접근 권한** | [전체/유료/관리자 등] | [비즈니스 정책] |
-| **노출 조건** | [항상/조건부] | [조건이 있다면 상세] |
+| Item | Policy | Rationale |
+|------|--------|-----------|
+| **Menu Position** | [GNB/LNB/Tab, etc.] | [User accessibility, information architecture, etc.] |
+| **Menu Name** | "[Menu name]" | [Naming convention, user language, etc.] |
+| **Icon** | [Icon name/emoji] | [Visual association, consistency, etc.] |
+| **Access Permission** | [All/Paid/Admin, etc.] | [Business policy] |
+| **Display Condition** | [Always/Conditional] | [Details if conditional] |
 
-### 1.4 URL 설계 (웹인 경우)
+### 1.4 URL Design (For web)
 
-| 화면 | URL 패턴 | 쿼리 파라미터 |
-|------|---------|--------------|
-| 메인 | `/[path]` | - |
-| 상세 | `/[path]/:id` | - |
-| 필터 적용 | `/[path]` | `?filter=xxx&sort=xxx` |
+| Screen | URL Pattern | Query Parameters |
+|--------|------------|-----------------|
+| Main | `/[path]` | - |
+| Detail | `/[path]/:id` | - |
+| With filter | `/[path]` | `?filter=xxx&sort=xxx` |
 
 ---
 
-## Level 2. 메인 화면
+## Level 2. Main Screen
 
-> 메인 화면의 전체 레이아웃과 각 영역별 상세
+> Overall layout of the main screen and details for each area
 
-### 2.1 전체 레이아웃
+### 2.1 Overall Layout
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ [헤더 / GNB 영역]                                                │
+│ [Header / GNB Area]                                                │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌───────────────────────────────────────────────────────────┐  │
-│  │ 2.2 페이지 헤더                               [액션 버튼]  │  │
+│  │ 2.2 Page Header                             [Action Btn]  │  │
 │  └───────────────────────────────────────────────────────────┘  │
 │                                                                 │
 │  ┌───────────────────────────────────────────────────────────┐  │
-│  │ 2.3 필터/정렬 영역                                        │  │
+│  │ 2.3 Filter/Sort Area                                      │  │
 │  └───────────────────────────────────────────────────────────┘  │
 │                                                                 │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │                                                           │  │
-│  │  2.4 컨텐츠 영역                                          │  │
+│  │  2.4 Content Area                                         │  │
 │  │                                                           │  │
 │  │  ┌─────────────────────────────────────────────────────┐  │  │
-│  │  │ [아이템 1]                                          │  │  │
+│  │  │ [Item 1]                                            │  │  │
 │  │  └─────────────────────────────────────────────────────┘  │  │
 │  │  ┌─────────────────────────────────────────────────────┐  │  │
-│  │  │ [아이템 2]                                          │  │  │
+│  │  │ [Item 2]                                            │  │  │
 │  │  └─────────────────────────────────────────────────────┘  │  │
 │  │                                                           │  │
-│  │                       2.5 페이지네이션                    │  │
+│  │                       2.5 Pagination                      │  │
 │  │                                                           │  │
 │  └───────────────────────────────────────────────────────────┘  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2 페이지 헤더
+### 2.2 Page Header
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ [아이콘] 페이지 타이틀                       [버튼1] [버튼2]     │
-│ 서브타이틀 또는 설명 텍스트 (선택)                               │
+│ [Icon] Page Title                           [Button1] [Button2]  │
+│ Subtitle or description text (optional)                          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-| 요소 | 스펙 | 정책 |
-|------|------|------|
-| 아이콘 | [아이콘명] | [표시 조건] |
-| 타이틀 | "[텍스트]" | 고정 / 동적 |
-| 서브타이틀 | "[텍스트]" | [표시 조건] |
-| 액션 버튼 1 | "[버튼명]" - Primary | [클릭 시 동작] |
-| 액션 버튼 2 | "[버튼명]" - Secondary | [클릭 시 동작] |
+| Element | Spec | Policy |
+|---------|------|--------|
+| Icon | [Icon name] | [Display condition] |
+| Title | "[Text]" | Fixed / Dynamic |
+| Subtitle | "[Text]" | [Display condition] |
+| Action Button 1 | "[Button name]" - Primary | [Click action] |
+| Action Button 2 | "[Button name]" - Secondary | [Click action] |
 
-### 2.3 필터/정렬 영역
+### 2.3 Filter/Sort Area
 
-> 필터가 있는 경우 작성, 없으면 "해당 없음" 기재
+> Write if filters exist, otherwise note "Not applicable"
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ [탭1] [탭2] [탭3]    [드롭다운 ▼]  [검색 🔍]      총 N개        │
+│ [Tab1] [Tab2] [Tab3]    [Dropdown ▼]  [Search 🔍]    Total N    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-#### 2.3.1 탭/필터 구조
+#### 2.3.1 Tab/Filter Structure
 
-| 필터 | 타입 | 동작 | 기본값 |
-|------|------|------|--------|
-| [필터1] | 탭 | [동작 상세] | ✅ 기본 선택 |
-| [필터2] | 드롭다운 | [동작 상세] | [기본값] |
-| [검색] | 텍스트 입력 | [검색 대상, 방식] | - |
+| Filter | Type | Behavior | Default |
+|--------|------|----------|---------|
+| [Filter1] | Tab | [Behavior detail] | ✅ Default selected |
+| [Filter2] | Dropdown | [Behavior detail] | [Default value] |
+| [Search] | Text input | [Search target, method] | - |
 
-#### 2.3.2 드롭다운 옵션 (있는 경우)
+#### 2.3.2 Dropdown Options (If applicable)
 
 ```
 ┌─────────────────────────┐
-│ [드롭다운명] ▼          │
+│ [Dropdown name] ▼       │
 ├─────────────────────────┤
-│ ○ 옵션 1 (기본)         │
-│ ● 옵션 2                │
-│ ○ 옵션 3                │
+│ ○ Option 1 (default)    │
+│ ● Option 2              │
+│ ○ Option 3              │
 └─────────────────────────┘
 ```
 
-| 옵션 | 동작 | 정렬/필터 기준 |
-|------|------|---------------|
-| 옵션 1 | [동작] | [기준] |
-| 옵션 2 | [동작] | [기준] |
+| Option | Behavior | Sort/Filter Criteria |
+|--------|----------|---------------------|
+| Option 1 | [Behavior] | [Criteria] |
+| Option 2 | [Behavior] | [Criteria] |
 
-#### 2.3.3 카운트 표시
+#### 2.3.3 Count Display
 
-| 상태 | 표시 형식 |
-|------|----------|
-| 전체 | "총 {N}개" |
-| 필터 적용 시 | "[필터명] {N}개" |
-| 0개 | "[빈 상태 메시지]" (카운트 숨김) |
+| State | Display Format |
+|-------|---------------|
+| Total | "Total {N}" |
+| Filter applied | "[Filter name] {N}" |
+| 0 items | "[Empty state message]" (hide count) |
 
-### 2.4 컨텐츠 영역
+### 2.4 Content Area
 
-> 상세는 Level 3에서 정의
+> Details defined in Level 3
 
-| 정책 | 내용 |
-|------|------|
-| 정렬 순서 | [정렬 기준] (ASC/DESC) |
-| 그룹핑 | [그룹핑 기준] / 없음 |
-| 아이템 간격 | [N]px |
+| Policy | Content |
+|--------|---------|
+| Sort order | [Sort criteria] (ASC/DESC) |
+| Grouping | [Grouping criteria] / None |
+| Item spacing | [N]px |
 
-### 2.5 페이지네이션
+### 2.5 Pagination
 
-| 정책 | 내용 |
-|------|------|
-| 방식 | **무한 스크롤** / [더 보기] 버튼 / 페이지 번호 |
-| 초기 로딩 | [N]개 |
-| 추가 로딩 | [N]개씩 |
-| 로딩 트리거 | [트리거 조건: 하단 Npx 도달 등] |
-| 끝 도달 | "[메시지]" |
+| Policy | Content |
+|--------|---------|
+| Method | **Infinite scroll** / [Load more] button / Page numbers |
+| Initial load | [N] items |
+| Additional load | [N] items at a time |
+| Load trigger | [Trigger condition: bottom Npx reached, etc.] |
+| End reached | "[Message]" |
 
-### 2.6 메인 화면 정책 총정리
+### 2.6 Main Screen Policy Summary
 
-| 항목 | 정책 |
-|------|------|
-| 정렬 순서 | [기준] |
-| 수정 시 정렬 | [위치 유지 / 재정렬] |
-| 새 아이템 추가 시 | [최상단 / 정렬 위치] |
-| 삭제 시 | [즉시 제거 / 애니메이션] |
-| 실시간 업데이트 | 있음 / 없음 (새로고침 시 반영) |
-| 캐싱 | [캐싱 정책: TTL 등] |
-| URL 상태 | [쿼리 파라미터 유지 여부] |
-| 뒤로가기 | [상태 복원 여부] |
+| Item | Policy |
+|------|--------|
+| Sort order | [Criteria] |
+| Sort on edit | [Maintain position / Re-sort] |
+| New item added | [Top / Sorted position] |
+| On deletion | [Immediate removal / Animation] |
+| Real-time update | Yes / No (reflected on refresh) |
+| Caching | [Caching policy: TTL, etc.] |
+| URL state | [Query parameter persistence] |
+| Back navigation | [State restoration] |
 
 ---
 
-## Level 3. 컴포넌트 상세
+## Level 3. Component Details
 
-> 메인 화면에 표시되는 주요 컴포넌트의 상세 정의
+> Detailed definition of key components displayed on the main screen
 
-### 3.1 컴포넌트 타입 분류
+### 3.1 Component Type Classification
 
 ```
-[컴포넌트명]
-├── Type A: [타입 설명]
-│   ├── 상태 1: [상태 설명]
-│   ├── 상태 2: [상태 설명]
-│   └── 상태 3: [상태 설명]
+[Component Name]
+├── Type A: [Type description]
+│   ├── State 1: [State description]
+│   ├── State 2: [State description]
+│   └── State 3: [State description]
 │
-└── Type B: [타입 설명]
-    ├── 상태 1: [상태 설명]
-    └── 상태 2: [상태 설명]
+└── Type B: [Type description]
+    ├── State 1: [State description]
+    └── State 2: [State description]
 ```
 
-### 3.2 공통 구조
+### 3.2 Common Structure
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ [3.3 헤더 영역]                                  [시간] [···]    │
+│ [3.3 Header Area]                                [Time] [···]    │
 │                                                                 │
-│ [3.4 본문 영역]                                                 │
+│ [3.4 Body Area]                                                 │
 │                                                                 │
-│ [3.5 부가 정보 영역 - 선택적]                                   │
+│ [3.5 Supplementary Info Area - Optional]                        │
 │                                                                 │
-│ [3.6 액션 영역 - 선택적]                                        │
+│ [3.6 Action Area - Optional]                                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 3.3 헤더 영역
+### 3.3 Header Area
 
 ```
-[아이콘/뱃지] [타이틀 텍스트]                       [시간] [더보기]
+[Icon/Badge] [Title Text]                         [Time] [More]
 ```
 
-| 요소 | 스펙 | 정책 |
-|------|------|------|
-| 아이콘/뱃지 | [아이콘명] | [타입별 분기] |
-| 타이틀 | [텍스트 형식] | 최대 [N]자, 초과 시 말줄임(...) |
-| 시간 | [포맷] | 오늘/어제/날짜 분기 (Level 7 참조) |
-| 더보기 [···] | 드롭다운 메뉴 | [메뉴 항목] |
+| Element | Spec | Policy |
+|---------|------|--------|
+| Icon/Badge | [Icon name] | [Per-type branching] |
+| Title | [Text format] | Max [N] chars, truncate with (...) if exceeded |
+| Time | [Format] | Today/Yesterday/Date branching (see Level 7) |
+| More [···] | Dropdown menu | [Menu items] |
 
-#### 더보기 메뉴
+#### More Menu
 
 ```
 ┌─────────────────┐
-│ [아이콘] 메뉴1   │
-│ [아이콘] 메뉴2   │
+│ [Icon] Menu 1    │
+│ [Icon] Menu 2    │
 │ ─────────────── │
-│ [아이콘] 삭제    │  ← 위험 액션은 분리
+│ [Icon] Delete    │  ← Dangerous actions separated
 └─────────────────┘
 ```
 
-| 메뉴 | 동작 | 조건 |
-|------|------|------|
-| 메뉴1 | [동작] | [표시 조건] |
-| 메뉴2 | [동작] | [표시 조건] |
-| 삭제 | 삭제 확인 다이얼로그 | [표시 조건] |
+| Menu | Action | Condition |
+|------|--------|-----------|
+| Menu 1 | [Action] | [Display condition] |
+| Menu 2 | [Action] | [Display condition] |
+| Delete | Delete confirmation dialog | [Display condition] |
 
-### 3.4 본문 영역 (타입별)
+### 3.4 Body Area (Per Type)
 
-#### Type A: [타입명]
+#### Type A: [Type Name]
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ [Type A 본문 레이아웃]                                          │
+│ [Type A body layout]                                            │
 │                                                                 │
 │   ┌─────────────────────────────────────────────────────────┐   │
-│   │  [세부 요소 1]                                          │   │
+│   │  [Sub-element 1]                                        │   │
 │   └─────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-| 요소 | 스펙 | 정책 |
-|------|------|------|
-| [요소명] | [값/형식] | [규칙] |
+| Element | Spec | Policy |
+|---------|------|--------|
+| [Element name] | [Value/format] | [Rule] |
 
-#### Type B: [타입명]
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ [Type B 본문 레이아웃]                                          │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### 3.5 부가 정보 영역
-
-> 선택적 영역, 표시 조건 명시
-
-| 요소 | 표시 조건 | 스펙 |
-|------|----------|------|
-| [요소명] | [조건] | [스펙] |
-
-### 3.6 액션 영역
-
-> 컴포넌트 내 인터랙션 요소
-
-| 액션 | 트리거 | 결과 |
-|------|--------|------|
-| [액션명] | [클릭/호버 등] | [동작] |
-
-### 3.7 상태별 변형
-
-#### 상태 1: [상태명]
+#### Type B: [Type Name]
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ [상태 1 레이아웃]                                               │
+│ [Type B body layout]                                            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-| 조건 | [상태 진입 조건] |
-|------|-----------------|
+### 3.5 Supplementary Info Area
 
-| 요소 | 스펙 |
-|------|------|
-| [요소] | [이 상태에서의 스펙] |
+> Optional area, specify display conditions
 
-#### 상태 2: [상태명]
+| Element | Display Condition | Spec |
+|---------|------------------|------|
+| [Element name] | [Condition] | [Spec] |
+
+### 3.6 Action Area
+
+> Interaction elements within the component
+
+| Action | Trigger | Result |
+|--------|---------|--------|
+| [Action name] | [Click/hover, etc.] | [Behavior] |
+
+### 3.7 State Variants
+
+#### State 1: [State Name]
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ [상태 2 레이아웃]                                               │
+│ [State 1 layout]                                                │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 3.8 컴포넌트 스타일 정책
+| Condition | [State entry condition] |
+|-----------|------------------------|
 
-| 항목 | 값 |
-|------|-----|
-| 카드 간격 | [N]px |
-| 카드 배경 | [색상 코드] |
-| 카드 테두리 | [스펙: Npx solid #색상] |
-| 카드 radius | [N]px |
-| 카드 padding | [N]px |
-| 호버 효과 | [효과 설명] |
-| 클릭 영역 | [전체 / 특정 요소] |
+| Element | Spec |
+|---------|------|
+| [Element] | [Spec for this state] |
+
+#### State 2: [State Name]
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [State 2 layout]                                                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 3.8 Component Style Policy
+
+| Item | Value |
+|------|-------|
+| Card spacing | [N]px |
+| Card background | [Color code] |
+| Card border | [Spec: Npx solid #color] |
+| Card radius | [N]px |
+| Card padding | [N]px |
+| Hover effect | [Effect description] |
+| Click area | [Entire / Specific element] |
 
 ---
 
-## Level 4. 모달 & 다이얼로그
+## Level 4. Modals & Dialogs
 
-> 화면에서 사용되는 모든 모달/다이얼로그 정의
+> Define all modals/dialogs used on the screen
 
-### 4.1 모달 종류
+### 4.1 Modal Types
 
-| 모달 | 트리거 | 용도 | 타입 |
-|------|--------|------|------|
-| [모달명 1] | [어디서 열림] | [목적] | Form / Confirm / Info |
-| [모달명 2] | [어디서 열림] | [목적] | Form / Confirm / Info |
+| Modal | Trigger | Purpose | Type |
+|-------|---------|---------|------|
+| [Modal 1] | [Where it opens from] | [Purpose] | Form / Confirm / Info |
+| [Modal 2] | [Where it opens from] | [Purpose] | Form / Confirm / Info |
 
-### 4.2 [모달명 1] 상세
+### 4.2 [Modal 1] Details
 
-#### 4.2.1 전체 레이아웃
+#### 4.2.1 Overall Layout
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                           [✕]   │
-│  [모달 타이틀]                                                  │
+│  [Modal Title]                                                  │
 │                                                                 │
 │  ─────────────────────────────────────────────────────────────  │
 │                                                                 │
-│  [섹션 1 라벨]                                                  │
+│  [Section 1 Label]                                              │
 │  ┌─────────────────────────────────────────────────────────────┐│
-│  │ [입력 필드 / 선택 UI / 정보 표시]                           ││
+│  │ [Input field / Selection UI / Info display]                 ││
 │  └─────────────────────────────────────────────────────────────┘│
 │                                                                 │
-│  [섹션 2 라벨] (선택)                                           │
+│  [Section 2 Label] (Optional)                                   │
 │  ┌─────────────────────────────────────────────────────────────┐│
-│  │ [입력 필드]                                                 ││
+│  │ [Input field]                                               ││
 │  └─────────────────────────────────────────────────────────────┘│
-│  0/[최대글자수]                                                 │
+│  0/[max characters]                                             │
 │                                                                 │
 │  ─────────────────────────────────────────────────────────────  │
 │                                                                 │
-│  ☐ [체크박스 옵션]                                              │
+│  ☐ [Checkbox option]                                            │
 │                                                                 │
 │  ─────────────────────────────────────────────────────────────  │
 │                                                                 │
-│                                     [취소]  [확인]              │
+│                                     [Cancel]  [Confirm]         │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-#### 4.2.2 섹션별 상세
+#### 4.2.2 Section Details
 
-| 섹션 | 요소 | 타입 | 스펙 | 필수 |
-|------|------|------|------|------|
-| 헤더 | 타이틀 | 텍스트 | "[타이틀]" | - |
-| 헤더 | 닫기 | 버튼 | [✕] | - |
-| [섹션1] | [필드명] | [input/select/textarea 등] | [placeholder, 기본값] | ✅/❌ |
-| [섹션2] | [필드명] | [타입] | [스펙] | ✅/❌ |
-| 옵션 | [체크박스명] | checkbox | 기본값: [체크/미체크] | - |
+| Section | Element | Type | Spec | Required |
+|---------|---------|------|------|----------|
+| Header | Title | Text | "[Title]" | - |
+| Header | Close | Button | [✕] | - |
+| [Section1] | [Field name] | [input/select/textarea, etc.] | [placeholder, default] | ✅/❌ |
+| [Section2] | [Field name] | [Type] | [Spec] | ✅/❌ |
+| Option | [Checkbox name] | checkbox | Default: [checked/unchecked] | - |
 
-#### 4.2.3 유효성 검증
+#### 4.2.3 Validation
 
-| 필드 | 규칙 | 에러 메시지 |
-|------|------|------------|
-| [필드명] | 필수 | "[필드명]을(를) 입력해주세요" |
-| [필드명] | 숫자만 | "숫자만 입력해주세요" |
-| [필드명] | 범위 [N~M] | "[N]~[M] 사이 값을 입력해주세요" |
-| [필드명] | 최대 [N]자 | (입력 자체 제한) |
+| Field | Rule | Error Message |
+|-------|------|---------------|
+| [Field name] | Required | "Please enter [field name]" |
+| [Field name] | Numbers only | "Please enter numbers only" |
+| [Field name] | Range [N~M] | "Please enter a value between [N] and [M]" |
+| [Field name] | Max [N] chars | (Input restriction enforced) |
 
-#### 4.2.4 저장 후 동작
+#### 4.2.4 Post-save Behavior
 
-| 단계 | 동작 |
-|------|------|
-| 1 | API 호출 ([METHOD] /[endpoint]) |
-| 2 | 로딩 스피너 표시 |
-| 3 | 성공 시: 모달 닫기 |
-| 4 | 성공 시: 토스트 "[메시지]" |
-| 5 | 성공 시: [후속 동작: 목록 새로고침 등] |
-| 6 | 실패 시: 에러 토스트 + 모달 유지 |
+| Step | Action |
+|------|--------|
+| 1 | API call ([METHOD] /[endpoint]) |
+| 2 | Show loading spinner |
+| 3 | On success: Close modal |
+| 4 | On success: Toast "[Message]" |
+| 5 | On success: [Follow-up action: refresh list, etc.] |
+| 6 | On failure: Error toast + keep modal open |
 
-### 4.3 삭제 확인 다이얼로그
+### 4.3 Delete Confirmation Dialog
 
-> 삭제/취소 등 위험 액션 확인용
+> For confirming dangerous actions like delete/cancel
 
 ```
 ┌─────────────────────────────────────────────┐
-│ [아이콘] [확인 질문]                         │
+│ [Icon] [Confirmation question]              │
 │                                             │
-│ [부가 설명 - 선택]                          │
+│ [Additional description - optional]         │
 │                                             │
-│               [취소]  [삭제/확인]            │
+│               [Cancel]  [Delete/Confirm]    │
 └─────────────────────────────────────────────┘
 ```
 
-| 요소 | 스펙 |
-|------|------|
-| 아이콘 | [경고/정보 아이콘] |
-| 질문 | "[질문 텍스트]" |
-| 부가 설명 | "[설명 텍스트]" |
-| 취소 버튼 | Secondary |
-| 확인 버튼 | Danger / Primary |
+| Element | Spec |
+|---------|------|
+| Icon | [Warning/info icon] |
+| Question | "[Question text]" |
+| Description | "[Description text]" |
+| Cancel button | Secondary |
+| Confirm button | Danger / Primary |
 
-### 4.4 모달 공통 정책
+### 4.4 Common Modal Policies
 
-#### 4.4.1 동작 정책
+#### 4.4.1 Behavior Policy
 
-| 항목 | 정책 |
-|------|------|
-| 오버레이 | 반투명 검정 (rgba(0,0,0,0.5)) |
-| 오버레이 클릭 | 모달 닫기 / 유지 |
-| ESC 키 | 모달 닫기 / 무시 |
-| 스크롤 | 모달 내부만 스크롤, body 고정 |
-| 포커스 | 모달 열리면 첫 입력 필드로 |
-| 포커스 트랩 | 모달 내부에서만 Tab 이동 |
+| Item | Policy |
+|------|--------|
+| Overlay | Semi-transparent black (rgba(0,0,0,0.5)) |
+| Overlay click | Close modal / Keep open |
+| ESC key | Close modal / Ignore |
+| Scroll | Scroll within modal only, body fixed |
+| Focus | First input field on modal open |
+| Focus trap | Tab movement within modal only |
 
-#### 4.4.2 크기 정책
+#### 4.4.2 Size Policy
 
-| 디바이스 | 너비 | 높이 |
-|----------|------|------|
+| Device | Width | Height |
+|--------|-------|--------|
 | Desktop | [N]px | auto (max [N]vh) |
 | Tablet | [N]px | auto |
 | Mobile | 100% - [N]px | auto (max [N]vh) |
 
-#### 4.4.3 저장 중 상태
+#### 4.4.3 Saving State
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                 │
-│                         [로딩 스피너]                           │
-│                         저장 중...                              │
+│                         [Loading spinner]                       │
+│                         Saving...                               │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-| 상태 | 동작 |
-|------|------|
-| 저장 클릭 | 버튼 비활성화 + 스피너 |
-| 입력 필드 | 전체 비활성화 |
-| 닫기 | 불가 |
+| State | Behavior |
+|-------|----------|
+| Save clicked | Disable button + spinner |
+| Input fields | All disabled |
+| Close | Not allowed |
 
-### 4.5 토스트 메시지 정리
+### 4.5 Toast Message Summary
 
-| 상황 | 메시지 | 타입 |
-|------|--------|------|
-| [상황1] | "[메시지]" | success |
-| [상황2] | "[메시지]" | info |
-| [상황3] | "[메시지]" | error |
+| Situation | Message | Type |
+|-----------|---------|------|
+| [Situation1] | "[Message]" | success |
+| [Situation2] | "[Message]" | info |
+| [Situation3] | "[Message]" | error |
 
 ---
 
-## Level 5. 외부 연동
+## Level 5. External Integration
 
-> 기존 화면/컴포넌트와의 연결 정의
+> Define connections with existing screens/components
 
-### 5.1 연동 개요
+### 5.1 Integration Overview
 
-| 연동 대상 | 연동 방식 | 설명 |
-|----------|----------|------|
-| [화면/컴포넌트명] | [버튼/링크/자동] | [연동 내용] |
+| Integration Target | Integration Method | Description |
+|-------------------|-------------------|-------------|
+| [Screen/Component name] | [Button/Link/Auto] | [Integration content] |
 
-### 5.2 [연동 대상 1] 상세
+### 5.2 [Integration Target 1] Details
 
-#### 5.2.1 연동 위치
+#### 5.2.1 Integration Location
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ [기존 화면/컴포넌트]                                            │
+│ [Existing screen/component]                                     │
 │                                                                 │
 │ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ [연동 포인트 표시]                                          │ │
+│ │ [Integration point display]                                 │ │
 │ │                                                             │ │
-│ │ [버튼/링크] ← 여기서 이 기능으로 연결                       │ │
+│ │ [Button/Link] ← Connects to this feature from here         │ │
 │ └─────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-#### 5.2.2 연동 동작
+#### 5.2.2 Integration Behavior
 
-| 트리거 | 동작 | 데이터 전달 |
-|--------|------|------------|
-| [트리거] | [결과] | [전달 데이터] |
+| Trigger | Action | Data Passed |
+|---------|--------|-------------|
+| [Trigger] | [Result] | [Data passed] |
 
-#### 5.2.3 데이터 연동
+#### 5.2.3 Data Integration
 
-| 데이터 | 방향 | 용도 |
-|--------|------|------|
-| [데이터명] | [From] → [To] | [용도] |
+| Data | Direction | Purpose |
+|------|-----------|---------|
+| [Data name] | [From] → [To] | [Purpose] |
 
 ---
 
-## Level 6. 상태별 UI
+## Level 6. State-based UI
 
-> 로딩, 빈 상태, 에러 등 특수 상태 정의
+> Define special states like loading, empty, error
 
-### 6.1 로딩 상태
+### 6.1 Loading State
 
-#### 6.1.1 초기 로딩
+#### 6.1.1 Initial Loading
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -571,144 +571,144 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-| 상황 | UI 타입 | 설명 |
-|------|---------|------|
-| 초기 로딩 | 스켈레톤 / 스피너 | [개수, 형태] |
-| 추가 로딩 | [방식] | [위치] |
+| Situation | UI Type | Description |
+|-----------|---------|-------------|
+| Initial loading | Skeleton / Spinner | [Count, shape] |
+| Additional loading | [Method] | [Position] |
 
-#### 6.1.2 부분 로딩
+#### 6.1.2 Partial Loading
 
-| 영역 | 로딩 UI |
-|------|---------|
-| [영역명] | [스켈레톤/스피너/인라인] |
+| Area | Loading UI |
+|------|-----------|
+| [Area name] | [Skeleton/Spinner/Inline] |
 
-### 6.2 빈 상태 (Empty State)
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│                    [일러스트/아이콘]                             │
-│                                                                 │
-│                    [메인 메시지]                                 │
-│                    [서브 메시지 - 선택]                          │
-│                                                                 │
-│                    [CTA 버튼 - 선택]                            │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-| 상황 | 아이콘 | 메시지 | CTA |
-|------|--------|--------|-----|
-| [상황1] | [아이콘] | "[메시지]" | [버튼명] / 없음 |
-| [상황2] | [아이콘] | "[메시지]" | [버튼명] / 없음 |
-
-### 6.3 에러 상태
+### 6.2 Empty State
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                 │
-│                    [에러 아이콘]                                 │
+│                    [Illustration/Icon]                           │
 │                                                                 │
-│                    [에러 메시지]                                 │
+│                    [Main message]                                │
+│                    [Sub message - optional]                      │
 │                                                                 │
-│                    [재시도 버튼]                                 │
+│                    [CTA button - optional]                       │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-| 에러 유형 | 메시지 | 동작 |
-|----------|--------|------|
-| 네트워크 오류 | "[메시지]" | [재시도 버튼] |
-| 서버 오류 | "[메시지]" | [안내] |
-| 권한 없음 | "[메시지]" | [안내/버튼] |
-| 데이터 없음 | "[메시지]" | [안내] |
+| Situation | Icon | Message | CTA |
+|-----------|------|---------|-----|
+| [Situation1] | [Icon] | "[Message]" | [Button name] / None |
+| [Situation2] | [Icon] | "[Message]" | [Button name] / None |
 
-### 6.4 권한/접근 제한 상태
+### 6.3 Error State
 
-| 조건 | UI | 메시지 |
-|------|-----|--------|
-| [조건1] | [전체 차단 / 부분 차단] | "[메시지]" |
-| [조건2] | [UI 타입] | "[메시지]" |
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│                    [Error icon]                                  │
+│                                                                 │
+│                    [Error message]                               │
+│                                                                 │
+│                    [Retry button]                                │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
----
+| Error Type | Message | Action |
+|-----------|---------|--------|
+| Network error | "[Message]" | [Retry button] |
+| Server error | "[Message]" | [Notice] |
+| No permission | "[Message]" | [Notice/button] |
+| No data | "[Message]" | [Notice] |
 
-## Level 7. 정책 총정리
+### 6.4 Permission/Access Restriction State
 
-> 화면 전체에 적용되는 정책을 카테고리별로 정리
-
-### 7.1 UI 정책
-
-| 항목 | 정책 | 비고 |
-|------|------|------|
-| 반응형 | [지원 범위: Desktop/Tablet/Mobile] | [breakpoint] |
-| 다크 모드 | 지원 / 미지원 | |
-| 접근성 | [고려 사항] | |
-
-### 7.2 시간 표시 정책
-
-| 조건 | 포맷 | 예시 |
-|------|------|------|
-| 오늘 | "HH:MM" / "오전/오후 H:MM" | "10:30 AM" |
-| 어제 | "어제 HH:MM" | "어제 14:20" |
-| 올해 (7일 이내) | "N일 전" | "3일 전" |
-| 올해 (7일 이후) | "M월 D일" / "M/D" | "1/27" |
-| 작년 이전 | "YYYY년 M월 D일" / "YYYY/M/D" | "2025/12/15" |
-
-### 7.3 텍스트 정책
-
-| 항목 | 정책 |
-|------|------|
-| 말줄임 | [N]자 초과 시 "..." |
-| 줄바꿈 | [허용/불허용, 최대 줄 수] |
-| 빈 값 | "[대체 텍스트]" 또는 "-" |
-
-### 7.4 인터랙션 정책
-
-| 항목 | 정책 |
-|------|------|
-| 버튼 더블 클릭 | [방지 여부] |
-| 폼 재전송 | [방지 여부] |
-| 외부 링크 | 새 탭 / 현재 탭 |
-
-### 7.5 데이터 정책
-
-| 항목 | 정책 |
-|------|------|
-| 캐싱 | [전략: TTL, 무효화 조건] |
-| 실시간 업데이트 | [지원 여부, 방식] |
-| 오프라인 | [지원 여부, 동작] |
-
-### 7.6 비즈니스 정책
-
-| 항목 | 정책 | 근거 |
-|------|------|------|
-| [정책1] | [내용] | [이유] |
-| [정책2] | [내용] | [이유] |
+| Condition | UI | Message |
+|-----------|-----|---------|
+| [Condition1] | [Full block / Partial block] | "[Message]" |
+| [Condition2] | [UI type] | "[Message]" |
 
 ---
 
-## 체크리스트
+## Level 7. Policy Summary
 
-### 화면정의서 완성도
+> Organize policies applied across the entire screen by category
 
-- [ ] Level 1: IA와 진입점이 명확한가?
-- [ ] Level 2: 메인 화면 레이아웃이 ASCII로 표현되었는가?
-- [ ] Level 3: 모든 컴포넌트의 상태별 변형이 정의되었는가?
-- [ ] Level 4: 모달의 유효성 검증과 저장 동작이 정의되었는가?
-- [ ] Level 5: 외부 화면 연동이 정의되었는가? (해당 시)
-- [ ] Level 6: 로딩/빈/에러 상태가 정의되었는가?
-- [ ] Level 7: 모든 정책이 테이블로 정리되었는가?
+### 7.1 UI Policy
 
-### 품질 체크
+| Item | Policy | Notes |
+|------|--------|-------|
+| Responsive | [Support range: Desktop/Tablet/Mobile] | [breakpoint] |
+| Dark mode | Supported / Not supported | |
+| Accessibility | [Considerations] | |
 
-- [ ] 모든 요소에 스펙(크기, 색상, 동작)이 명시되었는가?
-- [ ] ASCII 아트가 충분히 상세한가?
-- [ ] 개발자가 바로 구현할 수 있는 수준인가?
-- [ ] Epic Spec의 비즈니스 로직이 반영되었는가?
-- [ ] 엣지 케이스 UI가 정의되었는가?
+### 7.2 Time Display Policy
+
+| Condition | Format | Example |
+|-----------|--------|---------|
+| Today | "HH:MM" / "AM/PM H:MM" | "10:30 AM" |
+| Yesterday | "Yesterday HH:MM" | "Yesterday 14:20" |
+| This year (within 7 days) | "N days ago" | "3 days ago" |
+| This year (after 7 days) | "M/D" | "1/27" |
+| Before this year | "YYYY/M/D" | "2025/12/15" |
+
+### 7.3 Text Policy
+
+| Item | Policy |
+|------|--------|
+| Truncation | "..." after [N] characters |
+| Line breaks | [Allowed/Not allowed, max lines] |
+| Empty value | "[Replacement text]" or "-" |
+
+### 7.4 Interaction Policy
+
+| Item | Policy |
+|------|--------|
+| Button double-click | [Prevention enabled/disabled] |
+| Form resubmission | [Prevention enabled/disabled] |
+| External links | New tab / Current tab |
+
+### 7.5 Data Policy
+
+| Item | Policy |
+|------|--------|
+| Caching | [Strategy: TTL, invalidation conditions] |
+| Real-time updates | [Support status, method] |
+| Offline | [Support status, behavior] |
+
+### 7.6 Business Policy
+
+| Item | Policy | Rationale |
+|------|--------|-----------|
+| [Policy1] | [Content] | [Reason] |
+| [Policy2] | [Content] | [Reason] |
 
 ---
 
-**작성일**: YYYY-MM-DD
-**최종 수정**: YYYY-MM-DD
-**작성자**: 📋 Penny
+## Checklist
+
+### Screen Spec Completeness
+
+- [ ] Level 1: Are IA and entry points clear?
+- [ ] Level 2: Is the main screen layout expressed in ASCII?
+- [ ] Level 3: Are all state variants defined for components?
+- [ ] Level 4: Are modal validation and save behavior defined?
+- [ ] Level 5: Are external screen integrations defined? (if applicable)
+- [ ] Level 6: Are loading/empty/error states defined?
+- [ ] Level 7: Are all policies organized in tables?
+
+### Quality Check
+
+- [ ] Are specs (size, color, behavior) specified for all elements?
+- [ ] Are ASCII diagrams sufficiently detailed?
+- [ ] Is this at a level where developers can implement immediately?
+- [ ] Is the Epic Spec business logic reflected?
+- [ ] Are edge case UIs defined?
+
+---
+
+**Created**: YYYY-MM-DD
+**Last Modified**: YYYY-MM-DD
+**Author**: 📋 Penny

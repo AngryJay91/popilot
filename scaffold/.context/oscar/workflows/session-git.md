@@ -1,71 +1,71 @@
-# 세션별 Git 작업 (Oscar 모듈)
+# Session-based Git Operations (Oscar Module)
 
-> "커밋해줘", "푸시해" 요청 시 참조
+> Referenced when "commit", "push" requests are made
 
 ---
 
-## 핵심 원칙
+## Core Principles
 
-병렬 세션 환경에서 다른 세션의 작업을 망가뜨리지 않기 위해:
+To avoid breaking other sessions' work in a parallel session environment:
 
-1. **현재 세션 파일만 커밋**: 세션 파일의 "산출물" 섹션에 기록된 파일만 처리
-2. **다른 세션 파일 보호**: `git status`에 다른 파일이 있어도 무시
-3. **명시적 확인**: 커밋 전 파일 목록을 사용자에게 보여주고 확인
+1. **Commit only current session files**: Only process files recorded in the "deliverables" section of the session file
+2. **Protect other session files**: Ignore other files even if they appear in `git status`
+3. **Explicit confirmation**: Show the file list to the user and confirm before committing
 
-## Git 요청 감지 키워드
+## Git Request Detection Keywords
 
-| 키워드 | 동작 |
-|--------|------|
-| `커밋`, `commit`, `저장하고 올려` | 세션별 선택적 커밋 |
-| `푸시`, `push`, `올려줘` | 커밋 후 푸시 |
-| `전체 커밋`, `모든 변경사항`, `--all` | 전체 커밋 (명시적 요청 시만) |
+| Keyword | Action |
+|---------|--------|
+| `commit`, `save and push` | Selective per-session commit |
+| `push`, `upload` | Commit then push |
+| `full commit`, `all changes`, `--all` | Full commit (only on explicit request) |
 
-## 실행 흐름
+## Execution Flow
 
 ```
-1. 현재 세션 파일 확인
-   → sessions/active/{현재 세션}.md 의 "산출물" 섹션에서 파일 목록 추출
+1. Check current session files
+   → Extract file list from "deliverables" section in sessions/active/{current session}.md
 
-2. git status와 교차 확인
-   → 세션 산출물 ∩ git 변경 파일 = 커밋 대상
+2. Cross-check with git status
+   → Session deliverables ∩ git changed files = commit targets
 
-3. 사용자 확인
-   → "이 파일들을 커밋할까요?" 목록 표시
-   → 다른 세션 파일이 있으면 경고
+3. User confirmation
+   → Display "Commit these files?" list
+   → Warn if other session files exist
 
-4. 선택적 커밋 실행
-   → git add {세션 파일만}
+4. Execute selective commit
+   → git add {session files only}
    → git commit -m "..."
-   → git push (요청 시)
+   → git push (on request)
 ```
 
-## 커밋 메시지 형식
+## Commit Message Format
 
 ```
-feat(oscar): 세션 일기 시스템 및 권한 위임 개선
+feat(oscar): Improve session journal system and authority delegation
 
-- /save 커맨드에 세션 일기 자동 생성 추가
-- Oscar 적극적 위임 원칙 추가
+- Add automatic session journal generation to /save command
+- Add Oscar proactive delegation principles
 
-Session: {현재 세션 ID}
+Session: {current session ID}
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 ```
 
-## 산출물 추적
+## Deliverable Tracking
 
-Oscar가 파일 수정 시 **자동으로 세션 파일의 산출물 섹션 업데이트**:
+Oscar **automatically updates the deliverables section of the session file** when modifying files:
 
 ```markdown
-## 산출물
-| 파일 | 변경 | 설명 |
-|------|------|------|
-| `.context/agents/orchestrator.md` | 수정 | 코어 경량화 |
+## Deliverables
+| File | Change | Description |
+|------|--------|-------------|
+| `.context/agents/orchestrator.md` | Modified | Core lightweight refactor |
 ```
 
-이 목록이 커밋 대상 파일의 기준이 됨.
+This list serves as the basis for which files to commit.
 
-## 주의사항
+## Precautions
 
-1. **산출물 섹션 누락 방지**: 파일 수정 시 반드시 산출물 섹션 업데이트
-2. **같은 파일 다중 세션 수정**: 여러 세션이 같은 파일 수정 시 경고, 먼저 커밋한 세션 우선
-3. **전체 커밋**: "전체 커밋", "모든 파일", "--all" 명시 필요, 다른 세션 파일 포함 경고
+1. **Prevent missing deliverables section**: Always update deliverables section when modifying files
+2. **Same file modified by multiple sessions**: Warn when multiple sessions modify the same file, first-to-commit session takes priority
+3. **Full commit**: Requires explicit "full commit", "all files", or "--all", warns about including other session files

@@ -1,58 +1,58 @@
-# /retro - 스프린트 회고
+# /retro - Sprint Retrospective
 
-스프린트 회고를 진행합니다. 📋 Penny와 📊 Vicky가 협력합니다.
+Conduct a sprint retrospective. 📋 Penny and 📊 Vicky collaborate.
 
-## 실행 단계
+## Execution Steps
 
-1. **컨텍스트 로드**
-   - 현재 스프린트 `context.md` 읽기
-   - 스프린트 목표 및 KR 확인
+1. **Load Context**
+   - Read current sprint `context.md`
+   - Review sprint goals and KRs
 
-2. **데이터 수집** (📊 Vicky)
-   - KR 달성 여부 확인
-   - 주요 지표 Before/After 비교
-   - Guard Rail 상태 점검
+2. **Data Collection** (📊 Vicky)
+   - Check KR achievement status
+   - Compare key metrics Before/After
+   - Review Guard Rail status
 
-3. **회고 진행** (📋 Penny)
-   - What went well? (잘된 점)
-   - What didn't go well? (아쉬운 점)
-   - What did we learn? (학습)
-   - What will we do differently? (개선 액션)
+3. **Conduct Retrospective** (📋 Penny)
+   - What went well?
+   - What didn't go well?
+   - What did we learn?
+   - What will we do differently?
 
-4. **산출물 작성**
-   - `templates/retrospective.md` 템플릿 사용
-   - `.context/sprints/s{N}/results.md`에 저장
+4. **Write Outputs**
+   - Use `templates/retrospective.md` template
+   - Save to `.context/sprints/s{N}/results.md`
 
-## 회고 프레임워크
+## Retrospective Frameworks
 
-### 4L 회고
-- **Liked**: 좋았던 것
-- **Learned**: 배운 것
-- **Lacked**: 부족했던 것
-- **Longed for**: 바랐던 것
+### 4L Retrospective
+- **Liked**: What was good
+- **Learned**: What we learned
+- **Lacked**: What was missing
+- **Longed for**: What we wished for
 
 ### Start-Stop-Continue
-- **Start**: 새로 시작할 것
-- **Stop**: 그만할 것
-- **Continue**: 계속할 것
+- **Start**: Things to start doing
+- **Stop**: Things to stop doing
+- **Continue**: Things to keep doing
 
-## 질문 가이드
+## Question Guide
 
-📋 Penny가 물어볼 질문들:
+Questions 📋 Penny will ask:
 ```
-📋 Penny: "이번 스프린트에서 가장 잘된 점은 뭐였나요?"
-📋 Penny: "예상과 다르게 진행된 부분이 있었나요?"
-📋 Penny: "다음 스프린트에 반영할 개선점은요?"
-```
-
-📊 Vicky가 제공할 데이터:
-```
-📊 Vicky: "KR1은 목표 대비 85% 달성했습니다."
-📊 Vicky: "Guard Rail 지표는 모두 정상 범위입니다."
-📊 Vicky: "예상치 못한 발견: 전환율이 주말에 20% 높았어요."
+📋 Penny: "What went best this sprint?"
+📋 Penny: "Was there anything that went differently than expected?"
+📋 Penny: "What improvements should we apply to the next sprint?"
 ```
 
-## 응답 형식
+Data 📊 Vicky will provide:
+```
+📊 Vicky: "KR1 achieved 85% of the target."
+📊 Vicky: "All Guard Rail metrics are within normal range."
+📊 Vicky: "Unexpected finding: conversion rate was 20% higher on weekends."
+```
 
-두 에이전트가 협력하여 회고를 진행합니다.
-최종 산출물은 `results.md` 형태로 정리됩니다.
+## Response Format
+
+Both agents collaborate to conduct the retrospective.
+The final output is organized as a `results.md` document.

@@ -1,7 +1,7 @@
 id: intercom
 name: "Intercom"
 category: customer_feedback
-description: "고객 지원, 메시지, VOC 분석"
+description: "Customer support, messaging, VOC analysis"
 
 mcp:
   server_name: "intercom"
@@ -16,15 +16,15 @@ setup_questions:
 
 agent_prompts:
   validator: |
-    ### Intercom API (VOC 분석)
+    ### Intercom API (VOC Analysis)
     ```
-    용도: CS 대화 분석, VOC 인사이트 도출
+    Purpose: CS conversation analysis, VOC insight extraction
     app_id: {{config.app_id}}
     ```
 
-    #### VOC 분석 패턴
+    #### VOC Analysis Patterns
     ```javascript
-    // 최근 종료된 대화 조회
+    // Retrieve recently closed conversations
     list_conversations({
       state: "closed",
       per_page: 50,
@@ -32,16 +32,16 @@ agent_prompts:
       sort_order: "desc"
     })
 
-    // 특정 대화 상세 조회
+    // Retrieve specific conversation details
     get_conversation({ id: "{conversation_id}" })
     ```
 
   researcher: |
-    ### Intercom API (VOC 수집)
+    ### Intercom API (VOC Collection)
     ```
-    용도: 고객 대화 수집, 불만 패턴 파악
+    Purpose: Customer conversation collection, complaint pattern identification
     app_id: {{config.app_id}}
-    연계: Vicky가 수집 → Rita가 해석
+    Integration: Vicky collects → Rita interprets
     ```
 
 footer_tool_line: "Intercom API"

@@ -1,139 +1,139 @@
-# /sessions - 세션 대시보드
+# /sessions - Session Dashboard
 
-전체 세션 현황을 확인하거나 관리 작업을 수행합니다.
+View the full session dashboard or perform management tasks.
 
-## 사용법
+## Usage
 
 ```bash
-/sessions                 # 전체 세션 현황 대시보드
-/sessions clean           # stale lock 정리, 오래된 archive 삭제
+/sessions                 # Full session dashboard
+/sessions clean           # Clean up stale locks, delete old archives
 ```
 
 ARGUMENTS: $ARGUMENTS
 
 ---
 
-## 실행 단계
+## Execution Steps
 
-### /sessions (대시보드)
+### /sessions (Dashboard)
 
-`index.yaml`을 읽어 전체 세션 현황 표시:
+Read `index.yaml` and display the full session dashboard:
 
 ```markdown
-🎩 Oscar: 세션 현황입니다.
+🎩 Oscar: Here is the session dashboard.
 
-## 활성 세션 (2개)
+## Active Sessions (2)
 ┌────┬─────────────────┬────────┬───────────┬─────────────────────────────┐
-│ #  │ ID              │ 상태   │ 마지막    │ 주제                         │
+│ #  │ ID              │ Status │ Last      │ Topic                        │
 ├────┼─────────────────┼────────┼───────────┼─────────────────────────────┤
-│ 1  │ notion-tasks    │ 🟢 idle│ 10분 전   │ 스프린트 52 노션 태스크       │
-│ 2  │ surface-cvr     │ 🔒 사용중│ 방금     │ Surface Layer CVR 최적화    │
+│ 1  │ notion-tasks    │ 🟢 idle│ 10m ago   │ Sprint 52 Notion Tasks       │
+│ 2  │ surface-cvr     │ 🔒 in use│ just now │ Surface Layer CVR Optimization│
 └────┴─────────────────┴────────┴───────────┴─────────────────────────────┘
 
-## 최근 종료 (3개)
+## Recently Closed (3)
 ┌────┬─────────────────┬───────────┬─────────────────────────────┐
-│ #  │ ID              │ 종료일    │ 주제                         │
+│ #  │ ID              │ Closed    │ Topic                        │
 ├────┼─────────────────┼───────────┼─────────────────────────────┤
-│ 1  │ ir-prep         │ 01/25     │ IR 자료 준비                 │
-│ 2  │ story-review    │ 01/24     │ 스토리 리뷰                  │
-│ 3  │ deep-layer      │ 01/23     │ Deep Layer 개선              │
+│ 1  │ ir-prep         │ 01/25     │ IR Material Preparation      │
+│ 2  │ story-review    │ 01/24     │ Story Review                 │
+│ 3  │ deep-layer      │ 01/23     │ Deep Layer Improvement       │
 └────┴─────────────────┴───────────┴─────────────────────────────┘
 
-## 공유 산출물 (1개)
+## Shared Outputs (1)
 ┌────┬──────────────────────┬───────────┬─────────────────┐
-│ #  │ 제목                  │ 생성일    │ 생성 세션        │
+│ #  │ Title                │ Created   │ Source Session   │
 ├────┼──────────────────────┼───────────┼─────────────────┤
-│ 1  │ S52 Story 목록        │ 01/26     │ notion-tasks    │
+│ 1  │ S52 Story List       │ 01/26     │ notion-tasks    │
 └────┴──────────────────────┴───────────┴─────────────────┘
 
 ---
 
-**커맨드**:
-- `/start {id}` - 세션 시작/복원
-- `/start new "{주제}"` - 새 세션 생성
-- `/start recent` - 종료 세션 복원
-- `/save` - 현재 세션 저장
-- `/sessions clean` - 정리 작업
+**Commands**:
+- `/start {id}` - Start/restore session
+- `/start new "{topic}"` - Create new session
+- `/start recent` - Restore closed session
+- `/save` - Save current session
+- `/sessions clean` - Clean up tasks
 ```
 
 ---
 
 ### /sessions clean
 
-관리 작업 수행:
+Perform management tasks:
 
-1. **Stale Lock 정리**: `lock.expires < now`인 세션들의 Lock 해제
-2. **오래된 archive 삭제**: 30일 이상 지난 archive 파일 삭제 (선택적)
-3. **orphan 파일 정리**: `index.yaml`에 없는 `active/` 파일 감지
+1. **Clean up stale Locks**: Release Locks for sessions where `lock.expires < now`
+2. **Delete old archives**: Delete archive files older than 30 days (optional)
+3. **Clean up orphan files**: Detect files in `active/` that are not in `index.yaml`
 
 ```markdown
-🎩 Oscar: 정리 작업을 수행합니다.
+🎩 Oscar: Performing cleanup tasks.
 
-## Stale Lock 정리
-- notion-tasks: Lock 해제 (만료: 2시간 전)
+## Stale Lock Cleanup
+- notion-tasks: Lock released (expired: 2 hours ago)
 
-## 오래된 archive
-- archive/2025-12/old-session-1225.md (32일 전)
-  → 삭제하시겠습니까? [y/n]
+## Old Archives
+- archive/2025-12/old-session-1225.md (32 days ago)
+  → Delete? [y/n]
 
-## Orphan 파일
-- active/unknown-session.md (index.yaml에 없음)
-  → 삭제하시겠습니까? [y/n]
+## Orphan Files
+- active/unknown-session.md (not in index.yaml)
+  → Delete? [y/n]
 
 ---
 
-정리 완료.
+Cleanup complete.
 ```
 
 ---
 
-## 상태 표시 규칙
+## Status Display Rules
 
-### 세션 상태
+### Session Status
 
-| 상태 | 아이콘 | 조건 |
-|------|--------|------|
-| 사용 중 | 🔒 | `status: active` AND `lock.active: true` AND `lock.expires >= now` |
+| Status | Icon | Condition |
+|--------|------|-----------|
+| In use | 🔒 | `status: active` AND `lock.active: true` AND `lock.expires >= now` |
 | idle | 🟢 | `status: idle` OR `lock.active: false` |
 | stale | ⚠️ | `lock.active: true` AND `lock.expires < now` |
 
-### 마지막 활동 시간
+### Last Activity Time
 
-- 1분 미만: "방금"
-- 1시간 미만: "N분 전"
-- 24시간 미만: "N시간 전"
-- 그 외: "MM/DD"
+- Less than 1 minute: "just now"
+- Less than 1 hour: "Nm ago"
+- Less than 24 hours: "Nh ago"
+- Otherwise: "MM/DD"
 
 ---
 
-## 대시보드 정보 수집
+## Dashboard Information Sources
 
-### 활성 세션
+### Active Sessions
 
-`index.yaml`의 `active` 배열에서:
-- id, topic, status, lock 상태
-- `auto_save.last_turn`으로 마지막 활동 시간 계산
+From the `active` array in `index.yaml`:
+- id, topic, status, lock state
+- Calculate last activity time from `auto_save.last_turn`
 
-### 최근 종료
+### Recently Closed
 
-`index.yaml`의 `recent_closed` 배열에서:
+From the `recent_closed` array in `index.yaml`:
 - id, topic, archived_at
-- 최대 5개 표시
+- Display up to 5
 
-### 공유 산출물
+### Shared Outputs
 
-`index.yaml`의 `shared_outputs` 배열에서:
+From the `shared_outputs` array in `index.yaml`:
 - title, created_at, created_by
-- 전체 표시
+- Display all
 
 ---
 
-## 관련 커맨드
+## Related Commands
 
-- `/start` - 세션 시작/복원
-- `/save` - 세션 저장
+- `/start` - Start/restore session
+- `/save` - Save session
 
 ---
 
-*파일 위치*:
-- 세션 인덱스: `.context/sessions/index.yaml`
+*File location*:
+- Session index: `.context/sessions/index.yaml`
