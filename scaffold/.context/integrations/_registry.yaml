@@ -1,10 +1,10 @@
-version: "1.0"
+version: "1.1"
 
 categories:
   analytics:
     label: "Analytics"
     description: "User behavior, funnel, event analysis"
-    agents: [analyst, validator]
+    agents: [analyst, validator, tracking-governor]
     commands: [analytics]
 
   database:
@@ -17,22 +17,22 @@ categories:
   pm_tool:
     label: "Project Management"
     description: "Task, document, roadmap management"
-    agents: [strategist, planner]
+    agents: [strategist, planner, handoff-specialist, operations]
     commands: [daily]
     system_files: [WORKFLOW.md]
 
   customer_feedback:
     label: "Customer Feedback"
     description: "CS chat, VOC collection/analysis"
-    agents: [validator, researcher]
+    agents: [researcher]
 
   ai_research:
     label: "AI Research"
     description: "AI-powered knowledge exploration, insight extraction"
-    agents: [researcher, strategist, validator]
+    agents: [researcher, strategist, validator, market-researcher]
 
   knowledge:
     label: "Knowledge Management"
     description: "Cross-source knowledge search, decision tracking, feature timeline"
-    agents: [researcher, strategist, planner, validator, analyst]
+    agents: [researcher, strategist, planner, validator, analyst, market-researcher]
     system_files: [WORKFLOW.md]

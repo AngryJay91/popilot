@@ -2,7 +2,7 @@
 
 > *"Developers have Copilot. Product Owners have Popilot."*
 
-**Popilot** is a multi-agent AI assistant for Product Owners and Product Managers, built on [Claude Code](https://docs.anthropic.com/en/docs/claude-code). It scaffolds a complete agent team — 10 specialized personas, 29 slash commands, document templates, and workflow automation — so you can focus on product decisions while AI handles the heavy lifting.
+**Popilot** is a multi-agent AI assistant for Product Owners and Product Managers, built on [Claude Code](https://docs.anthropic.com/en/docs/claude-code). It scaffolds a complete agent team — 14 specialized personas, 30+ slash commands, document templates, and workflow automation — so you can focus on product decisions while AI handles the heavy lifting.
 
 ---
 
@@ -13,8 +13,9 @@ Product work is messy. You juggle strategy, sprint planning, data analysis, cust
 Popilot solves this with a **team of specialized agents**, each with deep expertise in one domain:
 
 - **No more context-switching** — Oscar routes your request to the right agent automatically
-- **Structured workflows** — From PRD to Epic Spec to Story to Handoff, nothing falls through the cracks
-- **Data-driven decisions** — Danny queries your analytics; Vicky validates your hypotheses
+- **Structured workflows** — From PRD to Screen Spec to Story to Dev Handoff, nothing falls through the cracks
+- **Data-driven decisions** — Danny queries your analytics; Vicky validates your hypotheses; Tara governs data quality
+- **Full PO coverage** — Strategy, market research, sprint planning, screen specs, tracking, operations, and more
 - **Living specs, not dead docs** — spec-site turns static markdown into interactive, scenario-based mockups that developers actually use
 
 ---
@@ -32,18 +33,45 @@ Then open [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and type
 
 ## The Agent Team
 
+### PO Team (8 + Orchestrator)
+
 | Icon | Name | Command | Role | Specialty |
 |------|------|---------|------|-----------|
 | :tophat: | **Oscar** | *(default)* | Orchestrator | Routing, coordination, proactive alerts |
 | :dart: | **Simon** | `/strategy` | Strategist | PRD, hypotheses, product strategy |
-| :clipboard: | **Penny** | `/plan` | Planner | Sprint planning, stories, dev handoff |
-| :bar_chart: | **Vicky** | `/validate` | Validator | Hypothesis validation, guard rails |
+| :world_map: | **Marco** | `/market` | Market Researcher | Competitive analysis, positioning |
+| :clipboard: | **Penny** | `/plan` | Planner | Sprint planning, stories, backlog |
+| :triangular_ruler: | **Hank** | `/handoff` | Handoff Specialist | Screen specs, dev handoff, release readiness |
+| :bar_chart: | **Vicky** | `/validate` | Validator | Hypothesis validation, guard rails, OKR tracking |
 | :chart_with_upwards_trend: | **Danny** | `/analytics` | Analyst | Data analysis, cohorts, insights |
-| :microphone: | **Rita** | `/research` | Researcher | VOC analysis, customer insights |
-| :hammer: | **Derek** | `/dev` | Developer | Dashboard development, code review |
+| :microphone: | **Rita** | `/research` | Researcher | VOC pipeline, customer insights |
+| :satellite: | **Tara** | `/tracking` | Tracking Governor | Event taxonomy, data quality, metrics governance |
+| :calendar: | **Nora** | `/daily` | Operations | Daily logs, retrospectives, status reports |
+
+### Dev Team (2)
+
+| Icon | Name | Command | Role | Specialty |
+|------|------|---------|------|-----------|
+| :hammer: | **Derek** | `/dev` | Developer | Dashboard + spec-site development |
 | :test_tube: | **Quinn** | `/qa` | QA Engineer | Testing, quality review |
+
+### Internal Agents
+
+| Icon | Name | Command | Role | Specialty |
+|------|------|---------|------|-----------|
 | :tophat::sparkles: | **Ollie** | *(internal)* | Task Creator | Parallel task execution for Oscar |
 | :crystal_ball: | **Sage** | *(internal)* | Advisor | Strategic advisory for Oscar |
+
+### Agent Lanes
+
+```
+Strategy:   Simon ←→ Marco
+Execute:    Penny → Hank → Derek + Quinn
+Insight:    Danny ←→ Rita
+Measure:    Vicky ←→ Tara
+Operations: Nora
+Command:    Oscar → Ollie (×N) + Sage
+```
 
 ---
 
@@ -124,13 +152,15 @@ After setup, open Claude Code and type `/start`. Oscar can run a **deep intervie
 | Command | Description |
 |---------|-------------|
 | `/strategy` | Activate Simon (strategy, PRD) |
+| `/market` | Activate Marco (competitive analysis, positioning) |
 | `/plan` | Activate Penny (sprint planning) |
 | `/validate` | Activate Vicky (hypothesis validation) |
 | `/analytics` | Activate Danny (data analysis) |
 | `/research` | Activate Rita (VOC, customer insights) |
+| `/tracking` | Activate Tara (event taxonomy, data quality) |
 | `/dev` | Activate Derek (development) |
 | `/party` | Team discussion mode (all agents) |
-| `/handoff` | Agent-to-agent handoff |
+| `/handoff` | Agent-to-agent handoff (via Hank) |
 | `/oscar-loop` | Autonomous parallel task creation |
 | `/task` | Story/Task status management |
 
@@ -165,14 +195,14 @@ Popilot supports 9 integrations out of the box. Enable them during setup or late
 ```
 my-project/
 ├── CLAUDE.md                          # System instructions (hydrated)
-├── .claude/commands/                  # 29 slash commands
+├── .claude/commands/                  # 30+ slash commands
 ├── .context/
 │   ├── project.yaml                   # Project config (from setup wizard)
 │   ├── user-context.yaml              # User preferences (gitignored)
 │   ├── .secrets.yaml                  # Sensitive data (gitignored)
 │   ├── WORKFLOW.md                    # Workflow guide (hydrated)
 │   │
-│   ├── agents/                        # 10 agent personas
+│   ├── agents/                        # 14 agent personas (+ TEMPLATE.md)
 │   ├── oscar/workflows/               # Oscar extension modules
 │   ├── templates/                     # 11 document templates
 │   ├── integrations/                  # Provider configs + registry
@@ -291,13 +321,13 @@ Set `spec_site.deploy_url` in `project.yaml` — agents will use this URL in han
 | Sprint PRD | Simon | `templates/prd.md` | One Question, hypothesis, OMTM |
 | Epic Spec | PO | `templates/epic-spec.md` | WHY, WHAT, HOW, edge cases |
 | Story v2 | Penny | `templates/story-v2.md` | AC (Given-When-Then), task breakdown |
-| Screen Spec | PO | `templates/screen-spec.md` | 7-level UI specification |
+| Screen Spec | Hank | `templates/screen-spec.md` | 7-level UI specification |
 | Sprint Plan | Penny | `templates/sprint-plan.md` | Sprint goals and KRs |
 | Sprint Status | Penny | `templates/sprint-status.yaml` | Progress dashboard |
 | Validation Report | Vicky | `templates/validation-report.md` | Before/After analysis |
 | Guard Rail | Vicky | `templates/guardrail.md` | Safety metrics definition |
-| Retrospective | Team | `templates/retrospective.md` | Sprint retro template |
-| Handoff Checklist | Penny | `templates/handoff-checklist.md` | Dev handoff verification |
+| Retrospective | Nora | `templates/retrospective.md` | Sprint retro template |
+| Handoff Checklist | Hank | `templates/handoff-checklist.md` | Dev handoff verification |
 | Dev Guide | Derek | `templates/dev-guide.md` | Implementation guidelines |
 
 ---

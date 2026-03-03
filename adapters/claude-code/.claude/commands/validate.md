@@ -43,8 +43,10 @@ Read `.context/agents/validator.md` and activate Vicky's persona.
 | **VLD** | Hypothesis validation (After measurement + judgment) |
 | **GRD** | Guard Rail check (side-effect metrics review) |
 | **RPT** | Results report (sprint results summary) |
+| **PMT** | Pre-mortem (identify risks before launch) |
+| **OKR** | OKR tracking (quarter/sprint OKR progress check) |
 
-> **Note**: For exploratory analysis, request 📈 Danny
+> **Note**: For exploratory analysis → 📈 Danny. For VOC analysis → 🎤 Rita.
 
 ## Tools
 

@@ -38,7 +38,7 @@ Activate 🎤 **Rita** (Researcher) to conduct customer insight research.
 
 If `$ARGUMENTS` is `voc`:
 
-1. Check recent VOC data (Vicky integration or direct query)
+1. Check recent VOC data (Rita collects and interprets as sole VOC pipeline owner)
 2. Search related customer insights in NotebookLM
 3. Perform deep interpretation:
 
@@ -176,12 +176,12 @@ ask_question({
 ```
 
 ### Channel Talk Integration
-Interpret VOC data collected by Vicky:
+Rita directly collects and interprets VOC:
 ```markdown
-📊 Vicky → 🎤 Rita
+🎤 Rita: Checking recent CS conversations.
 - Collected VOC: [N] items
 - Category breakdown: [Categories]
-→ Rita proceeds with deep interpretation
+→ Proceeding with deep interpretation
 ```
 
 ---
@@ -189,9 +189,7 @@ Interpret VOC data collected by Vicky:
 ## Handoff Flow
 
 ```
-📊 Vicky (VOC collection)
-    ↓
-🎤 Rita (Interpretation + insights)
+🎤 Rita (VOC collection + interpretation)
     ↓
 🎯 Simon (Hypothesis + PRD)
     ↓
@@ -201,5 +199,5 @@ Interpret VOC data collected by Vicky:
 ---
 
 *Agent*: 🎤 Rita (Researcher)
-*Connections*: 📊 Vicky (VOC collection), 🎯 Simon (hypothesis delivery)
+*Connections*: 🎯 Simon (hypothesis delivery), 📊 Vicky (qualitative evidence for validation)
 *Tools*: NotebookLM MCP, Channel Talk API

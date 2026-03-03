@@ -5,11 +5,14 @@ Perform standardized handoffs between agents.
 ## Usage
 
 ```
-/handoff           # Generate handoff document for current work
-/handoff to penny  # Simon → Penny handoff
-/handoff to vicky  # Penny → Vicky handoff
-/handoff to simon  # Vicky → Simon handoff
-/handoff to dev    # Penny → Dev Team handoff
+/handoff              # Generate handoff document for current work
+/handoff to penny     # Simon → Penny handoff (PRD complete)
+/handoff to hank      # Penny → Hank handoff (screen spec request)
+/handoff to dev       # Hank → Dev Team handoff (spec complete)
+/handoff to vicky     # Penny → Vicky handoff (validation request)
+/handoff to simon     # Vicky → Simon handoff (validation results)
+/handoff to tara      # Hank → Tara handoff (tracking review)
+/handoff to nora      # Penny → Nora handoff (retro/ceremony data)
 ```
 
 ---
@@ -19,15 +22,17 @@ Perform standardized handoffs between agents.
 ```
 🎯 Simon (PRD complete)
     ↓
-📋 Penny (Sprint planning)
+📋 Penny (Sprint planning + story writing)
     ↓
-👨‍💻 Dev Team (Implementation)
+📐 Hank (Screen spec + handoff package)
+    ↓ ←→ 📡 Tara (tracking review)
+🔨 Derek + 🧪 Quinn (Implementation + QA)
     ↓
 📋 Penny (Dev completion confirmation)
     ↓
 📊 Vicky (Validation)
     ↓
-🎯 Simon (Result interpretation & next hypothesis)
+🎯 Simon (Result interpretation + next hypothesis)
 ```
 
 ---
@@ -50,49 +55,60 @@ If `$ARGUMENTS` is `to penny`:
 
 ### Request to Penny
 - [ ] Write sprint plan
-- [ ] Break down tasks (for dev team)
-- [ ] Review handoff checklist
+- [ ] Break down stories
+- [ ] Route to Hank for screen specs (if UI)
+- [ ] Route to Tara for tracking plan
 
 ### Reference Documents
-- PRD: [Notion link]
-- Design: [Figma link]
+- PRD: [link]
+- Market data (Marco): [if available]
 ```
 
 ---
 
-## 📋→👨‍💻 Penny → Dev Team (Story)
+## 📋→📐 Penny → Hank (Screen Spec Request)
+
+If `$ARGUMENTS` is `to hank`:
+
+```markdown
+## 📋→📐 Spec Request: [Story ID]
+
+### Context
+- PRD: [reference]
+- Story: [story title and AC summary]
+- Sprint: S{N}
+
+### Scope
+- [ ] Screen spec needed (which screens?)
+- [ ] Release readiness check needed
+
+### Priority
+- Sprint deadline: [date]
+```
+
+---
+
+## 📐→🔨 Hank → Dev Team (Spec Complete)
 
 If `$ARGUMENTS` is `to dev`:
 
 ```markdown
-## 📋 Handoff: [Story Name]
+## 📐→🔨 Dev Handoff: [Feature/Story]
 
-### Background
-- PRD: [link]
-- Why needed: [one-line explanation]
+### Screen Spec
+[7-level spec attached or linked]
 
-### Requirements
-#### Functional Requirements
-- [ ] FR1: [content]
-- [ ] FR2: [content]
+### Handoff Checklist
+- [ ] All screens specified (Level 1-5 complete)
+- [ ] Data sources identified (Level 3)
+- [ ] Edge cases documented (Level 5)
+- [ ] Tracking events specified (Level 6, reviewed by Tara)
+- [ ] Acceptance criteria testable (Level 7)
+- [ ] Design assets linked
+- [ ] API contracts defined
 
-#### Non-Functional Requirements
-- [ ] NFR1: [performance/security etc.]
-
-### Definition of Done
-- [ ] Feature works correctly
-- [ ] Error cases are handled
-- [ ] Event logging works
-- [ ] QA test passed
-
-### Event Logging
-| Event Name | Trigger | Parameters |
-|------------|---------|------------|
-| `event_name` | [action] | param1, param2 |
-
-### Reference Materials
-- Design: [Figma link]
-- API Spec: [link]
+### Open Questions
+[None / list if any]
 ```
 
 ---
@@ -110,7 +126,7 @@ If `$ARGUMENTS` is `to vicky`:
 
 ### Request to Vicky
 - [ ] Collect baseline data (Before)
-- [ ] Confirm event logging is working
+- [ ] Confirm event logging is working (coordinate with Tara)
 - [ ] Collect After data after measurement period
 - [ ] Report hypothesis validation results
 
@@ -118,7 +134,6 @@ If `$ARGUMENTS` is `to vicky`:
 | Event Name | Description |
 |------------|-------------|
 | `event_1` | [description] |
-| `event_2` | [description] |
 
 ### Success/Failure Criteria
 - Success: [metric] ≥ [value]
@@ -157,6 +172,42 @@ If `$ARGUMENTS` is `to simon`:
 
 ---
 
+## 📐→📡 Hank → Tara (Tracking Review)
+
+If `$ARGUMENTS` is `to tara`:
+
+```markdown
+## 📐→📡 Tracking Review: [Feature/Screen]
+
+### Screen Spec Level 6 (Draft)
+| Event | Trigger | Parameters |
+|-------|---------|------------|
+| ... | ... | ... |
+
+### Questions
+- Naming convention check?
+- Missing events?
+- Parameter types correct?
+```
+
+---
+
+## 📋→🗓️ Penny → Nora (Ceremony Data)
+
+If `$ARGUMENTS` is `to nora`:
+
+```markdown
+## 📋→🗓️ Sprint Data: S{N}
+
+### Sprint Summary
+- Goal: [One Question]
+- Planned SP: [N] | Completed SP: [N] | Velocity: [N]%
+- Stories completed: [N]/[total]
+- Blockers encountered: [list]
+```
+
+---
+
 ## Handoff Checklist
 
 ### PRD → Sprint (Simon → Penny)
@@ -165,17 +216,20 @@ If `$ARGUMENTS` is `to simon`:
 - [ ] Is the OMTM quantified?
 - [ ] Are Guard Rails set?
 
-### Story → Development (Penny → Dev)
-- [ ] Is the spec document complete?
-- [ ] Is the design finalized?
-- [ ] Is event logging defined?
-- [ ] Is the Definition of Done (DoD) clear?
+### Story → Spec (Penny → Hank)
+- [ ] Are story ACs in Given/When/Then format?
+- [ ] Are UI screens identified?
+- [ ] Is the sprint deadline communicated?
+
+### Spec → Development (Hank → Dev)
+- [ ] Is the 7-level spec complete?
+- [ ] Has Tara reviewed Level 6 (tracking)?
+- [ ] Are acceptance criteria testable?
 
 ### Development → Validation (Penny → Vicky)
 - [ ] Is deployment complete?
 - [ ] Is event logging working?
 - [ ] Is baseline data available?
-- [ ] Is the measurement period set?
 
 ### Validation → Strategy (Vicky → Simon)
 - [ ] Is the Before/After clear?
@@ -192,11 +246,13 @@ Automatically suggest handoff at work completion:
 | Situation | Suggestion |
 |-----------|-----------|
 | PRD writing complete | "Shall we hand off to 📋 Penny?" |
-| Story writing complete | "Shall we hand off to 👨‍💻 the dev team?" |
+| Story writing complete | "Shall we request screen specs from 📐 Hank?" |
+| Screen spec complete | "Shall we hand off to 🔨 Derek?" |
+| Spec has tracking events | "Shall we request review from 📡 Tara?" |
 | Development confirmed complete | "Shall we request validation from 📊 Vicky?" |
 | Validation complete | "Shall we deliver results to 🎯 Simon?" |
 
 ---
 
-*Connected agents*: 🎯 Simon, 📋 Penny, 📊 Vicky
-*Related commands*: `/strategy`, `/plan`, `/validate`, `/party`
+*Connected agents*: 🎯 Simon, 📋 Penny, 📐 Hank, 📡 Tara, 🔨 Derek, 🧪 Quinn, 📊 Vicky, 🗓️ Nora
+*Related commands*: `/strategy`, `/plan`, `/market`, `/tracking`, `/validate`, `/retro`

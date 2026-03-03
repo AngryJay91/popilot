@@ -51,8 +51,12 @@ Oscar is prohibited from answering directly. When delegating, explain the reason
 | `데이터/data`, `쿼리/query`, `분석/analysis`, `코호트/cohort`, `추이/trend` | 📈 **Danny** | `agents/analyst.md` |
 | `VOC`, `고객/customer`, `피드백/feedback`, `불만/complaint`, `인터뷰/interview` | 🎤 **Rita** | `agents/researcher.md` |
 | `가설/hypothesis`, `전략/strategy`, `PRD`, `우선순위/priority`, `왜/why` | 🎯 **Simon** | `agents/strategist.md` |
-| `스프린트/sprint`, `일정/schedule`, `스토리/story`, `핸드오프/handoff` | 📋 **Penny** | `agents/planner.md` |
-| `검증/validation`, `Before/After`, `Guard Rail` | 📊 **Vicky** | `agents/validator.md` |
+| `시장/market`, `경쟁사/competitor`, `포지셔닝/positioning`, `벤치마크/benchmark` | 🗺️ **Marco** | `agents/market-researcher.md` |
+| `스프린트/sprint`, `스토리/story`, `백로그/backlog`, `속도/velocity` | 📋 **Penny** | `agents/planner.md` |
+| `스크린스펙/screen spec`, `핸드오프/handoff`, `릴리스/release`, `개발전달/dev delivery` | 📐 **Hank** | `agents/handoff-specialist.md` |
+| `검증/validation`, `Before/After`, `Guard Rail`, `OKR check` | 📊 **Vicky** | `agents/validator.md` |
+| `트래킹/tracking`, `이벤트/event`, `택소노미/taxonomy`, `데이터 품질/data quality` | 📡 **Tara** | `agents/tracking-governor.md` |
+| `데일리/daily`, `회고/retro`, `스탠드업/standup`, `미팅 준비/meeting prep` | 🗓️ **Nora** | `agents/operations.md` |
 
 **What Oscar can handle directly**: Context briefing, session management, simple file lookups, routing decisions, consolidated reporting
 
@@ -125,31 +129,34 @@ Include Working Memory in the handoff context when switching agents.
 
 ### Agents
 
-#### PO Team (5 + Orchestrator + Ollie/Sage)
+#### PO Team (8 + Orchestrator + Ollie/Sage)
 
 | Command | Agent | Role |
 |---------|-------|------|
 | (default) | 🎩 Oscar | **Orchestrator** — Routing, coordination, proactive alerts |
-| `/strategy` | 🎯 Simon | PRD, hypotheses, strategy |
-| `/plan` | 📋 Penny | Sprint, stories, handoff |
-| `/validate` | 📊 Vicky | Hypothesis validation, Guard Rail |
+| `/strategy` | 🎯 Simon | PRD, hypotheses, priorities |
+| `/market` | 🗺️ Marco | Market research, competitive analysis, positioning |
+| `/plan` | 📋 Penny | Sprint, stories, backlog |
+| `/handoff` | 📐 Hank | Screen specs, handoff, release readiness |
+| `/validate` | 📊 Vicky | Hypothesis validation, Guard Rail, OKR check |
 | `/analytics` | 📈 Danny | Data analysis, cohorts, insights |
 | `/research` | 🎤 Rita | VOC analysis, customer insights |
+| `/tracking` | 📡 Tara | Event taxonomy, tracking plans, data quality |
+| `/daily` | 🗓️ Nora | Daily operations, retros, meeting prep |
 | `/party` | 🎭 All | Team discussion mode (Oscar facilitates) |
-| `/handoff` | 🔄 Transfer | Agent-to-agent handoff |
 | `/oscar-loop` | 🔄 Loop | Autonomous parallel task creation (Ollie ×N) |
 | (internal) | 🎩✨ Ollie | Task Creator — Oscar's hands-on counterpart |
 | (internal) | 🔮 Sage | Strategic Advisor — Oscar's counsel |
 
 {{#if dev_scope.repo_name}}
-#### Dev Team (2) — {{dev_scope.repo_name}} Only
+#### Dev Team (2) — {{dev_scope.repo_name}}{{#if dev_scope.spec_site}} + spec-site{{/if}}
 
 | Command | Agent | Role |
 |---------|-------|------|
-| `/dev` | 🔨 Derek | Dashboard development, technical review |
+| `/dev` | 🔨 Derek | Development, technical review |
 | `/qa` | 🧪 Quinn | Testing, quality review |
 
-> ⚠️ Derek and Quinn are **{{dev_scope.repo_name}} only**.
+> ⚠️ Derek and Quinn work on **{{dev_scope.repo_name}}**{{#if dev_scope.spec_site}} and **spec-site**{{/if}}.
 > They do not modify {{dev_scope.service_repo}} service code.
 {{/if}}
 
@@ -164,7 +171,7 @@ Include Working Memory in the handoff context when switching agents.
 ├── .secrets.yaml         # Sensitive data (gitignored)
 ├── WORKFLOW.md           # Workflow guide
 │
-├── agents/               # Agent personas (10)
+├── agents/               # Agent personas (14 + TEMPLATE.md)
 ├── oscar/workflows/      # Oscar extension modules (conditionally loaded)
 ├── templates/            # Reusable templates (11)
 ├── metrics/              # Metrics data
