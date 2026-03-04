@@ -7,11 +7,14 @@
     "popilot": "bin/cli.mjs"
   },
   "scripts": {
+    "lint": "node scripts/lint.mjs",
+    "typecheck": "node scripts/typecheck.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "files": [
     "bin/",
     "lib/",
+    "scripts/",
     "scaffold/",
     "adapters/",
     "README.md"

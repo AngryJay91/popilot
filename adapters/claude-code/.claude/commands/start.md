@@ -19,14 +19,14 @@ ARGUMENTS: $ARGUMENTS
 
 ## Execution Steps
 
-### -1. Setup Check (First Run Detection) ⭐
+### -1. Setup + Ambiguity Gate Check ⭐
 
 **First**, check whether the `.context/project.yaml` file exists.
 
 ```
 project.yaml exists?
-├── Yes → Normal flow (proceed to step 0)
-└── No  → Start Setup Wizard
+├── No  → Start Setup Wizard
+└── Yes → Evaluate ambiguity gate before normal flow
 ```
 
 #### Setup Wizard Start
@@ -54,13 +54,10 @@ If `.context/project.yaml` does not exist, treat this as a first run and start t
    - Communication style, work style preferences
    - → Generate `user-context.yaml`
 
-4. **Phase 2: In-depth Project Interview** (🎯 Simon deployed)
-   - Core problem, target customers, market
-   - Solution, differentiators, expected outcomes
-   - Current stage, uncertainties, milestones
-   - What's validated / what needs validation
-   - Research unknown areas together via WebSearch
-   - → Generate `project.yaml`
+4. **Phase 2: Project Skeleton Setup**
+   - Fill minimal project defaults and metadata gate fields
+   - Keep deep interview for ambiguity-gate phase
+   - → Generate initial `project.yaml`
 
 5. **Phase 3: Sensitive Information Guidance** (🎩 Oscar)
    - Suggest creating `.secrets.yaml` template
@@ -75,6 +72,37 @@ Generated files:
 
 What would you like to start working on?
 ```
+
+#### Ambiguity Gate (mandatory before normal `/start`)
+
+If `.context/project.yaml` exists, read `_meta` and evaluate:
+
+```js
+meta = _meta ?? {};
+needsDeepInterview = meta.needs_deep_interview === true;
+ambiguityScoreRaw = meta.ambiguity_score ?? (needsDeepInterview ? 1 : 0);
+ambiguityScoreParsed = Number(ambiguityScoreRaw);
+ambiguityScore = Number.isFinite(ambiguityScoreParsed) ? ambiguityScoreParsed : 1;
+
+if (needsDeepInterview || ambiguityScore >= 0.6) {
+  // Gate is open: run deep interview first
+} else {
+  // Gate is closed: proceed to step 0
+}
+```
+
+If `_meta` is missing or malformed, treat it as **gate open** (safe default).
+If gate is open, **do not proceed to step 0/session selection yet**.
+Run the deep project interview first (🎯 Simon-led), then update `.context/project.yaml`:
+
+```yaml
+_meta:
+  needs_deep_interview: false
+  ambiguity_score: <updated numeric score>
+  last_interview: "<ISO8601>"
+```
+
+Only after this metadata update should `/start` continue with normal session flow.
 
 ---
 

@@ -63,11 +63,19 @@ operations:
     ga4:
       enabled: false
       property_id: ""          # {{integrations.ga4.property_id}}
+    mixpanel:
+      enabled: false
+      project_id: ""
     notion:
       enabled: false
       workspace: ""
       daily_page_id: ""
+    linear:
+      enabled: false
+      team_id: ""
     channel_io:
+      enabled: false
+    intercom:
       enabled: false
     prod_db:
       enabled: false
@@ -97,6 +105,8 @@ operations:
 # ============================================================
 _meta:
   created_at: ""
-  created_by: "Oscar (Setup Wizard)"
+  created_by: "popilot init"
+  needs_deep_interview: true
+  ambiguity_score: 1.0
   last_interview: null
   version: "1.0.0"
