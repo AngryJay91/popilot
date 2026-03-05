@@ -34,7 +34,7 @@ Read `.context/agents/strategist.md` and activate Simon's persona.
 | **HYP** | Formulate hypothesis (Problem → Hypothesis → Validation method) |
 | **PRI** | Prioritization (Impact vs Effort) |
 
-> **Note**: Market analysis → 🗺️ Marco (`/market`). Simon requests market data from Marco.
+> **Note**: Market analysis → 🗺️ Marco (`/market`). GTM planning → 📣 Mia (`/gtm`).
 
 ## Response Format
 

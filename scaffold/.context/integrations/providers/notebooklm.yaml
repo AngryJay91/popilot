@@ -71,4 +71,14 @@ agent_prompts:
     Active notebook: {{config.notebook_name}}
     ```
 
+  gtm-strategist: |
+    ### NotebookLM MCP
+    ```
+    Purpose: Message validation from VOC and launch narrative refinement
+    Active notebook: {{config.notebook_name}}
+    Usage:
+    - ask_question: Validate whether proposed messaging matches customer language
+    - summarize objections by ICP before launch
+    ```
+
 footer_tool_line: "NotebookLM MCP"

@@ -2,7 +2,7 @@
 
 > *"Developers have Copilot. Product Owners have Popilot."*
 
-**Popilot** is a multi-agent AI assistant for Product Owners and Product Managers, built on [Claude Code](https://docs.anthropic.com/en/docs/claude-code). It scaffolds a complete agent team — 14 specialized personas, 30+ slash commands, document templates, and workflow automation — so you can focus on product decisions while AI handles the heavy lifting.
+**Popilot** is a multi-agent AI assistant for Product Owners and Product Managers, built on [Claude Code](https://docs.anthropic.com/en/docs/claude-code). It scaffolds a complete agent team — 15 specialized personas, 30+ slash commands, document templates, and workflow automation — so you can focus on product decisions while AI handles the heavy lifting.
 
 ---
 
@@ -15,7 +15,7 @@ Popilot solves this with a **team of specialized agents**, each with deep expert
 - **No more context-switching** — Oscar routes your request to the right agent automatically
 - **Structured workflows** — From PRD to Screen Spec to Story to Dev Handoff, nothing falls through the cracks
 - **Data-driven decisions** — Danny queries your analytics; Vicky validates your hypotheses; Tara governs data quality
-- **Full PO coverage** — Strategy, market research, sprint planning, screen specs, tracking, operations, and more
+- **Full PO coverage** — Strategy, market research, GTM, sprint planning, screen specs, tracking, operations, and more
 - **Living specs, not dead docs** — spec-site turns static markdown into interactive, scenario-based mockups that developers actually use
 
 ---
@@ -33,13 +33,14 @@ Then open [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and type
 
 ## The Agent Team
 
-### PO Team (8 + Orchestrator)
+### PO Team (10 + Orchestrator)
 
 | Icon | Name | Command | Role | Specialty |
 |------|------|---------|------|-----------|
 | :tophat: | **Oscar** | *(default)* | Orchestrator | Routing, coordination, proactive alerts |
 | :dart: | **Simon** | `/strategy` | Strategist | PRD, hypotheses, product strategy |
 | :world_map: | **Marco** | `/market` | Market Researcher | Competitive analysis, positioning |
+| :loudspeaker: | **Mia** | `/gtm` | GTM Strategist | Go-to-market strategy, launch planning, messaging |
 | :clipboard: | **Penny** | `/plan` | Planner | Sprint planning, stories, backlog |
 | :triangular_ruler: | **Hank** | `/handoff` | Handoff Specialist | Screen specs, dev handoff, release readiness |
 | :bar_chart: | **Vicky** | `/validate` | Validator | Hypothesis validation, guard rails, OKR tracking |
@@ -66,6 +67,7 @@ Then open [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and type
 
 ```
 Strategy:   Simon ←→ Marco
+GTM:        Mia ←→ Simon + Marco
 Execute:    Penny → Hank → Derek + Quinn
 Insight:    Danny ←→ Rita
 Measure:    Vicky ←→ Tara
@@ -153,6 +155,7 @@ After setup, open Claude Code and type `/start`. Oscar can run a **deep intervie
 |---------|-------------|
 | `/strategy` | Activate Simon (strategy, PRD) |
 | `/market` | Activate Marco (competitive analysis, positioning) |
+| `/gtm` | Activate Mia (GTM strategy, launch planning, messaging) |
 | `/plan` | Activate Penny (sprint planning) |
 | `/validate` | Activate Vicky (hypothesis validation) |
 | `/analytics` | Activate Danny (data analysis) |
@@ -202,9 +205,9 @@ my-project/
 │   ├── .secrets.yaml                  # Sensitive data (gitignored)
 │   ├── WORKFLOW.md                    # Workflow guide (hydrated)
 │   │
-│   ├── agents/                        # 14 agent personas (+ TEMPLATE.md)
+│   ├── agents/                        # 15 agent personas (+ TEMPLATE.md)
 │   ├── oscar/workflows/               # Oscar extension modules
-│   ├── templates/                     # 11 document templates
+│   ├── templates/                     # 12 document templates
 │   ├── integrations/                  # Provider configs + registry
 │   ├── metrics/                       # Metrics data
 │   ├── daily/                         # Daily work logs
@@ -319,6 +322,7 @@ Set `spec_site.deploy_url` in `project.yaml` — agents will use this URL in han
 | Template | Owner | File | Purpose |
 |----------|-------|------|---------|
 | Sprint PRD | Simon | `templates/prd.md` | One Question, hypothesis, OMTM |
+| GTM Plan | Mia | `templates/gtm-plan.md` | ICP, messaging, channel mix, launch KPI gates |
 | Epic Spec | PO | `templates/epic-spec.md` | WHY, WHAT, HOW, edge cases |
 | Story v2 | Penny | `templates/story-v2.md` | AC (Given-When-Then), task breakdown |
 | Screen Spec | Hank | `templates/screen-spec.md` | 7-level UI specification |
@@ -339,7 +343,7 @@ popilot <command> [target-dir] [options]
 
 Commands:
   init [dir]      Scaffold + interactive setup + hydration (default)
-  hydrate [dir]   Re-hydrate .hbs templates from existing project.yaml
+  hydrate [dir]   Sync latest scaffold templates + re-hydrate from project.yaml
   doctor [dir]    Check installation health
   help            Show this help
 
@@ -349,10 +353,28 @@ Options:
 
 Examples:
   npx popilot init my-project
-  npx popilot hydrate
+  npx popilot@latest hydrate
+  npx popilot@latest hydrate --force
   npx popilot doctor
   npx popilot my-project          # same as: popilot init my-project
 ```
+
+---
+
+## Upgrading Existing Projects
+
+For projects initialized with older Popilot versions:
+
+```bash
+# Safe upgrade (adds missing latest templates/files, then hydrates)
+npx popilot@latest hydrate
+
+# Full refresh (overwrites existing scaffold files, then hydrates)
+npx popilot@latest hydrate --force
+```
+
+- `hydrate` now syncs the latest scaffold before rendering.
+- Use `--force` only when you intentionally want to replace existing scaffold-managed files.
 
 ---
 

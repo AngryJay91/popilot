@@ -112,4 +112,4 @@ read_only: true | false                # Whether this agent can modify files
 ---
 
 *Version*: v1.0
-*Applies to*: All 14 agents in the Oscar system
+*Applies to*: All 15 agents in the Oscar system

@@ -1,6 +1,6 @@
 {
   "name": "popilot",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Multi-agent PO/PM system scaffold for Claude Code",
   "type": "module",
   "bin": {

@@ -41,6 +41,7 @@ A multitasker who sees the big picture without losing sight of the details.
 |------|-------------------|--------|
 | PRD authoring, hypothesis formulation, priority decisions | 🎯 Simon | Oscar routes; Simon strategizes |
 | Market research, competitive analysis, positioning | 🗺️ Marco | Market data requires a specialist |
+| GTM strategy, launch planning, messaging architecture | 📣 Mia | Go-to-market strategy requires a dedicated specialist |
 | Sprint planning, story breakdown, backlog management | 📋 Penny | Sprint execution is Penny's domain |
 | Screen specs, handoff docs, release readiness checks | 📐 Hank | Technical translation is Hank's domain |
 | SQL queries, cohort analysis, funnel analysis | 📈 Danny | Data analysis is Danny's domain |
@@ -102,6 +103,7 @@ Request: "Oscar, test this feature"
 | `VOC`, `고객/customer`, `피드백/feedback`, `불만/complaint`, `인터뷰/interview` | 🎤 **Rita** | `agents/researcher.md` |
 | `가설/hypothesis`, `전략/strategy`, `PRD`, `우선순위/priority`, `왜/why` | 🎯 **Simon** | `agents/strategist.md` |
 | `시장/market`, `경쟁사/competitor`, `포지셔닝/positioning`, `벤치마크/benchmark` | 🗺️ **Marco** | `agents/market-researcher.md` |
+| `GTM`, `go-to-market`, `런치/launch`, `메시징/messaging`, `채널/channel` | 📣 **Mia** | `agents/gtm-strategist.md` |
 | `스프린트/sprint`, `스토리/story`, `백로그/backlog`, `속도/velocity` | 📋 **Penny** | `agents/planner.md` |
 | `스크린스펙/screen spec`, `핸드오프/handoff`, `릴리스/release`, `개발전달/dev delivery` | 📐 **Hank** | `agents/handoff-specialist.md` |
 | `검증/validation`, `Before/After`, `Guard Rail`, `OKR check` | 📊 **Vicky** | `agents/validator.md` |
@@ -187,6 +189,7 @@ Task(
 | `이탈/churn`, `churn` | `global/metrics.md` | 📈 Danny + 🎤 Rita |
 | `PRD`, `기획/planning`, `가설/hypothesis` | `templates/prd.md` | 🎯 Simon |
 | `시장/market`, `경쟁/competition`, `포지셔닝/positioning` | `global/strategy.md` | 🗺️ Marco |
+| `GTM`, `출시/launch`, `메시지/messaging` | `global/strategy.md` | 📣 Mia |
 
 ### Action Triggers
 
@@ -206,6 +209,7 @@ Task(
 |---------------|---------|-----------|
 | PRD, hypothesis, strategy, priority | 🎯 Simon | - |
 | Market research, competitors, benchmark | 🗺️ Marco | 🎯 Simon |
+| GTM, launch, messaging, channel mix | 📣 Mia | 🎯 Simon |
 | Sprint, story, backlog | 📋 Penny | - |
 | Screen spec, handoff, release | 📐 Hank | 📋 Penny |
 | Validation, Before/After, OKR check | 📊 Vicky | 📈 Danny |
@@ -229,6 +233,7 @@ Task(
 | Validation period ended | "Measurement period is over. Shall I deploy Vicky?" |
 | Tracking not designed | "No event design exists. Shall I deploy Tara first?" |
 | Handoff not prepared | "Dev delivery docs are missing. Shall I deploy Hank?" |
+| Launch plan missing | "GTM launch plan isn't defined yet. Shall I deploy Mia?" |
 
 ---
 

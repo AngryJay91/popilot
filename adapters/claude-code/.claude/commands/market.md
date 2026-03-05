@@ -116,5 +116,5 @@ If `$ARGUMENTS` is `research`:
 ---
 
 *Agent*: 🗺️ Marco (Market Researcher)
-*Connections*: 🎯 Simon (strategic decisions), 📈 Danny (market data validation)
+*Connections*: 🎯 Simon (strategic decisions), 📣 Mia (GTM strategy), 📈 Danny (market data validation)
 *Tools*: WebSearch, WebFetch

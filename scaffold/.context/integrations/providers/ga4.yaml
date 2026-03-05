@@ -109,6 +109,38 @@ agent_prompts:
     })
     ```
 
+  gtm-strategist: |
+    ### GA4 MCP
+    ```
+    Purpose: GTM launch KPI baseline/monitoring (acquisition → activation)
+    property_id: {{config.property_id}}
+    ```
+
+    #### GTM Query Patterns
+
+    **1. Acquisition Source Quality**
+    ```javascript
+    run_report({
+      property_id: "{{config.property_id}}",
+      date_ranges: [{ start_date: "14daysAgo", end_date: "yesterday" }],
+      dimensions: ["sessionSourceMedium"],
+      metrics: ["sessions", "engagedSessions", "conversions"]
+    })
+    ```
+
+    **2. Launch Activation Event Trend**
+    ```javascript
+    run_report({
+      property_id: "{{config.property_id}}",
+      date_ranges: [{ start_date: "14daysAgo", end_date: "yesterday" }],
+      dimensions: ["date", "eventName"],
+      metrics: ["eventCount"],
+      dimension_filter: {
+        filter: { field_name: "eventName", string_filter: { match_type: 1, value: "click_action_guide" }}
+      }
+    })
+    ```
+
 command_prompts:
   analytics: |
     - **GA4 MCP Server** (Event data analysis)

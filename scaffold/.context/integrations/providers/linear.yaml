@@ -37,6 +37,17 @@ agent_prompts:
     - update_issue: Update status
     ```
 
+  gtm-strategist: |
+    ### Linear MCP
+    ```
+    Purpose: GTM launch task board management
+    team_id: {{config.team_id}}
+    Usage:
+    - list_projects: Check launch initiative status
+    - create_issue: Create launch checklist / experiment tasks
+    - update_issue: Track gate decisions and rollout progress
+    ```
+
 command_prompts:
   daily: |
     ### Linear Issue Sync

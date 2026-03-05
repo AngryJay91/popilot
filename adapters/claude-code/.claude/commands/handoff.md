@@ -246,6 +246,7 @@ Automatically suggest handoff at work completion:
 | Situation | Suggestion |
 |-----------|-----------|
 | PRD writing complete | "Shall we hand off to 📋 Penny?" |
+| Product direction finalized | "Shall we hand off to 📣 Mia for GTM planning?" |
 | Story writing complete | "Shall we request screen specs from 📐 Hank?" |
 | Screen spec complete | "Shall we hand off to 🔨 Derek?" |
 | Spec has tracking events | "Shall we request review from 📡 Tara?" |
@@ -254,5 +255,5 @@ Automatically suggest handoff at work completion:
 
 ---
 
-*Connected agents*: 🎯 Simon, 📋 Penny, 📐 Hank, 📡 Tara, 🔨 Derek, 🧪 Quinn, 📊 Vicky, 🗓️ Nora
-*Related commands*: `/strategy`, `/plan`, `/market`, `/tracking`, `/validate`, `/retro`
+*Connected agents*: 🎯 Simon, 📣 Mia, 📋 Penny, 📐 Hank, 📡 Tara, 🔨 Derek, 🧪 Quinn, 📊 Vicky, 🗓️ Nora
+*Related commands*: `/strategy`, `/gtm`, `/plan`, `/market`, `/tracking`, `/validate`, `/retro`

@@ -13,7 +13,7 @@ const USAGE = `
 
   Commands:
     init [dir]      Scaffold + interactive setup + hydration (default)
-    hydrate [dir]   Re-hydrate .hbs templates from existing project.yaml
+    hydrate [dir]   Sync latest scaffold templates + re-hydrate from project.yaml
     doctor [dir]    Check installation health
     help            Show this help
 
@@ -26,6 +26,7 @@ const USAGE = `
   Examples:
     npx popilot init my-project
     npx popilot hydrate
+    npx popilot hydrate --force
     npx popilot doctor
     npx popilot my-project          # same as: popilot init my-project
 `;
@@ -65,7 +66,7 @@ async function main() {
       await cmdInit(targetDir, { skipSpecSite, force, platform });
       break;
     case 'hydrate':
-      await cmdHydrate(targetDir, { skipSpecSite, platform });
+      await cmdHydrate(targetDir, { skipSpecSite, platform, force });
       break;
     case 'doctor':
       await cmdDoctor(targetDir, { skipSpecSite, platform });
@@ -183,12 +184,33 @@ async function cmdInit(targetDir, { skipSpecSite, force, platform }) {
 
 // ── hydrate ─────────────────────────────────────────────
 
-async function cmdHydrate(targetDir, { skipSpecSite, platform }) {
+async function cmdHydrate(targetDir, { skipSpecSite, platform, force }) {
   console.log();
   console.log('  🚀 Popilot — Re-hydrating templates');
   console.log('  ══════════════════════════════════════');
   console.log();
 
+  // 0. Sync scaffold updates before hydration.
+  // - default: only add missing files (safe upgrade path)
+  // - --force: overwrite existing scaffold files as well
+  console.log(`  🔄 Syncing latest scaffold (${force ? 'overwrite enabled' : 'missing files only'})...`);
+  const { copied, overwritten, appends } = await copyScaffold(targetDir, {
+    skipSpecSite,
+    overwriteExisting: force,
+    platform,
+  });
+
+  for (const { file, content } of appends) {
+    const filePath = resolve(targetDir, file);
+    await appendToFile(filePath, content);
+  }
+
+  console.log(`     +${copied.length} files added`);
+  if (overwritten.length > 0) {
+    console.log(`     ~${overwritten.length} files overwritten (--force)`);
+  }
+
+  // 1. Hydrate
   const { hydrated, domains } = await hydrate(targetDir, { skipSpecSite, platform });
   for (const f of hydrated) {
     console.log(`     ${f} ✅`);

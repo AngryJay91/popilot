@@ -155,6 +155,17 @@ agent_prompts:
     → corti_search({ query: "retention analysis Q4" })
     ```
 
+  gtm-strategist: |
+    ### Corti MCP
+    ```
+    Purpose: Retrieve prior launch decisions and record GTM gate outcomes
+    Workspace: {{config.workspace_id}}
+    Usage:
+    - corti_search: Find previous launch postmortems and messaging decisions
+    - corti_record_decision: Record GTM channel/message decisions
+    - corti_update_decision: Update rollout gate status (scale/stop/pivot)
+    ```
+
 workflow_rules:
   - content: |
       ## Corti Decision Tracking

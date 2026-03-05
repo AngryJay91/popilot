@@ -66,6 +66,36 @@ agent_prompts:
     project_id: {{config.project_id}}
     ```
 
+  gtm-strategist: |
+    ### Mixpanel MCP
+    ```
+    Purpose: GTM experiment monitoring (channel/segment activation and retention)
+    project_id: {{config.project_id}}
+    ```
+
+    #### GTM Query Patterns
+
+    **1. Segment Conversion Comparison**
+    ```javascript
+    get_funnel({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-02-01",
+      to_date: "2026-02-28",
+      steps: ["landing_view", "signup_started", "onboarding_complete"]
+    })
+    ```
+
+    **2. Launch Cohort Early Retention**
+    ```javascript
+    get_retention({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-02-01",
+      to_date: "2026-02-28",
+      born_event: "signup_completed",
+      event: "feature_engaged"
+    })
+    ```
+
 command_prompts:
   analytics: |
     - **Mixpanel MCP Server** (Product analytics, funnels, retention)

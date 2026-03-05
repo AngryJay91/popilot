@@ -459,10 +459,15 @@ operations:
 [Transformed files]
 • agents/orchestrator.md ✅
 • agents/strategist.md ✅
+• agents/market-researcher.md ✅
+• agents/gtm-strategist.md ✅
 • agents/planner.md ✅
+• agents/handoff-specialist.md ✅
 • agents/validator.md ✅
 • agents/analyst.md ✅
 • agents/researcher.md ✅
+• agents/tracking-governor.md ✅
+• agents/operations.md ✅
 • agents/developer.md ✅
 • agents/qa.md ✅
 • WORKFLOW.md ✅
@@ -581,7 +586,7 @@ For each domain:
 - .context/project.yaml
 - .context/.secrets.yaml (gitignore) - optional
 - CLAUDE.md (hydration complete)
-- 10 agents (hydration complete)
+- 15 agents (hydration complete)
 - WORKFLOW.md (hydration complete)
 
 ## Project Summary

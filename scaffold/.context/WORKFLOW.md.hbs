@@ -56,10 +56,10 @@ The Oscar system and service codebase are in **separate Git repositories**:
                        🎩 Oscar
                   (Routing & Coordination)
                          │
-       ┌─────────────────┼─────────────────┐
-       │                 │                 │
-       ▼                 ▼                 ▼
-   🎯 Simon ◄──────► 📈 Danny ◄──────► 🎤 Rita
+       ┌─────────────────┼─────────────────┬──────────┐
+       │                 │                 │          │
+       ▼                 ▼                 ▼          ▼
+   🎯 Simon ◄──────► 📈 Danny ◄──────► 🎤 Rita      📣 Mia
        │                 │
        ▼                 │
    📋 Penny              │
@@ -74,6 +74,8 @@ The Oscar system and service codebase are in **separate Git repositories**:
 | From | To | Situation | Oscar's Role |
 |------|-----|-----------|-------------|
 | 🎯 Simon | 📋 Penny | PRD completed | Handoff check |
+| 🎯 Simon | 📣 Mia | Product direction finalized | Trigger GTM blueprint |
+| 📣 Mia | 📋 Penny | GTM plan finalized | Convert GTM scope to sprint stories |
 | 📋 Penny | 📊 Vicky | Development completed | Confirm validation readiness |
 | 📊 Vicky | 🎯 Simon | Validation completed | Prompt learning summary |
 | 📊 Vicky | 📈 Danny | Anomaly detected | Request deep analysis |
@@ -104,6 +106,10 @@ At sprint end:
 Level 1: Sprint PRD (Sprint level)
    └─→ One Question, hypothesis, OMTM
    └─→ Owner: 🎯 Simon / Template: templates/prd.md
+
+Level 1.5: GTM Plan (Launch level, optional but recommended)
+   └─→ ICP, messaging, channel, launch KPI/gates
+   └─→ Owner: 📣 Mia / Template: templates/gtm-plan.md
 
 Level 2: Epic Spec (Epic level) ⭐ Core
    └─→ WHY, WHAT, HOW (overview), EDGE
@@ -268,6 +274,7 @@ Turso (LibSQL) based team retrospective board. Route: `/retro`.
 | Template | Owner | File | Order |
 |----------|-------|------|-------|
 | Sprint PRD | 🎯 Simon | `templates/prd.md` | 1 |
+| GTM Plan | 📣 Mia | `templates/gtm-plan.md` | 1.5 |
 | Epic Spec | PO | `templates/epic-spec.md` | 2 |
 
 ### Handoff (📋 Penny-led)

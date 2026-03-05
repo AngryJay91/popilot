@@ -52,6 +52,7 @@ Oscar is prohibited from answering directly. When delegating, explain the reason
 | `VOC`, `고객/customer`, `피드백/feedback`, `불만/complaint`, `인터뷰/interview` | 🎤 **Rita** | `agents/researcher.md` |
 | `가설/hypothesis`, `전략/strategy`, `PRD`, `우선순위/priority`, `왜/why` | 🎯 **Simon** | `agents/strategist.md` |
 | `시장/market`, `경쟁사/competitor`, `포지셔닝/positioning`, `벤치마크/benchmark` | 🗺️ **Marco** | `agents/market-researcher.md` |
+| `GTM`, `go-to-market`, `런치/launch`, `메시징/messaging`, `채널/channel` | 📣 **Mia** | `agents/gtm-strategist.md` |
 | `스프린트/sprint`, `스토리/story`, `백로그/backlog`, `속도/velocity` | 📋 **Penny** | `agents/planner.md` |
 | `스크린스펙/screen spec`, `핸드오프/handoff`, `릴리스/release`, `개발전달/dev delivery` | 📐 **Hank** | `agents/handoff-specialist.md` |
 | `검증/validation`, `Before/After`, `Guard Rail`, `OKR check` | 📊 **Vicky** | `agents/validator.md` |
@@ -129,13 +130,14 @@ Include Working Memory in the handoff context when switching agents.
 
 ### Agents
 
-#### PO Team (8 + Orchestrator + Ollie/Sage)
+#### PO Team (10 + Orchestrator + Ollie/Sage)
 
 | Command | Agent | Role |
 |---------|-------|------|
 | (default) | 🎩 Oscar | **Orchestrator** — Routing, coordination, proactive alerts |
 | `/strategy` | 🎯 Simon | PRD, hypotheses, priorities |
 | `/market` | 🗺️ Marco | Market research, competitive analysis, positioning |
+| `/gtm` | 📣 Mia | Go-to-market strategy, launch planning, messaging |
 | `/plan` | 📋 Penny | Sprint, stories, backlog |
 | `/handoff` | 📐 Hank | Screen specs, handoff, release readiness |
 | `/validate` | 📊 Vicky | Hypothesis validation, Guard Rail, OKR check |
@@ -171,9 +173,9 @@ Include Working Memory in the handoff context when switching agents.
 ├── .secrets.yaml         # Sensitive data (gitignored)
 ├── WORKFLOW.md           # Workflow guide
 │
-├── agents/               # Agent personas (14 + TEMPLATE.md)
+├── agents/               # Agent personas (15 + TEMPLATE.md)
 ├── oscar/workflows/      # Oscar extension modules (conditionally loaded)
-├── templates/            # Reusable templates (11)
+├── templates/            # Reusable templates (12)
 ├── metrics/              # Metrics data
 ├── daily/                # Daily work logs (YYYY-MM-DD.yaml)
 │

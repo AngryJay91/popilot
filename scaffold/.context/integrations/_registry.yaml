@@ -4,7 +4,7 @@ categories:
   analytics:
     label: "Analytics"
     description: "User behavior, funnel, event analysis"
-    agents: [analyst, validator, tracking-governor]
+    agents: [analyst, validator, tracking-governor, gtm-strategist]
     commands: [analytics]
 
   database:
@@ -17,7 +17,7 @@ categories:
   pm_tool:
     label: "Project Management"
     description: "Task, document, roadmap management"
-    agents: [strategist, planner, handoff-specialist, operations]
+    agents: [strategist, planner, handoff-specialist, operations, gtm-strategist]
     commands: [daily]
     system_files: [WORKFLOW.md]
 
@@ -29,10 +29,10 @@ categories:
   ai_research:
     label: "AI Research"
     description: "AI-powered knowledge exploration, insight extraction"
-    agents: [researcher, strategist, validator, market-researcher]
+    agents: [researcher, strategist, validator, market-researcher, gtm-strategist]
 
   knowledge:
     label: "Knowledge Management"
     description: "Cross-source knowledge search, decision tracking, feature timeline"
-    agents: [researcher, strategist, planner, validator, analyst, market-researcher]
+    agents: [researcher, strategist, planner, validator, analyst, market-researcher, gtm-strategist]
     system_files: [WORKFLOW.md]

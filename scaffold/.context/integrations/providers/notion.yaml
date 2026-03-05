@@ -56,6 +56,17 @@ agent_prompts:
     → notion-create-pages({ parent: {page_id: "..."}, pages: [...] })
     ```
 
+  gtm-strategist: |
+    ### Notion MCP
+    ```
+    Purpose: GTM plan documentation, launch checklist, campaign experiment log
+    Usage:
+    - notion-search: Find previous launch plans or message docs
+    - notion-fetch: Retrieve latest GTM/launch pages
+    - notion-create-pages: Create GTM blueprint and launch playbook
+    - notion-update-page: Update launch gate decisions (scale/stop/pivot)
+    ```
+
 command_prompts:
   daily: |
     ### Notion Page Check and Creation
