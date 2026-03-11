@@ -1,0 +1,38 @@
+id: channel_io
+name: "Channel.io"
+category: customer_feedback
+description: "CS chat data, VOC collection/analysis"
+
+mcp:
+  server_name: "channel-io"
+  tools: [list_of_user_chats, retrieve_list_of_messages_in_user_chats]
+
+setup_questions: []
+
+agent_prompts:
+  validator: |
+    ### Channel.io API (VOC Analysis)
+    ```
+    Purpose: CS chat data analysis, VOC insight extraction
+    Auth: X-Access-Key, X-Access-Secret headers
+    ```
+
+    #### VOC Analysis Patterns
+    ```bash
+    # List chats
+    curl -s 'https://api.channel.io/open/v5/user-chats?state=closed&limit=100' \
+      -H 'X-Access-Key: {key}' -H 'X-Access-Secret: {secret}'
+
+    # Retrieve messages for a specific chat
+    curl -s 'https://api.channel.io/open/v5/user-chats/{chat_id}/messages' \
+      -H 'X-Access-Key: {key}' -H 'X-Access-Secret: {secret}'
+    ```
+
+  researcher: |
+    ### Channel.io API (VOC Collection)
+    ```
+    Purpose: Real-time VOC collection, complaint pattern identification
+    Integration: Vicky collects → Rita interprets
+    ```
+
+footer_tool_line: "Channel.io API"

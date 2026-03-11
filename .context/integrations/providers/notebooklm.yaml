@@ -1,0 +1,84 @@
+id: notebooklm
+name: "NotebookLM"
+category: ai_research
+description: "AI-powered customer/user insight exploration"
+
+mcp:
+  server_name: "notebooklm"
+  tools: [ask_question, list_notebooks, select_notebook]
+
+setup_questions:
+  - key: notebook_name
+    label: "Active notebook name"
+    type: string
+    required: false
+    example: "my-notebook"
+
+agent_prompts:
+  researcher: |
+    ### NotebookLM MCP ⭐ Core Tool
+    ```
+    Purpose: Customer insights, interview data, domain knowledge
+    Active notebook: {{config.notebook_name}}
+    ```
+
+    #### Common Question Patterns
+
+    **1. Pain Point Discovery**
+    ```javascript
+    ask_question({
+      question: "What are the biggest pain points customers experience when using the service?",
+      session_id: "existing_session" // Maintain session
+    })
+    ```
+
+    **2. Needs Validation**
+    ```javascript
+    ask_question({
+      question: "Customers mentioned wanting a 'service that makes decisions for them' — what specific decisions do they want?",
+      session_id: "existing_session"
+    })
+    ```
+
+    **3. Workflow Understanding**
+    ```javascript
+    ask_question({
+      question: "In what order do customers use the key features, and what do they look at?",
+      session_id: "existing_session"
+    })
+    ```
+
+  strategist: |
+    ### NotebookLM MCP
+    ```
+    Purpose: Customer insights, market research
+    Active notebook: {{config.notebook_name}}
+    Usage:
+    - ask_question: Ask insight questions based on customer VOC
+    - Maintain sessions for in-depth exploration
+    ```
+
+    #### Usage Example
+    ```
+    🎯 Simon: "Let me check 'core feature improvement needs' on NotebookLM."
+    → ask_question({ question: "What are the most frequently mentioned pain points by customers regarding core features?" })
+    ```
+
+  validator: |
+    ### NotebookLM MCP
+    ```
+    Purpose: Customer insights, qualitative feedback analysis
+    Active notebook: {{config.notebook_name}}
+    ```
+
+  gtm-strategist: |
+    ### NotebookLM MCP
+    ```
+    Purpose: Message validation from VOC and launch narrative refinement
+    Active notebook: {{config.notebook_name}}
+    Usage:
+    - ask_question: Validate whether proposed messaging matches customer language
+    - summarize objections by ICP before launch
+    ```
+
+footer_tool_line: "NotebookLM MCP"

@@ -1,0 +1,371 @@
+# PO Workflow
+
+> Oscar-centric operations, agent routing, proactive alerts, etc. — see `agents/orchestrator.md`
+> Session management — see `{{COMMAND_DIR}}start.md`, `save.md`
+
+---
+
+## Codebase Context Analysis
+
+{{#if dev_scope.service_repo}}
+### Repository Separation (Important)
+
+The Oscar system and service codebase are in **separate Git repositories**:
+
+| Repository | Path | Contents |
+|------------|------|----------|
+| **Oscar System** | Current directory | Agents, context, workflows, sessions |
+| **Service Code** | `~/{{dev_scope.service_repo}}/` | Frontend, backend |
+
+**Important:**
+- Codebase analysis results are stored in `.context/global/product/`
+- When analyzing service code, navigate to `~/{{dev_scope.service_repo}}/`
+- The two repositories have completely independent commit histories
+{{/if}}
+
+### When Is Analysis Needed?
+
+| Situation | Required Analysis |
+|-----------|-------------------|
+| Starting a new domain spec discussion | Full FE/BE analysis for that domain |
+| Discussing modifications to existing features | Related component/service analysis |
+| Identifying bug causes | Detailed logic analysis |
+| Checking API specs | Controller/DTO analysis |
+
+### Storing Analysis Results
+
+```
+.context/global/product/{domain}.md
+```
+
+{{#if domains}}
+### Per-Domain Context Files
+
+| Domain | Context File |
+|--------|-------------|
+{{#each domains}}
+| **{{name}}** | `global/product/{{id}}.md` |
+{{/each}}
+{{/if}}
+
+---
+
+## Agent Handoff Flow
+
+```
+                       🎩 Oscar
+                  (Routing & Coordination)
+                         │
+       ┌─────────────────┼─────────────────┬──────────┐
+       │                 │                 │          │
+       ▼                 ▼                 ▼          ▼
+   🎯 Simon ◄──────► 📈 Danny ◄──────► 🎤 Rita      📣 Mia
+       │                 │
+       ▼                 │
+   📋 Penny              │
+       │                 │
+       ▼                 │
+   📊 Vicky ◄────────────┘
+       │
+       ▼
+   🎯 Simon (next hypothesis)
+```
+
+| From | To | Situation | Oscar's Role |
+|------|-----|-----------|-------------|
+| 🎯 Simon | 📋 Penny | PRD completed | Handoff check |
+| 🎯 Simon | 📣 Mia | Product direction finalized | Trigger GTM blueprint |
+| 📣 Mia | 📋 Penny | GTM plan finalized | Convert GTM scope to sprint stories |
+| 📋 Penny | 📊 Vicky | Development completed | Confirm validation readiness |
+| 📊 Vicky | 🎯 Simon | Validation completed | Prompt learning summary |
+| 📊 Vicky | 📈 Danny | Anomaly detected | Request deep analysis |
+| 📈 Danny | 🎯 Simon | Insight discovered | Suggest strategic connection |
+| 🎤 Rita | 🎯 Simon | VOC analysis done | Suggest hypothesis connection |
+
+---
+
+## Sprint Transition Workflow
+
+At sprint end:
+```
+1. Write results.md in the current sprint folder
+2. Create new sprint folder (e.g., sprints/s{N+1}/)
+3. Initialize context.md (goals, KRs, key tasks)
+4. Move previous sprint to _archive/ if needed
+```
+
+---
+
+## Planning → Development Workflow
+
+> Complete document hierarchy from PO detailed planning to developer handoff
+
+### Document Hierarchy
+
+```
+Level 1: Sprint PRD (Sprint level)
+   └─→ One Question, hypothesis, OMTM
+   └─→ Owner: 🎯 Simon / Template: templates/prd.md
+
+Level 1.5: GTM Plan (Launch level, optional but recommended)
+   └─→ ICP, messaging, channel, launch KPI/gates
+   └─→ Owner: 📣 Mia / Template: templates/gtm-plan.md
+
+Level 2: Epic Spec (Epic level) ⭐ Core
+   └─→ WHY, WHAT, HOW (overview), EDGE
+   └─→ Owner: PO (🎯 Simon support) / Template: templates/epic-spec.md
+
+Level 3: Story (Story level)
+   └─→ Based on Epic Spec, AC (Given-When-Then), task breakdown
+   └─→ Owner: 📋 Penny / Template: templates/story-v2.md
+```
+
+### Order Is Mandatory
+
+```
+No Story writing before Epic Spec is finalized!
+
+[Correct order]
+Sprint PRD → Epic Spec (PO finalized) → Story breakdown → Development
+
+[Prohibited]
+Sprint PRD → (without Epic Spec) Story writing ❌
+```
+
+### 5-Stage Story Status
+
+```
+draft → backlog → ready-for-dev → in-progress → review → done
+```
+
+| Status | Meaning | Entry Condition |
+|--------|---------|-----------------|
+| `draft` | Draft (Epic Spec not finalized) | — |
+| `backlog` | Epic Spec finalized | Epic Spec completed |
+| `ready-for-dev` | Handoff completed | Story verification passed |
+| `in-progress` | In development | — |
+| `done` | Completed | 📊 Vicky validation |
+
+### Workflow Stages
+
+**Phase 1: Planning (PO-led)**
+1. Write Sprint PRD (🎯 Simon)
+2. Write Epic Spec (PO) → ✅ Proceed after PO approval
+
+**Phase 2: Handoff (📋 Penny)**
+3. Story breakdown (templates/story-v2.md)
+4. Screen spec — for UI Epics (templates/screen-spec.md)
+5. Quality verification (templates/handoff-checklist.md) → Status: ready-for-dev
+
+**Phase 3: Development (AI Agent)**
+6. Implement story tasks in order
+7. Review & complete → done
+
+### Disaster Prevention Analysis (5 checks)
+
+Must check before handoff:
+1. **Feature duplication** — Similar functionality in existing code?
+2. **Technical errors** — Library versions, API contracts
+3. **File structure** — Conventions, build process
+4. **Regression errors** — Existing tests, side effects
+5. **Implementation ambiguity** — Edge cases, error handling
+
+---
+
+## spec-site: Interactive Spec Tool
+
+{{#if spec_site.enabled}}
+spec-site is a Vue 3 + Vite based interactive spec viewer.
+It provides dynamic mockups and scenario-based specs instead of static markdown.
+
+### Mode: {{spec_site.mode}}
+
+{{#if spec_site.is_interactive}}
+**Full Interactive Mode** — Backend API + DB required.
+- Source of truth: spec-site API (sprints, epics, stories, tasks)
+- Features: Board, Standup, Retro, Memo, Admin
+- `.context/` .md files are secondary reference
+{{else}}
+**Static Viewer Mode** — No backend required.
+- Source of truth: `.context/sprints/s{N}/epic-specs/*.md` (local files)
+- spec-site renders these .md files as web pages via `npm run dev`
+- Retro board uses localStorage (offline mode)
+{{/if}}
+
+### Page Addition Pattern
+
+1. Create `src/pages/{feature}/` folder
+2. Write 3 files:
+   - `{feature}Data.ts` — Scenarios, spec areas, version info
+   - `{Feature}Mockup.vue` — Interactive mockup
+   - `{Feature}SpecPanel.vue` — Spec document panel
+3. Register in `wireframeRegistry.ts`
+4. Add to `navigation.ts`
+
+### Layout Standard: SplitPaneLayout
+
+Left: Interactive mockup / Right: Spec panel (draggable)
+
+```
+┌────────────────────────────────────────────────┐
+│                   AppHeader                     │
+├─────────────────────┬──────────────────────────┤
+│                     │                          │
+│    MockupShell      │     SpecPanel            │
+│    (per-scenario    │     (spec document)      │
+│     mockup)         │                          │
+│                     │                          │
+│                     │                          │
+├─────────────────────┴──────────────────────────┤
+│              ScenarioSwitcher                   │
+└────────────────────────────────────────────────┘
+```
+
+### Scenario System
+
+ScenarioSwitcher enables mockup switching by user type / state.
+Each scenario is defined in `{feature}Data.ts` and provided/injected via `useScenario` composable.
+
+### Epic Spec Integration
+
+{{#if spec_site.is_interactive}}
+Epic Specs are managed via spec-site API. Navigation, sprints, and epics are stored in the backend database.
+{{else}}
+Epic Specs are written in markdown at `.context/sprints/s{N}/epic-specs/E-XX.md`.
+They are automatically rendered on spec-site's PolicyIndex / PolicyDetail pages.
+{{/if}}
+
+### Retrospective Tool (RetroPage)
+
+{{#if spec_site.is_interactive}}
+API-backed team retrospective board. Route: `/retro`.
+- Category-based cards (keep / problem / try)
+- Real-time polling (multi-user)
+- Sprint-based filtering
+{{else}}
+localStorage-based retrospective board. Route: `/retro`.
+- Category-based cards (keep / problem / try)
+- Local-only (single user, no real-time sync)
+- Sprint-based filtering
+{{/if}}
+{{else}}
+spec-site is not enabled. All specifications are managed as local markdown files:
+- Epic Specs: `.context/sprints/s{N}/epic-specs/E-XX.md`
+- Stories: `.context/sprints/s{N}/stories/`
+- Sprint Context: `.context/sprints/s{N}/context.md`
+{{/if}}
+
+---
+
+## Checklists
+
+### PRD Completeness
+- [ ] One Question defined
+- [ ] OMTM set
+- [ ] Hypothesis/validation method clear
+- [ ] Guard Rail metrics present
+
+### Sprint Ready
+- [ ] KRs quantified
+- [ ] Dev spec document linked
+- [ ] Baseline data secured
+
+### Hypothesis Validation
+- [ ] Before data collection complete
+- [ ] Measurement period set
+- [ ] Success/failure criteria clear
+
+---
+
+## Templates
+
+### Planning (PO-led)
+
+| Template | Owner | File | Order |
+|----------|-------|------|-------|
+| Sprint PRD | 🎯 Simon | `templates/prd.md` | 1 |
+| GTM Plan | 📣 Mia | `templates/gtm-plan.md` | 1.5 |
+| Epic Spec | PO | `templates/epic-spec.md` | 2 |
+
+### Handoff (📋 Penny-led)
+
+| Template | File | Order |
+|----------|------|-------|
+| Story v2 | `templates/story-v2.md` | 3 |
+| Screen Spec | `templates/screen-spec.md` | 4 |
+| Handoff Checklist | `templates/handoff-checklist.md` | 5 |
+| Sprint Status | `templates/sprint-status.yaml` | — |
+| Dev Guide | `templates/dev-guide.md` | — |
+
+### Validation/Retrospective
+
+| Template | Owner | File |
+|----------|-------|------|
+| Validation Report | 📊 Vicky | `templates/validation-report.md` |
+| Guard Rail | 📊 Vicky | `templates/guardrail.md` |
+| Retrospective | Penny + Vicky | `templates/retrospective.md` |
+
+---
+
+---
+
+## Document Management Tool Roles
+
+{{#if spec_site.enabled}}
+### spec-site — Interactive Specs + Epic Spec Viewing
+
+{{#if spec_site.is_interactive}}
+| Document | Source |
+|----------|--------|
+| Sprint/Epic navigation | spec-site API (backend DB) |
+| Epic Specs | spec-site Policy pages |
+| Stories/Tasks | spec-site Board |
+| Interactive mockups | `spec-site/src/pages/` |
+| Retro board | spec-site `/retro` (API-backed) |
+| Standup | spec-site `/standup` |
+{{else}}
+| Document | Path |
+|----------|------|
+| Sprint documents | `.context/sprints/s{N}/` |
+| Epic Specs | `.context/sprints/s{N}/epic-specs/` |
+| Interactive mockups | `spec-site/src/pages/` |
+| Retro board | spec-site `/retro` (localStorage) |
+{{/if}}
+{{#if spec_site.deploy_url}}
+
+**Deploy URL**: {{spec_site.deploy_url}}
+{{/if}}
+{{else}}
+### Local Files — Document Management
+
+| Document | Path |
+|----------|------|
+| Sprint documents | `.context/sprints/s{N}/` |
+| Epic Specs | `.context/sprints/s{N}/epic-specs/` |
+| Stories | `.context/sprints/s{N}/stories/` |
+| Sprint status | `.context/templates/sprint-status.yaml` |
+{{/if}}
+
+{{#if capabilities.pm_tool}}
+### PM Tool — Project Management
+
+| Purpose | Description |
+|---------|-------------|
+| Kanban board | Task status tracking, assignee management |
+| Sprint management | Progress, workload monitoring |
+| Meeting notes / Roadmap | Meeting records, OKR |
+{{/if}}
+
+### Metrics Data
+
+**Location:** `.context/metrics/`
+
+| File | Contents | Frequency |
+|------|----------|-----------|
+| `business.yaml` | MRR, ARPU, funnel | Monthly |
+| `segments.yaml` | Per-segment metrics | Monthly |
+| `team.yaml` | Team/member info | At sprint start |
+
+---
+
+{{INTEGRATION_WORKFLOW_RULES}}

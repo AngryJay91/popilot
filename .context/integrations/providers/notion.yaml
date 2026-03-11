@@ -1,0 +1,140 @@
+id: notion
+name: "Notion"
+category: pm_tool
+description: "Task management, document management, roadmap"
+
+mcp:
+  server_name: "notion"
+  tools: [notion-task-list, notion-task-create, notion-task-update, notion-task-update-status, notion-task-add-log, notion-task-my-sprint, notion-search, notion-fetch, notion-create-pages, notion-update-page]
+
+setup_questions:
+  - key: workspace
+    label: "Notion workspace name"
+    type: string
+    required: false
+    example: "My Workspace"
+  - key: daily_page_id
+    label: "Daily work log parent page ID"
+    type: string
+    required: false
+    example: "abc123..."
+
+agent_prompts:
+  strategist: |
+    ### Notion MCP
+    ```
+    Purpose: PRD lookup/creation, roadmap integration
+    Usage:
+    - notion-search: Search existing PRDs
+    - notion-fetch: Retrieve specific documents
+    - notion-create-pages: Create new PRDs
+    ```
+
+    #### Usage Example
+    ```
+    🎯 Simon: "Let me search for the competitive analysis document on Notion."
+    → notion-search({ query: "competitive analysis" })
+    ```
+
+  planner: |
+    ### Notion MCP
+    ```
+    Purpose: Sprint document management, story creation
+    Usage:
+    - notion-search: Search sprint documents
+    - notion-fetch: Retrieve specific stories
+    - notion-create-pages: Create new stories
+    - notion-update-page: Update progress status
+    ```
+
+    ### Usage Example
+    ```
+    📋 Penny: "Let me check the current sprint document."
+    → notion-fetch({ id: "Sprint-51-PRD-link" })
+
+    📋 Penny: "I'll create a new story."
+    → notion-create-pages({ parent: {page_id: "..."}, pages: [...] })
+    ```
+
+  gtm-strategist: |
+    ### Notion MCP
+    ```
+    Purpose: GTM plan documentation, launch checklist, campaign experiment log
+    Usage:
+    - notion-search: Find previous launch plans or message docs
+    - notion-fetch: Retrieve latest GTM/launch pages
+    - notion-create-pages: Create GTM blueprint and launch playbook
+    - notion-update-page: Update launch gate decisions (scale/stop/pivot)
+    ```
+
+command_prompts:
+  daily: |
+    ### Notion Page Check and Creation
+
+    **Parent page**: `{{config.daily_page_id}}` (Daily work log)
+
+    1. Check if a child page with today's date title exists under the parent page
+    2. Create new if not found, update if exists
+
+    ### Notion Upload
+
+    ```javascript
+    mcp__notion__notion-create-pages({
+      parent: { page_id: "{{config.daily_page_id}}" },
+      pages: [{
+        properties: { title: "{YYYY-MM-DD}" },
+        content: "{formatted markdown}"
+      }]
+    })
+    ```
+
+workflow_rules:
+  - content: |
+      ## MCP Usage Guide
+
+      ### Notion MCP
+
+      You can manage tasks and view/create documents using Notion MCP.
+
+      | Tool | Purpose |
+      |------|---------|
+      | `notion-task-my-sprint` | View my sprint tasks |
+      | `notion-task-list` | View all task list |
+      | `notion-task-create` | Create new task |
+      | `notion-task-update` | Update task |
+      | `notion-task-update-status` | Change status only |
+      | `notion-task-add-log` | Add progress log |
+
+      User/Sprint mapping: See `.secrets.yaml`
+
+      ---
+
+      ## Story → Notion Task Upload
+
+      ### Overview
+
+      ```
+      spec-site (Source of Truth)    →    Notion (Execution Tracking)
+      Story Spec (Detailed Plan)      →    Task (Progress Management)
+      ```
+
+      ### Mapping Rules
+
+      | Story Section | Notion Task Section |
+      |---------------|---------------------|
+      | User Story | **Goal** (As a / I want / So that) |
+      | Acceptance Criteria (AC) | **Goal** (AC list summary) |
+      | Task Breakdown | **To-Do List** (checkboxes) |
+      | Expected Outcome | **Expected Outcome on Completion** |
+
+      ### Task Property Rules
+
+      | Property | Value | Example |
+      |----------|-------|---------|
+      | Title | `[Epic-Story] Title` | `[E-01-S-03] Dashboard Filtering` |
+      | Tags | Sprint, Epic, Area, Priority | `S52`, `E-02`, `FE`, `P1` |
+      | Assignee | `.secrets.yaml` userId | Assignee ID |
+      | Sprint | `.secrets.yaml` sprintId | Sprint page ID |
+      | Priority | P0→High, P1→Medium, P2→Low | `Medium` |
+
+footer_tool_line: "Notion MCP"

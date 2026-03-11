@@ -1,0 +1,103 @@
+id: mixpanel
+name: "Mixpanel"
+category: analytics
+description: "Product analytics, funnels, retention"
+
+mcp:
+  server_name: "mixpanel"
+  tools: [query_jql, get_funnel, get_retention]
+
+setup_questions:
+  - key: project_id
+    label: "Mixpanel Project ID"
+    type: string
+    required: true
+    example: "2843271"
+  - key: api_secret
+    label: "Mixpanel API Secret (see secrets.yaml)"
+    type: string
+    required: false
+
+agent_prompts:
+  analyst: |
+    ### Mixpanel MCP
+    ```
+    Purpose: Product analytics, funnel analysis, retention analysis
+    project_id: {{config.project_id}}
+    ```
+
+    #### Common Patterns
+
+    **1. Event Trend Analysis**
+    ```javascript
+    query_jql({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-02-01",
+      to_date: "2026-02-28",
+      event: "page_view"
+    })
+    ```
+
+    **2. Funnel Analysis**
+    ```javascript
+    get_funnel({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-02-01",
+      to_date: "2026-02-28",
+      steps: ["sign_up", "onboarding_complete", "first_purchase"]
+    })
+    ```
+
+    **3. Retention Analysis**
+    ```javascript
+    get_retention({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-01-01",
+      to_date: "2026-02-28",
+      born_event: "sign_up",
+      event: "page_view"
+    })
+    ```
+
+  validator: |
+    ### Mixpanel MCP
+    ```
+    Purpose: Hypothesis validation data queries, A/B test analysis
+    project_id: {{config.project_id}}
+    ```
+
+  gtm-strategist: |
+    ### Mixpanel MCP
+    ```
+    Purpose: GTM experiment monitoring (channel/segment activation and retention)
+    project_id: {{config.project_id}}
+    ```
+
+    #### GTM Query Patterns
+
+    **1. Segment Conversion Comparison**
+    ```javascript
+    get_funnel({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-02-01",
+      to_date: "2026-02-28",
+      steps: ["landing_view", "signup_started", "onboarding_complete"]
+    })
+    ```
+
+    **2. Launch Cohort Early Retention**
+    ```javascript
+    get_retention({
+      project_id: "{{config.project_id}}",
+      from_date: "2026-02-01",
+      to_date: "2026-02-28",
+      born_event: "signup_completed",
+      event: "feature_engaged"
+    })
+    ```
+
+command_prompts:
+  analytics: |
+    - **Mixpanel MCP Server** (Product analytics, funnels, retention)
+
+footer_tool_line: "Mixpanel MCP"

@@ -1,0 +1,109 @@
+# Sprint Status Template
+# BMAD-METHOD based status tracking file
+
+# ============================================================
+# Meta Information
+# ============================================================
+meta:
+  sprint: 0  # Sprint number
+  title: "[Sprint Title]"
+  created: "YYYY-MM-DD"
+  updated: "YYYY-MM-DD"
+  project: ""
+  period:
+    start: "YYYY-MM-DD"
+    end: "YYYY-MM-DD"
+
+# ============================================================
+# Status Definitions
+# ============================================================
+status_definitions:
+  epic:
+    - backlog      # Waiting
+    - in-progress  # In progress (one or more stories started)
+    - done         # Complete (all stories done)
+
+  story:
+    - backlog        # Waiting
+    - ready-for-dev  # Ready for development (handoff complete)
+    - in-progress    # In development
+    - review         # Code review in progress
+    - done           # Complete
+
+# ============================================================
+# Workflow Guidelines
+# ============================================================
+# 1. When first story starts → Change epic to in-progress
+# 2. After story completion → Create next story (incorporating learnings)
+# 3. Developer completes work → Change to review status
+# 4. Code review passed → Change to done status
+# 5. All stories done → Change epic to done
+
+# ============================================================
+# Development Status
+# ============================================================
+development:
+
+  # ------------------------------------------------------------
+  # Epic 1: [Epic Title]
+  # ------------------------------------------------------------
+  - epic: E-01
+    title: "[Epic Title]"
+    priority: P0
+    status: backlog
+    owner: "[Owner]"
+    stories:
+      - id: E-01-S-01
+        title: "[Story Title]"
+        status: backlog
+        priority: P0
+        size: M
+        assignee: null
+        depends_on: []
+
+      - id: E-01-S-02
+        title: "[Story Title]"
+        status: backlog
+        priority: P0
+        size: L
+        assignee: null
+        depends_on: [E-01-S-01]
+
+  # ------------------------------------------------------------
+  # Epic 2: [Epic Title]
+  # ------------------------------------------------------------
+  - epic: E-02
+    title: "[Epic Title]"
+    priority: P0
+    status: backlog
+    owner: "[Owner]"
+    stories:
+      - id: E-02-S-01
+        title: "[Story Title]"
+        status: backlog
+        priority: P0
+        size: M
+        assignee: null
+        depends_on: []
+
+# ============================================================
+# Summary Statistics (For automatic calculation reference)
+# ============================================================
+summary:
+  total_epics: 0
+  total_stories: 0
+  by_status:
+    backlog: 0
+    ready-for-dev: 0
+    in-progress: 0
+    review: 0
+    done: 0
+  progress_percent: 0
+
+# ============================================================
+# Changelog
+# ============================================================
+changelog:
+  - date: "YYYY-MM-DD"
+    author: "[Author]"
+    changes: "Initial creation"

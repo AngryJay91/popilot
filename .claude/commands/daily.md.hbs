@@ -1,0 +1,301 @@
+# /daily - Daily Work Log
+
+{{#if capabilities.pm_tool}}
+Compile today's work and upload to the PM tool.
+{{else}}
+Compile and organize today's work.
+{{/if}}
+
+## Usage
+
+```bash
+/daily                  # Organize today's work{{#if capabilities.pm_tool}} → upload to PM tool{{/if}}
+/daily 2026-02-01       # Organize work for a specific date
+/daily --dry-run        # Preview only{{#if capabilities.pm_tool}} (no upload){{/if}}
+```
+
+ARGUMENTS: $ARGUMENTS
+
+---
+
+## Execution Steps
+
+### 1. Determine Date
+
+- If no argument, use today's date
+- If a date argument is provided, use that date
+
+### 2. Check Daily Log File
+
+Check if `.context/daily/{YYYY-MM-DD}.yaml` file exists.
+
+```
+File exists → Organize based on that file
+File missing → Attempt extraction from session files
+```
+
+### 3. Extract from Session Files (if no daily file)
+
+1. Filter sessions with `updated_at` on the target date from `index.yaml`
+2. Read each session's `active/{id}.md` or `archive/` file
+3. Extract the target date section from "Work History"
+4. Compile and organize
+
+{{#if capabilities.pm_tool}}
+### 4. Upload to PM Tool
+
+{{INTEGRATION_PROMPTS}}
+{{/if}}
+
+### {{#if capabilities.pm_tool}}5{{else}}4{{/if}}. Content Formatting
+
+{{#if capabilities.pm_tool}}Markdown format for PM tool upload:{{else}}Markdown format for output:{{/if}}
+
+```markdown
+# {YYYY-MM-DD} ({Day of Week})
+
+## Summary
+- {N} work sessions
+- Key accomplishments: {1-2 core achievements}
+
+---
+
+## {Session ID}
+**Topic**: {topic}
+
+### Completed
+- {Completed work 1}
+- {Completed work 2}
+
+### Decisions
+- {Decision content}
+
+### Commits
+- `{hash}`: {message}
+
+### Insights
+- {Discovered insight}
+
+---
+
+## {Next session}
+...
+
+---
+
+## Log Statistics
+| Type | Count |
+|------|-------|
+| Decisions | {N} |
+| Commits | {N} |
+| Insights | {N} |
+| Deploys | {N} |
+```
+
+{{#if capabilities.pm_tool}}
+### {{#if capabilities.pm_tool}}6{{else}}5{{/if}}. Completion Message
+
+```markdown
+🎩 Oscar: Daily work log has been organized.
+
+**Date**: {YYYY-MM-DD}
+**Sessions**: {N}
+**Logs**: {N} entries
+
+PM Tool: {upload URL}
+```
+{{else}}
+### 5. Completion Message
+
+```markdown
+🎩 Oscar: Daily work log has been organized.
+
+**Date**: {YYYY-MM-DD}
+**Sessions**: {N}
+**Logs**: {N} entries
+```
+{{/if}}
+
+---
+
+## --dry-run Option
+
+{{#if capabilities.pm_tool}}
+Preview only without uploading:
+
+```markdown
+🎩 Oscar: [Preview] Daily Work Log
+
+{formatted content}
+
+---
+Upload to PM tool? (y/n)
+```
+{{else}}
+Display organized content as preview:
+
+```markdown
+🎩 Oscar: [Preview] Daily Work Log
+
+{formatted content}
+```
+{{/if}}
+
+---
+
+## Daily Log File Format
+
+`.context/daily/{YYYY-MM-DD}.yaml`:
+
+```yaml
+date: "2026-02-02"
+day_of_week: "Sun"
+
+sessions:
+  - id: s52-policy-adjustment
+    topic: "Sprint 52 detailed policy adjustment"
+    logs:
+      - time: "14:00"
+        type: decision
+        content: "FIRST100 issuance condition: immediate on signup (maintain current)"
+        context: "Policy confirmed after analyzing dev team ANL document"
+
+      - time: "14:30"
+        type: commit
+        content: "docs(E-07): Update FIRST100 coupon issuance condition to match current policy"
+        hash: "a04a701"
+
+_meta:
+  created_at: "2026-02-02T10:00:00"
+  updated_at: "2026-02-02T22:00:00"
+  total_logs: 9
+```
+
+### Log Types
+
+| type | Description | Auto-record Condition |
+|------|-------------|----------------------|
+| `decision` | Policy/direction decision | Oscar suggestion → user approval |
+| `commit` | Git commit | feat/fix/docs commits (excluding chore/style) |
+| `insight` | Data insight | Key finding from analysis results |
+| `deploy` | Deploy complete | Vercel/Amplify deployment |
+| `infra` | Infrastructure change | Config/environment changes |
+| `handoff` | Handoff | Inter-agent handoff |
+| `spec` | Spec confirmed | Epic/Story confirmed |
+
+---
+
+## Oscar's Proactive Involvement
+
+### Record Suggestion Triggers
+
+Oscar suggests "Shall I record this?" in these situations:
+
+| Situation | Suggestion |
+|-----------|-----------|
+| Policy decision complete | "Record in daily log? → Decision: {content}" |
+| Key insight discovered | "Important finding. Record it?" |
+| Major commit complete | (Auto-recorded, no suggestion) |
+| Spec confirmed | "Spec confirmed. Record it?" |
+
+### Commit Auto-Filtering
+
+```
+Record O (important commits):
+- feat: / fix: / docs(significant changes):
+- Policy changes, spec additions, feature implementation
+
+Record X (minor commits):
+- chore: / style: / refactor:
+- typos, formatting, comment edits
+- docs: (simple typo/link fixes)
+```
+
+### Suggestion Example
+
+```markdown
+🎩 Oscar: FIRST100 issuance condition confirmed as "immediate on signup."
+
+Record in daily log?
+→ "Decision: FIRST100 immediate issuance on signup (maintain current)"
+```
+
+User response:
+- "yes", "ok", "record it" → Add to log
+- Ignore or different conversation → Skip
+
+---
+
+## Log Addition API
+
+Internal logic Oscar uses when adding logs:
+
+```yaml
+# Add new log entry
+new_log:
+  time: "{current time HH:MM}"
+  type: "{decision|commit|insight|...}"
+  content: "{core content}"
+  context: "{background explanation - optional}"
+  hash: "{commit hash - commit type only}"
+```
+
+1. Read `.context/daily/{today's date}.yaml` file (create if it doesn't exist)
+2. Find current session ID (add session entry if it doesn't exist)
+3. Add new entry to that session's `logs` array
+4. Update `_meta.updated_at` and `_meta.total_logs`
+5. Save file
+
+---
+
+## Error Handling
+
+### No Daily Log + No Session Records
+
+```markdown
+No work records found for {date}.
+
+Check:
+1. Verify there are sessions from that date
+2. Verify sessions were saved (/save)
+3. To manually add a log: /log "{content}"
+```
+
+{{#if capabilities.pm_tool}}
+### PM Tool Upload Failure
+
+```markdown
+Upload failed: {error message}
+
+The organized content is below. Please copy manually:
+
+{formatted content}
+```
+{{/if}}
+
+---
+
+## Natural Language Invocation
+
+These expressions are also handled as `/daily`:
+
+- "organize today's work"
+- "daily work log"
+{{#if capabilities.pm_tool}}
+- "upload today's work"
+{{/if}}
+- "daily log"
+
+---
+
+## Related Files
+
+- Daily logs: `.context/daily/{YYYY-MM-DD}.yaml`
+- Session files: `.context/sessions/active/{id}.md`
+
+---
+
+## Related Commands
+
+- `/save` - Save session (per-session work records)
+- `/sessions` - Full session dashboard

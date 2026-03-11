@@ -1,0 +1,34 @@
+id: turso_cf
+name: "Turso + Cloudflare Workers"
+category: spec_backend
+description: "SQLite-compatible database (Turso/LibSQL) with Cloudflare Workers API proxy"
+
+mcp:
+  server_name: null
+  tools: []
+
+setup_questions:
+  - key: turso_db_url
+    label: "Turso database URL"
+    type: string
+    required: true
+    example: "libsql://my-db-username.turso.io"
+  - key: cf_worker_name
+    label: "Cloudflare Worker name"
+    type: string
+    required: true
+    example: "pm-api"
+  - key: api_url
+    label: "Deployed API URL"
+    type: string
+    required: true
+    example: "https://pm-api.my-project.workers.dev"
+  - key: deploy_url
+    label: "Deployed spec-site URL (optional)"
+    type: string
+    required: false
+    example: "https://spec.my-project.com"
+
+agent_prompts: {}
+
+footer_tool_line: "spec-site backend: Turso + Cloudflare Workers"

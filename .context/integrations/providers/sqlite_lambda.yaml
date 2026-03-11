@@ -1,0 +1,24 @@
+id: sqlite_lambda
+name: "SQLite + Lambda/Cloud Run"
+category: spec_backend
+description: "SQLite database with serverless API (AWS Lambda, Google Cloud Run, or similar)"
+
+mcp:
+  server_name: null
+  tools: []
+
+setup_questions:
+  - key: api_url
+    label: "API endpoint URL"
+    type: string
+    required: true
+    example: "https://api.my-project.com"
+  - key: deploy_url
+    label: "Deployed spec-site URL (optional)"
+    type: string
+    required: false
+    example: "https://spec.my-project.com"
+
+agent_prompts: {}
+
+footer_tool_line: "spec-site backend: SQLite + serverless"

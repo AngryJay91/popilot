@@ -1,0 +1,57 @@
+id: linear
+name: "Linear"
+category: pm_tool
+description: "Issue tracking, project management, roadmap"
+
+mcp:
+  server_name: "linear"
+  tools: [list_issues, create_issue, update_issue, list_projects]
+
+setup_questions:
+  - key: team_id
+    label: "Linear Team ID"
+    type: string
+    required: true
+    example: "TEAM-123"
+
+agent_prompts:
+  strategist: |
+    ### Linear MCP
+    ```
+    Purpose: Issue management, roadmap integration
+    team_id: {{config.team_id}}
+    Usage:
+    - list_issues: View issue list
+    - create_issue: Create new issue
+    - list_projects: View project status
+    ```
+
+  planner: |
+    ### Linear MCP
+    ```
+    Purpose: Sprint issue management, story creation
+    team_id: {{config.team_id}}
+    Usage:
+    - list_issues: View sprint issues
+    - create_issue: Create new issue
+    - update_issue: Update status
+    ```
+
+  gtm-strategist: |
+    ### Linear MCP
+    ```
+    Purpose: GTM launch task board management
+    team_id: {{config.team_id}}
+    Usage:
+    - list_projects: Check launch initiative status
+    - create_issue: Create launch checklist / experiment tasks
+    - update_issue: Track gate decisions and rollout progress
+    ```
+
+command_prompts:
+  daily: |
+    ### Linear Issue Sync
+
+    Automatically collects issues completed today from Linear and reflects them in the daily work log.
+
+footer_tool_line: "Linear MCP"

@@ -1,0 +1,183 @@
+id: prod_db
+name: "Production Database"
+category: database
+description: "Direct queries on production/snapshot DB"
+
+mcp:
+  server_name: "{{config.mcp_name}}"
+  tools: [query]
+
+setup_questions:
+  - key: mcp_name
+    label: "Production DB MCP server name"
+    type: string
+    required: true
+    example: "prod_service_db"
+  - key: snapshot_mcp_name
+    label: "Snapshot DB MCP server name"
+    type: string
+    required: false
+    example: "snapshot_service_db"
+  - key: tunnel_script
+    label: "Port forwarding/tunnel script path"
+    type: string
+    required: false
+    example: "bash scripts/port-forward.sh"
+  - key: caution
+    label: "Heavy table warning list (table name, risk level, reason)"
+    type: object_list
+    required: false
+    fields: [table, risk, reason]
+    example:
+      - table: SettlementMargin
+        risk: "🔴 Very High"
+        reason: "DELETE-INSERT ETL repeated, very heavy"
+  - key: rules
+    label: "DB usage rules summary"
+    type: string
+    required: false
+    example: "WHERE + indexed column + LIMIT required. Unconditional COUNT(*) prohibited"
+
+agent_prompts:
+  analyst: |
+    ### DB Selection Guide ⭐ Important
+
+    **Two databases are available:**
+
+    | DB | MCP Name | Port | Purpose | Data Point-in-Time |
+    |----|----------|------|---------|---------------------|
+    | **Snapshot DB** | `{{config.snapshot_mcp_name}}` | 33306 | General analysis, exploration | Early morning snapshot (previous day's closing data) |
+    | **Production DB** | `{{config.mcp_name}}` | 13306 | Only when real-time needed | Real-time |
+
+    #### 🎯 Selection Guide
+
+    ```
+    ✅ Use Snapshot DB (default, recommended)
+    - Cohort analysis, segment analysis
+    - Trend analysis (data up to yesterday)
+    - Exploratory analysis
+    - Heavy queries have no production impact
+
+    ⚠️ Use Production DB (only when needed)
+    - When "today's" data is absolutely required
+    - Real-time monitoring
+    - Debugging issues that occurred today
+    ```
+
+    #### 🔌 Port Forwarding Required Before DB Access
+
+    The tunneling script must be **run in a separate terminal first**:
+
+    ```bash
+    # Run the script within the project (opens 3 tunnels simultaneously)
+    {{config.tunnel_script}}
+    ```
+
+    Ports opened after execution:
+    | Environment | DB | Local Port |
+    |-------------|-----|-----------|
+    | Production | Service DB | `13306` |
+    | Production | Scrap DB | `23306` |
+    | Test | Service DB (Snapshot) | `33306` |
+
+    > **Note**: DB queries must be executed while the port forwarding session is already open.
+    > To terminate: `Ctrl+C`
+
+    #### ⚠️ Important: Heavy Table Precautions
+
+    **The following tables require special care:**
+
+    | Table | Risk Level | Reason |
+    |-------|------------|--------|
+    {{#each config.caution}}
+    | `{{this.table}}` | {{this.risk}} | {{this.reason}} |
+    {{/each}}
+
+    **Prohibited:**
+    ```sql
+    {{#each config.caution}}
+    -- ❌ Absolutely prohibited: Full Table Scan
+    SELECT * FROM {{this.table}};
+    SELECT * FROM {{this.table}} WHERE name LIKE '%search_term%';
+    SELECT COUNT(*) FROM {{this.table}};  -- Unconditional count
+
+    -- ❌ Absolutely prohibited: Unindexed conditions
+    SELECT * FROM {{this.table}} WHERE some_unindexed_column = 'value';
+    {{/each}}
+    ```
+
+    **Safe query patterns:**
+    ```sql
+    -- ✅ Safe: Conditions on indexed columns (user_id, created_at, etc.)
+    SELECT * FROM [table]
+    WHERE user_id = 123
+      AND created_at >= '2026-01-01'
+    LIMIT 100;
+
+    -- ✅ Safe: Sampling
+    SELECT * FROM [table]
+    WHERE user_id = 123
+    ORDER BY created_at DESC
+    LIMIT 50;
+    ```
+
+    **Pre-query checklist:**
+    - [ ] Is there an indexed column in the WHERE clause?
+    - [ ] Is LIMIT applied?
+    - [ ] For risky tables, proceed with extra caution
+
+command_prompts:
+  analytics: |
+    - **Prod DB MCP Server** (Direct Service DB queries)
+
+    ### Port Forwarding Required Before DB Access
+
+    ```bash
+    {{{config.tunnel_script}}}
+    ```
+
+    > Connects via local ports.
+
+    ## DB Precautions
+
+    The tables below store ETL results with frequent DELETE-INSERT operations and are **very heavy**. Full scan absolutely prohibited!
+
+    | Table | Risk Level | Reason |
+    |-------|------------|--------|
+    {{#each config.caution}}
+    | `{{this.table}}` | {{this.risk}} | {{this.reason}} |
+    {{/each}}
+
+    **Safe query rules:**
+    - WHERE clause with indexed columns (user_id, created_at, etc.)
+    - LIMIT required
+    - Unconditional COUNT(*) prohibited
+
+safety_rules:
+  - content: |
+      ## DB Precautions
+
+      → See `operations.integrations.prod_db.caution` in `.context/project.yaml`
+
+workflow_rules:
+  - content: |
+      ## DB Usage Precautions
+
+      ### Heavy Table Warnings
+
+      | Table | Precautions |
+      |-------|-------------|
+      {{#each config.caution}}
+      | `{{this.table}}` | {{this.risk}} {{this.reason}} |
+      {{/each}}
+
+      **Rules:** {{config.rules}}
+
+caution_list: |
+  | Table | Risk Level | Reason |
+  |-------|------------|--------|
+  {{#each config.caution}}
+  | `{{this.table}}` | {{this.risk}} | {{this.reason}} |
+  {{/each}}
+
+footer_tool_line: "Snapshot DB MCP (`{{config.snapshot_mcp_name}}`), Production DB MCP (`{{config.mcp_name}}`)"

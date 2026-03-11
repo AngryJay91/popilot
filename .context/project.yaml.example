@@ -1,0 +1,112 @@
+# Project Configuration - Generated/updated through Oscar Setup interview
+# This file contains the core context of the project.
+# The Setup Wizard (/start) automatically generates this file through an interview.
+
+# ============================================================
+# Project Basic Information
+# ============================================================
+project:
+  name: ""           # {{project.name}}
+  tagline: ""        # {{project.tagline}}
+  type: ""           # brownfield | greenfield
+
+# ============================================================
+# Problem & Market
+# ============================================================
+problem:
+  core: ""
+  target: ""
+  alternatives: []
+  timing: ""
+
+# ============================================================
+# Solution & Differentiation
+# ============================================================
+solution:
+  approach: ""
+  differentiation: ""
+  outcome: []
+
+# ============================================================
+# Current State
+# ============================================================
+current_state:
+  stage: ""          # idea | prototype | mvp | launched | pmf | growth
+  focus: ""
+  uncertainty: ""
+  next_milestone: ""
+
+# ============================================================
+# Validation & Learning
+# ============================================================
+validation:
+  confirmed: []
+  unknown: []
+  customer_feedback: ""
+
+# ============================================================
+# Operations Settings
+# ============================================================
+operations:
+  sprint:
+    enabled: true
+    current: 1
+    duration_weeks: 2
+    d_day: ""
+
+  domains: []
+  # Example:
+  # - { id: growth, name: "Growth", path: "domains/growth/" }
+  # - { id: marketing, name: "Marketing", path: "domains/marketing/" }
+
+  integrations:
+    ga4:
+      enabled: false
+      property_id: ""          # {{integrations.ga4.property_id}}
+    mixpanel:
+      enabled: false
+      project_id: ""
+    notion:
+      enabled: false
+      workspace: ""
+      daily_page_id: ""
+    linear:
+      enabled: false
+      team_id: ""
+    channel_io:
+      enabled: false
+    intercom:
+      enabled: false
+    prod_db:
+      enabled: false
+      mcp_name: ""             # {{integrations.prod_db.mcp_name}}
+      snapshot_mcp_name: ""    # {{integrations.prod_db.snapshot_mcp_name}}
+      caution: []              # {{#each integrations.prod_db.caution}}
+      rules: ""
+      tunnel_script: ""
+    notebooklm:
+      enabled: false
+      notebook_name: ""        # {{integrations.notebooklm.notebook_name}}
+    corti:
+      enabled: false
+      workspace_id: ""         # {{integrations.corti.workspace_id}}
+      default_domain: ""       # {{integrations.corti.default_domain}}
+
+  dev_scope:
+    repo_name: ""              # {{dev_scope.repo_name}}
+    service_repo: ""           # {{dev_scope.service_repo}}
+
+  spec_site:
+    title: ""                  # {{spec_site.title}}
+    deploy_url: ""             # {{spec_site.deploy_url}}
+
+# ============================================================
+# Metadata
+# ============================================================
+_meta:
+  created_at: ""
+  created_by: "popilot init"
+  needs_deep_interview: true
+  ambiguity_score: 1.0
+  last_interview: null
+  version: "1.0.0"

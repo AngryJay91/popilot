@@ -1,0 +1,34 @@
+id: supabase
+name: "Supabase"
+category: spec_backend
+description: "PostgreSQL database with Supabase Edge Functions API"
+
+mcp:
+  server_name: null
+  tools: []
+
+setup_questions:
+  - key: supabase_url
+    label: "Supabase project URL"
+    type: string
+    required: true
+    example: "https://abc123.supabase.co"
+  - key: supabase_anon_key
+    label: "Supabase anon key"
+    type: string
+    required: true
+    example: "eyJhbGci..."
+  - key: api_url
+    label: "API URL (Supabase Edge Functions)"
+    type: string
+    required: true
+    example: "https://abc123.supabase.co/functions/v1"
+  - key: deploy_url
+    label: "Deployed spec-site URL (optional)"
+    type: string
+    required: false
+    example: "https://spec.my-project.com"
+
+agent_prompts: {}
+
+footer_tool_line: "spec-site backend: Supabase"

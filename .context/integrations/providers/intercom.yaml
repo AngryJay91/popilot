@@ -1,0 +1,47 @@
+id: intercom
+name: "Intercom"
+category: customer_feedback
+description: "Customer support, messaging, VOC analysis"
+
+mcp:
+  server_name: "intercom"
+  tools: [list_conversations, get_conversation, search_contacts]
+
+setup_questions:
+  - key: app_id
+    label: "Intercom App ID"
+    type: string
+    required: true
+    example: "abc123"
+
+agent_prompts:
+  validator: |
+    ### Intercom API (VOC Analysis)
+    ```
+    Purpose: CS conversation analysis, VOC insight extraction
+    app_id: {{config.app_id}}
+    ```
+
+    #### VOC Analysis Patterns
+    ```javascript
+    // Retrieve recently closed conversations
+    list_conversations({
+      state: "closed",
+      per_page: 50,
+      sort_field: "updated_at",
+      sort_order: "desc"
+    })
+
+    // Retrieve specific conversation details
+    get_conversation({ id: "{conversation_id}" })
+    ```
+
+  researcher: |
+    ### Intercom API (VOC Collection)
+    ```
+    Purpose: Customer conversation collection, complaint pattern identification
+    app_id: {{config.app_id}}
+    Integration: Vicky collects → Rita interprets
+    ```
+
+footer_tool_line: "Intercom API"

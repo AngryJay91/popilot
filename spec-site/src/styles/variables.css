@@ -1,0 +1,47 @@
+:root {
+  /* Brand -- TODO: Replace with your project colors */
+  --primary: #2563eb;
+  --primary-light: #eff6ff;
+  --primary-dark: #1d4ed8;
+
+  /* Background */
+  --bg: #F8F8FB;
+  --card-bg: #ffffff;
+
+  /* Text */
+  --text-primary: #1f2123;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+
+  /* Border */
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+
+  /* Severity colors */
+  --red: #E53E3E;
+  --red-bg: #FEF2F2;
+  --red-border: #FECACA;
+  --yellow: #D69E2E;
+  --yellow-bg: #FFFBEB;
+  --yellow-border: #FDE68A;
+  --green: #38A169;
+  --green-bg: #F0FFF4;
+  --green-border: #C6F6D5;
+  --blue: #3B82F6;
+  --blue-bg: #EFF6FF;
+  --blue-border: #BFDBFE;
+  --negative: #fc4747;
+
+  /* Layout */
+  --header-height: 48px;
+  --radius: 12px;
+  --radius-sm: 8px;
+
+  /* Shadow */
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+
+  /* Font -- TODO: Replace with your project fonts */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-num: 'Inter', system-ui, sans-serif;
+}

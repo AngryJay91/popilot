@@ -1,0 +1,214 @@
+id: corti
+name: "Corti"
+category: knowledge
+description: "Cross-source knowledge search, decision tracking"
+
+mcp:
+  server_name: "corti"
+  tools: [corti_search, corti_get_document, corti_get_decisions, corti_get_decision_history, corti_record_decision, corti_confirm_decision, corti_reject_decision, corti_update_decision]
+
+setup_questions:
+  - key: workspace_id
+    label: "Corti workspace ID"
+    type: string
+    required: true
+    example: "ws_abc123"
+  - key: default_domain
+    label: "Default domain for decisions"
+    type: string
+    required: false
+    example: "product"
+
+agent_prompts:
+  researcher: |
+    ### Corti MCP ⭐ Core Tool
+    ```
+    Purpose: Cross-source knowledge search, past discussion context tracking
+    Workspace: {{config.workspace_id}}
+    ```
+
+    #### Common Patterns
+
+    **1. VOC Cross-source Search**
+    ```javascript
+    corti_search({
+      workspace_id: "{{config.workspace_id}}",
+      query: "user complaints core features",
+      sources: ["slack", "notion", "linear"]
+    })
+    ```
+
+    **2. Past Discussion Context Retrieval**
+    ```javascript
+    corti_get_document({
+      workspace_id: "{{config.workspace_id}}",
+      document_id: "doc_xxx"
+    })
+    ```
+
+    **3. Related Decision History**
+    ```javascript
+    corti_get_decisions({
+      workspace_id: "{{config.workspace_id}}",
+      query: "onboarding flow changes"
+    })
+    ```
+
+    #### Usage Example
+    ```
+    🎤 Rita: "Let me do a comprehensive search for discussions about 'key metrics' across Slack, Notion, and Linear."
+    → corti_search({ query: "key metric improvement feedback" })
+    → Synthesize results into VOC insights
+    ```
+
+  strategist: |
+    ### Corti MCP ⭐ Core Tool
+    ```
+    Purpose: Decision recording/management, PRD context gathering
+    Workspace: {{config.workspace_id}}
+    Default domain: {{config.default_domain}}
+    ```
+
+    #### Common Patterns
+
+    **1. Record Decision**
+    ```javascript
+    corti_record_decision({
+      workspace_id: "{{config.workspace_id}}",
+      title: "Reduce onboarding from 3 steps to 2",
+      domain: "{{config.default_domain}}",
+      rationale: "Funnel drop-off rate 40% → target below 20%",
+      status: "candidate"
+    })
+    ```
+
+    **2. Retrieve Existing Decisions**
+    ```javascript
+    corti_get_decisions({
+      workspace_id: "{{config.workspace_id}}",
+      domain: "{{config.default_domain}}",
+      status: "active"
+    })
+    ```
+
+    **3. Gather PRD-related Context**
+    ```javascript
+    corti_search({
+      workspace_id: "{{config.workspace_id}}",
+      query: "pricing policy change discussion"
+    })
+    ```
+
+    #### Usage Example
+    ```
+    🎯 Simon: "Let me record the key decisions from this PRD in Corti."
+    → corti_record_decision({ title: "...", rationale: "..." })
+    ```
+
+  planner: |
+    ### Corti MCP
+    ```
+    Purpose: Check related decisions before writing stories
+    Workspace: {{config.workspace_id}}
+    Usage:
+    - corti_get_decisions: Check related decisions
+    - corti_search: Search story background context
+    ```
+
+    #### Usage Example
+    ```
+    📋 Penny: "Let me check existing decisions related to this feature."
+    → corti_get_decisions({ query: "payment flow" })
+    → Reflect related decisions in story AC
+    ```
+
+  validator: |
+    ### Corti MCP
+    ```
+    Purpose: Approve/reject decisions based on validation results
+    Workspace: {{config.workspace_id}}
+    Usage:
+    - corti_get_decisions: Retrieve decisions for validation
+    - corti_confirm_decision: Approve when validation passes
+    - corti_reject_decision: Reject when validation fails (reason required)
+    ```
+
+    #### Usage Example
+    ```
+    📊 Vicky: "The hypothesis validation data supports it, so I approve the decision."
+    → corti_confirm_decision({ decision_id: "dec_xxx", evidence: "CVR 15% increase confirmed" })
+    ```
+
+  analyst: |
+    ### Corti MCP
+    ```
+    Purpose: Search analysis context, retrieve past data-related discussions
+    Workspace: {{config.workspace_id}}
+    Usage:
+    - corti_search: Search analysis-related context
+    - corti_get_document: Retrieve detailed documents
+    ```
+
+    #### Usage Example
+    ```
+    📈 Danny: "Let me find discussions related to retention analysis from the previous quarter."
+    → corti_search({ query: "retention analysis Q4" })
+    ```
+
+  gtm-strategist: |
+    ### Corti MCP
+    ```
+    Purpose: Retrieve prior launch decisions and record GTM gate outcomes
+    Workspace: {{config.workspace_id}}
+    Usage:
+    - corti_search: Find previous launch postmortems and messaging decisions
+    - corti_record_decision: Record GTM channel/message decisions
+    - corti_update_decision: Update rollout gate status (scale/stop/pivot)
+    ```
+
+workflow_rules:
+  - content: |
+      ## Corti Decision Tracking
+
+      ### MCP Tool List
+
+      | Tool | Permission | Purpose |
+      |------|------------|---------|
+      | `corti_search` | Read | Cross-source knowledge search (Slack, GitHub, Notion, etc.) |
+      | `corti_get_document` | Read | Retrieve specific document details |
+      | `corti_get_decisions` | Read | Query decision list (filterable) |
+      | `corti_get_decision_history` | Read | View change history of a specific decision |
+      | `corti_record_decision` | Write | Record new decision (candidate status) |
+      | `corti_confirm_decision` | Write | Approve decision (evidence required) |
+      | `corti_reject_decision` | Write | Reject decision (reason required) |
+      | `corti_update_decision` | Write | Modify decision content |
+
+      ### What to Record
+
+      - PRD key decisions (feature scope, priorities, trade-offs)
+      - Hypothesis validation results (adoption/rejection rationale)
+      - Team discussion consensus items
+      - Strategic direction changes (pivots, scope changes)
+
+      ### What NOT to Record
+
+      - Routine implementation details (variable names, styles, etc.)
+      - Temporary experiments/PoC results (before finalization)
+      - Personal notes, brainstorming drafts
+
+      ### Decision Status Flow
+
+      ```
+      candidate → active      (validation passed, confirm)
+      candidate → rejected    (validation failed, reject)
+      active    → superseded  (replaced by new decision)
+      ```
+
+      ### Oscar Integration Guide
+
+      Oscar suggests Corti recording at the following points:
+      - **When PRD is finalized**: Suggest recording key decisions after Simon completes PRD
+      - **When hypothesis validation is complete**: Suggest confirm/reject after Vicky finishes validation
+      - **When team discussion reaches consensus**: Suggest recording when consensus is reached in Party mode
+
+footer_tool_line: "Corti MCP"
