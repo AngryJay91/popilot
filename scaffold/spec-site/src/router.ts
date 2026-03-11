@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { isValidFeaturePage, getActiveSprint, featurePages } from './data/navigation'
+import { isValidFeaturePage, featurePages } from './data/navigation'
 import { getWireframe, getAvailableSprints } from './data/wireframeRegistry'
+import { getActiveSprint, sprints } from './composables/useNavStore'
 
-const activeSprint = getActiveSprint().id
+function currentActiveSprint(): string {
+  return getActiveSprint().id
+}
 
 const routes = [
   { path: '/', component: () => import('./pages/IndexPage.vue') },
@@ -10,7 +13,7 @@ const routes = [
   // -- Policy documents --
   {
     path: '/policy',
-    redirect: `/policy/${activeSprint}`,
+    redirect: () => `/policy/${currentActiveSprint()}`,
   },
   {
     path: '/policy/:sprint',
@@ -23,10 +26,10 @@ const routes = [
     meta: { title: 'Policy' },
   },
 
-  // -- Retro (Turso-based team collaboration) --
+  // -- Retro --
   {
     path: '/retro',
-    redirect: `/retro/${activeSprint}`,
+    redirect: () => `/retro/${currentActiveSprint()}`,
   },
   {
     path: '/retro/:sprint',
@@ -40,8 +43,9 @@ const routes = [
     redirect: (to: any) => {
       const id = to.params.pageId as string
       if (!isValidFeaturePage(id)) return '/'
-      const sprints = getAvailableSprints(id)
-      const best = sprints.includes(activeSprint) ? activeSprint : sprints[0] ?? activeSprint
+      const activeSprint = currentActiveSprint()
+      const available = getAvailableSprints(id)
+      const best = available.includes(activeSprint) ? activeSprint : available[0] ?? activeSprint
       return `/${id}/${best}`
     },
   },

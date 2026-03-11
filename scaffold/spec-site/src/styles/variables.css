@@ -1,8 +1,8 @@
 :root {
-  /* Brand */
-  --primary: #0055d4;
-  --primary-light: #e8f0fe;
-  --primary-dark: #003d9e;
+  /* Brand -- TODO: Replace with your project colors */
+  --primary: #2563eb;
+  --primary-light: #eff6ff;
+  --primary-dark: #1d4ed8;
 
   /* Background */
   --bg: #F8F8FB;
@@ -41,7 +41,7 @@
   --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
 
-  /* Font */
-  --font-kr: 'Noto Sans KR', sans-serif;
-  --font-num: 'Roboto', 'Noto Sans KR', sans-serif;
+  /* Font -- TODO: Replace with your project fonts */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-num: 'Inter', system-ui, sans-serif;
 }

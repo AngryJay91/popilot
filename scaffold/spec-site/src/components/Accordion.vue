@@ -58,7 +58,7 @@ function toggle() {
   background: none;
   border: none;
   cursor: pointer;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);

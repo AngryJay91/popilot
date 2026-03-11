@@ -36,3 +36,9 @@ categories:
     description: "Cross-source knowledge search, decision tracking, feature timeline"
     agents: [researcher, strategist, planner, validator, analyst, market-researcher, gtm-strategist]
     system_files: [WORKFLOW.md]
+
+  spec_backend:
+    label: "Spec Site Backend"
+    description: "Backend infrastructure for interactive spec-site (DB + API)"
+    agents: [developer, handoff-specialist, planner, operations]
+    system_files: [CLAUDE.md, WORKFLOW.md]

@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { sprints, featurePages, type SprintConfig } from '../data/navigation'
+import { sprints, getActiveSprint, type SprintConfig } from '../composables/useNavStore'
+import { featurePages } from '../data/navigation'
 
 const route = useRoute()
 const router = useRouter()
 
 const currentPageId = computed(() => (route.params.pageId as string) || '')
-const currentSprint = computed(() => (route.params.sprint as string) || sprints[0]?.id || '')
+const currentSprint = computed(() => (route.params.sprint as string) || getActiveSprint().id)
 
 const activeSprintLabel = computed(() => {
-  const s = sprints.find(s => s.id === currentSprint.value)
+  const s = sprints.value.find(s => s.id === currentSprint.value)
   return s?.label ?? currentSprint.value.toUpperCase()
 })
 
@@ -212,7 +213,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   background: none;
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.15s;

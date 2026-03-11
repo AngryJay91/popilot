@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { sprints } from '@/data/navigation'
+import { sprints } from '@/composables/useNavStore'
 
 const props = defineProps<{
   pageId: string
   sprint: string
 }>()
 
-const sprintLabel = computed(() => sprints.find(s => s.id === props.sprint)?.label ?? props.sprint)
+const sprintLabel = computed(() => sprints.value.find((s: { id: string }) => s.id === props.sprint)?.label ?? props.sprint)
 </script>
 
 <template>

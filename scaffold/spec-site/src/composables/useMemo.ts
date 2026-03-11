@@ -1,4 +1,12 @@
+/**
+ * Memo composable — Page-level notes/memos
+ *
+ * Always uses localStorage as primary storage.
+ * In API mode, also syncs with backend.
+ */
+
 import { ref, computed } from 'vue'
+import { isStaticMode } from '@/api/client'
 
 export interface MemoItem {
   id: number
@@ -36,34 +44,34 @@ export function useMemo(pageId: string) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(memos.value))
   }
 
-  // Turso dynamic load attempt (falls back to localStorage)
-  async function tryLoadFromTurso() {
+  async function tryLoadFromApi() {
+    if (isStaticMode()) return
+
     try {
-      const { query } = await import('./useTurso')
-      const r = await query<{ id: number; content: string; author: string; created_at: string }>(
-        'SELECT id, content, author, created_at FROM memos WHERE page_id = ? ORDER BY created_at DESC',
-        [pageId],
+      const { apiGet } = await import('@/api/client')
+      const r = await apiGet<{ memos: Array<{ id: number; content: string; author: string; created_at: string }> }>(
+        '/api/v2/memos',
+        { pageId },
       )
-      if (!r.error) {
-        memos.value = r.rows.map((row) => ({
+      if (!r.error && r.data) {
+        memos.value = r.data.memos.map((row) => ({
           id: Number(row.id),
           text: String(row.content),
           author: String(row.author),
           ts: new Date(row.created_at + 'Z').getTime(),
         }))
-      } else {
+      } else if (r.error) {
         error.value = r.error
       }
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Turso load failed'
-      // Keep localStorage fallback silently in UI behavior
+      error.value = err instanceof Error ? err.message : 'API load failed'
     }
   }
 
   async function loadMemos() {
     loading.value = true
     error.value = null
-    await tryLoadFromTurso()
+    await tryLoadFromApi()
     loading.value = false
   }
 
@@ -71,19 +79,18 @@ export function useMemo(pageId: string) {
     const trimmed = text.trim()
     if (!trimmed) return false
 
-    // Try Turso
-    try {
-      const { execute } = await import('./useTurso')
-      const r = await execute('INSERT INTO memos (page_id, content, author) VALUES (?, ?, ?)', [
-        pageId, trimmed, author,
-      ])
-      if (!r.error) {
-        await tryLoadFromTurso()
-        return true
+    if (!isStaticMode()) {
+      try {
+        const { apiPost } = await import('@/api/client')
+        const r = await apiPost('/api/v2/memos', { pageId, content: trimmed, author })
+        if (!r.error) {
+          await tryLoadFromApi()
+          return true
+        }
+        error.value = r.error ?? 'API save failed'
+      } catch (err) {
+        error.value = err instanceof Error ? err.message : 'API save failed'
       }
-      error.value = r.error ?? 'Turso save failed'
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Turso save failed'
     }
 
     // localStorage fallback
@@ -93,16 +100,18 @@ export function useMemo(pageId: string) {
   }
 
   async function deleteMemo(id: number) {
-    try {
-      const { execute } = await import('./useTurso')
-      const r = await execute('DELETE FROM memos WHERE id = ?', [id])
-      if (!r.error) {
-        await tryLoadFromTurso()
-        return
+    if (!isStaticMode()) {
+      try {
+        const { apiDelete } = await import('@/api/client')
+        const r = await apiDelete(`/api/v2/memos/${id}`)
+        if (!r.error) {
+          await tryLoadFromApi()
+          return
+        }
+        error.value = r.error ?? 'API delete failed'
+      } catch (err) {
+        error.value = err instanceof Error ? err.message : 'API delete failed'
       }
-      error.value = r.error ?? 'Turso delete failed'
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Turso delete failed'
     }
 
     memos.value = memos.value.filter((m) => m.id !== id)
@@ -110,12 +119,14 @@ export function useMemo(pageId: string) {
   }
 
   async function clearAll() {
-    try {
-      const { execute } = await import('./useTurso')
-      const r = await execute('DELETE FROM memos WHERE page_id = ?', [pageId])
-      if (r.error) error.value = r.error
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Turso clear failed'
+    if (!isStaticMode()) {
+      try {
+        const { apiDelete } = await import('@/api/client')
+        const r = await apiDelete('/api/v2/memos', { pageId })
+        if (r.error) error.value = r.error
+      } catch (err) {
+        error.value = err instanceof Error ? err.message : 'API clear failed'
+      }
     }
     memos.value = []
     saveToLocal()
@@ -130,7 +141,7 @@ export function useMemo(pageId: string) {
     return `${mm}/${dd} ${hh}:${mi}`
   }
 
-  // Immediately load from localStorage (sync), then try Turso (async)
+  // Immediately load from localStorage (sync), then try API (async)
   loadFromLocal()
   loadMemos()
 

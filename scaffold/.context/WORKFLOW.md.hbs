@@ -174,8 +174,23 @@ Must check before handoff:
 
 ## spec-site: Interactive Spec Tool
 
+{{#if spec_site.enabled}}
 spec-site is a Vue 3 + Vite based interactive spec viewer.
 It provides dynamic mockups and scenario-based specs instead of static markdown.
+
+### Mode: {{spec_site.mode}}
+
+{{#if spec_site.is_interactive}}
+**Full Interactive Mode** — Backend API + DB required.
+- Source of truth: spec-site API (sprints, epics, stories, tasks)
+- Features: Board, Standup, Retro, Memo, Admin
+- `.context/` .md files are secondary reference
+{{else}}
+**Static Viewer Mode** — No backend required.
+- Source of truth: `.context/sprints/s{N}/epic-specs/*.md` (local files)
+- spec-site renders these .md files as web pages via `npm run dev`
+- Retro board uses localStorage (offline mode)
+{{/if}}
 
 ### Page Addition Pattern
 
@@ -211,39 +226,34 @@ Left: Interactive mockup / Right: Spec panel (draggable)
 ScenarioSwitcher enables mockup switching by user type / state.
 Each scenario is defined in `{feature}Data.ts` and provided/injected via `useScenario` composable.
 
-### Data File Structure
-
-```typescript
-// {feature}Data.ts
-import type { Scenario, SpecArea, PageVersion } from '../data/types'
-
-export const scenarios: Scenario<FeatureState>[] = [
-  { id: 'default', label: 'Default', state: { /* ... */ } },
-  { id: 'empty', label: 'Empty state', state: { /* ... */ } },
-]
-
-export const specAreas: SpecArea[] = [
-  { id: 'layout', label: 'Layout' },
-  { id: 'components', label: 'Component Details' },
-]
-
-export const version: PageVersion = {
-  sprint: 's1',
-  status: 'dev',
-  updatedAt: '2026-01-01'
-}
-```
-
 ### Epic Spec Integration
 
+{{#if spec_site.is_interactive}}
+Epic Specs are managed via spec-site API. Navigation, sprints, and epics are stored in the backend database.
+{{else}}
 Epic Specs are written in markdown at `.context/sprints/s{N}/epic-specs/E-XX.md`.
 They are automatically rendered on spec-site's PolicyIndex / PolicyDetail pages.
+{{/if}}
 
 ### Retrospective Tool (RetroPage)
 
-Turso (LibSQL) based team retrospective board. Route: `/retro`.
-- Category-based cards (went well / needs improvement / action items)
+{{#if spec_site.is_interactive}}
+API-backed team retrospective board. Route: `/retro`.
+- Category-based cards (keep / problem / try)
+- Real-time polling (multi-user)
 - Sprint-based filtering
+{{else}}
+localStorage-based retrospective board. Route: `/retro`.
+- Category-based cards (keep / problem / try)
+- Local-only (single user, no real-time sync)
+- Sprint-based filtering
+{{/if}}
+{{else}}
+spec-site is not enabled. All specifications are managed as local markdown files:
+- Epic Specs: `.context/sprints/s{N}/epic-specs/E-XX.md`
+- Stories: `.context/sprints/s{N}/stories/`
+- Sprint Context: `.context/sprints/s{N}/context.md`
+{{/if}}
 
 ---
 
@@ -301,17 +311,39 @@ Turso (LibSQL) based team retrospective board. Route: `/retro`.
 
 ## Document Management Tool Roles
 
+{{#if spec_site.enabled}}
 ### spec-site — Interactive Specs + Epic Spec Viewing
 
+{{#if spec_site.is_interactive}}
+| Document | Source |
+|----------|--------|
+| Sprint/Epic navigation | spec-site API (backend DB) |
+| Epic Specs | spec-site Policy pages |
+| Stories/Tasks | spec-site Board |
+| Interactive mockups | `spec-site/src/pages/` |
+| Retro board | spec-site `/retro` (API-backed) |
+| Standup | spec-site `/standup` |
+{{else}}
 | Document | Path |
 |----------|------|
 | Sprint documents | `.context/sprints/s{N}/` |
 | Epic Specs | `.context/sprints/s{N}/epic-specs/` |
 | Interactive mockups | `spec-site/src/pages/` |
-| Retro board | spec-site `/retro` |
+| Retro board | spec-site `/retro` (localStorage) |
+{{/if}}
 {{#if spec_site.deploy_url}}
 
 **Deploy URL**: {{spec_site.deploy_url}}
+{{/if}}
+{{else}}
+### Local Files — Document Management
+
+| Document | Path |
+|----------|------|
+| Sprint documents | `.context/sprints/s{N}/` |
+| Epic Specs | `.context/sprints/s{N}/epic-specs/` |
+| Stories | `.context/sprints/s{N}/stories/` |
+| Sprint status | `.context/templates/sprint-status.yaml` |
 {{/if}}
 
 {{#if capabilities.pm_tool}}

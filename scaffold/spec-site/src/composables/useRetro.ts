@@ -1,5 +1,12 @@
+/**
+ * Retro composable — Sprint retrospective board
+ *
+ * In API mode: full CRUD via REST endpoints
+ * In static mode: localStorage-only (offline retro)
+ */
+
 import { ref, computed, onUnmounted } from 'vue'
-import { query, execute } from './useTurso'
+import { apiGet, apiPost, apiPatch, apiDelete, isStaticMode } from '@/api/client'
 
 export type RetroPhase = 'write' | 'vote' | 'discuss' | 'done'
 export type RetroCategory = 'keep' | 'problem' | 'try'
@@ -36,6 +43,27 @@ export interface RetroAction {
 export const VOTES_PER_PERSON = 5
 const POLL_INTERVAL_MS = 4000
 
+// ── localStorage fallback for static mode ──
+
+function localKey(sprint: string) { return `retro_${sprint}` }
+
+interface LocalRetroData {
+  session: RetroSession
+  items: RetroItem[]
+  actions: RetroAction[]
+}
+
+function loadLocal(sprint: string): LocalRetroData | null {
+  try {
+    const raw = localStorage.getItem(localKey(sprint))
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+function saveLocal(sprint: string, data: LocalRetroData) {
+  localStorage.setItem(localKey(sprint), JSON.stringify(data))
+}
+
 export function useRetro(sprintId: string) {
   const session = ref<RetroSession | null>(null)
   const items = ref<RetroItem[]>([])
@@ -53,33 +81,45 @@ export function useRetro(sprintId: string) {
     loading.value = true
     error.value = null
 
-    const r = await query<RetroSession>(
-      'SELECT * FROM retro_sessions WHERE sprint = ? LIMIT 1',
-      [sprintId],
-    )
-    if (r.error) {
-      error.value = r.error
+    if (isStaticMode()) {
+      const local = loadLocal(sprintId)
+      if (local) {
+        session.value = local.session
+        items.value = local.items
+        actions.value = local.actions
+      } else {
+        const now = new Date().toISOString()
+        session.value = {
+          id: Date.now(),
+          sprint: sprintId,
+          title: `${sprintId.toUpperCase()} Retro`,
+          phase: 'write',
+          created_at: now,
+          updated_at: now,
+        }
+        items.value = []
+        actions.value = []
+        saveLocal(sprintId, { session: session.value, items: [], actions: [] })
+      }
       loading.value = false
       return
     }
 
-    if (r.rows.length > 0) {
-      session.value = r.rows[0]
-    } else {
-      const ins = await execute(
-        'INSERT INTO retro_sessions (sprint, title) VALUES (?, ?)',
-        [sprintId, `${sprintId.toUpperCase()} Retro`],
-      )
-      if (ins.error) {
-        error.value = ins.error
+    const { data, error: apiError } = await apiGet<{ session: RetroSession }>(`/api/v2/retro/session`, { sprint: sprintId })
+    if (apiError || !data) {
+      // Try to create session
+      const { data: created, error: createError } = await apiPost<{ session: RetroSession }>('/api/v2/retro/session', {
+        sprint: sprintId,
+        title: `${sprintId.toUpperCase()} Retro`,
+      })
+      if (createError || !created) {
+        error.value = createError ?? 'Failed to create session'
         loading.value = false
         return
       }
-      const r2 = await query<RetroSession>(
-        'SELECT * FROM retro_sessions WHERE sprint = ? LIMIT 1',
-        [sprintId],
-      )
-      session.value = r2.rows[0] ?? null
+      session.value = created.session
+    } else {
+      session.value = data.session
     }
 
     await refresh()
@@ -88,55 +128,68 @@ export function useRetro(sprintId: string) {
 
   async function setPhase(phase: RetroPhase) {
     if (!session.value) return
-    await execute(
-      "UPDATE retro_sessions SET phase = ?, updated_at = datetime('now') WHERE id = ?",
-      [phase, session.value.id],
-    )
+
+    if (isStaticMode()) {
+      session.value = { ...session.value, phase }
+      saveLocal(sprintId, { session: session.value, items: items.value, actions: actions.value })
+      return
+    }
+
+    await apiPatch(`/api/v2/retro/session/${session.value.id}/phase`, { phase })
     session.value = { ...session.value, phase }
   }
 
   // -- Items --
   async function loadItems(currentUser: string) {
     if (!session.value) return
-    const r = await query<Record<string, unknown>>(
-      `SELECT i.*,
-        COUNT(v.voter) as voteCount,
-        MAX(CASE WHEN v.voter = ? THEN 1 ELSE 0 END) as hasVoted
-       FROM retro_items i
-       LEFT JOIN retro_votes v ON v.item_id = i.id
-       WHERE i.session_id = ?
-       GROUP BY i.id
-       ORDER BY i.created_at ASC`,
-      [currentUser, session.value.id],
-    )
-    if (!r.error) {
-      items.value = r.rows.map((row) => ({
-        id: Number(row.id),
-        session_id: Number(row.session_id),
-        category: row.category as RetroCategory,
-        content: row.content as string,
-        author: row.author as string,
-        created_at: row.created_at as string,
-        voteCount: Number(row.voteCount),
-        hasVoted: Boolean(Number(row.hasVoted)),
-      }))
-    }
+
+    if (isStaticMode()) return // items already in memory
+
+    const { data } = await apiGet<{ items: RetroItem[] }>('/api/v2/retro/items', {
+      sessionId: String(session.value.id),
+      voter: currentUser,
+    })
+    if (data) items.value = data.items
   }
 
   async function addItem(category: RetroCategory, content: string, author: string) {
     if (!session.value) return
     const trimmed = content.trim()
     if (!trimmed) return
-    await execute(
-      'INSERT INTO retro_items (session_id, category, content, author) VALUES (?, ?, ?, ?)',
-      [session.value.id, category, trimmed, author],
-    )
+
+    if (isStaticMode()) {
+      const newItem: RetroItem = {
+        id: Date.now(),
+        session_id: session.value.id,
+        category,
+        content: trimmed,
+        author,
+        created_at: new Date().toISOString(),
+        voteCount: 0,
+        hasVoted: false,
+      }
+      items.value.push(newItem)
+      saveLocal(sprintId, { session: session.value, items: items.value, actions: actions.value })
+      return
+    }
+
+    await apiPost('/api/v2/retro/items', {
+      sessionId: session.value.id,
+      category,
+      content: trimmed,
+      author,
+    })
     await loadItems(author)
   }
 
   async function deleteItem(itemId: number, currentUser: string) {
-    await execute('DELETE FROM retro_votes WHERE item_id = ?', [itemId])
-    await execute('DELETE FROM retro_items WHERE id = ?', [itemId])
+    if (isStaticMode()) {
+      items.value = items.value.filter(i => i.id !== itemId)
+      saveLocal(sprintId, { session: session.value!, items: items.value, actions: actions.value })
+      return
+    }
+
+    await apiDelete(`/api/v2/retro/items/${itemId}`)
     await loadItems(currentUser)
   }
 
@@ -146,56 +199,87 @@ export function useRetro(sprintId: string) {
 
   async function toggleVote(itemId: number, currentUser: string, hasVoted: boolean) {
     if (!hasVoted && votesRemaining.value <= 0) return
-    if (hasVoted) {
-      await execute('DELETE FROM retro_votes WHERE item_id = ? AND voter = ?', [
-        itemId,
-        currentUser,
-      ])
-    } else {
-      await execute('INSERT OR IGNORE INTO retro_votes (item_id, voter) VALUES (?, ?)', [
-        itemId,
-        currentUser,
-      ])
+
+    if (isStaticMode()) {
+      items.value = items.value.map(i => {
+        if (i.id !== itemId) return i
+        return {
+          ...i,
+          hasVoted: !hasVoted,
+          voteCount: hasVoted ? i.voteCount - 1 : i.voteCount + 1,
+        }
+      })
+      saveLocal(sprintId, { session: session.value!, items: items.value, actions: actions.value })
+      return
     }
+
+    await apiPost(`/api/v2/retro/items/${itemId}/vote`, { voter: currentUser, remove: hasVoted })
     await loadItems(currentUser)
   }
 
   // -- Actions --
   async function loadActions() {
-    if (!session.value) return
-    const r = await query<RetroAction>(
-      'SELECT * FROM retro_actions WHERE session_id = ? ORDER BY created_at ASC',
-      [session.value.id],
-    )
-    if (!r.error) actions.value = r.rows
+    if (!session.value || isStaticMode()) return
+
+    const { data } = await apiGet<{ actions: RetroAction[] }>('/api/v2/retro/actions', {
+      sessionId: String(session.value.id),
+    })
+    if (data) actions.value = data.actions
   }
 
   async function addAction(content: string, assignee: string | null) {
     if (!session.value) return
-    await execute(
-      'INSERT INTO retro_actions (session_id, content, assignee) VALUES (?, ?, ?)',
-      [session.value.id, content.trim(), assignee],
-    )
+
+    if (isStaticMode()) {
+      actions.value.push({
+        id: Date.now(),
+        session_id: session.value.id,
+        content: content.trim(),
+        assignee,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+      })
+      saveLocal(sprintId, { session: session.value, items: items.value, actions: actions.value })
+      return
+    }
+
+    await apiPost('/api/v2/retro/actions', {
+      sessionId: session.value.id,
+      content: content.trim(),
+      assignee,
+    })
     await loadActions()
   }
 
   async function toggleActionStatus(actionId: number, currentStatus: 'pending' | 'done') {
     const next = currentStatus === 'pending' ? 'done' : 'pending'
-    await execute('UPDATE retro_actions SET status = ? WHERE id = ?', [next, actionId])
+
+    if (isStaticMode()) {
+      actions.value = actions.value.map(a =>
+        a.id === actionId ? { ...a, status: next } : a
+      )
+      saveLocal(sprintId, { session: session.value!, items: items.value, actions: actions.value })
+      return
+    }
+
+    await apiPatch(`/api/v2/retro/actions/${actionId}/status`, { status: next })
     await loadActions()
   }
 
   // -- Reset --
   async function resetSession() {
     if (!session.value) return
-    const sid = session.value.id
-    await execute(
-      'DELETE FROM retro_votes WHERE item_id IN (SELECT id FROM retro_items WHERE session_id = ?)',
-      [sid],
-    )
-    await execute('DELETE FROM retro_actions WHERE session_id = ?', [sid])
-    await execute('DELETE FROM retro_items WHERE session_id = ?', [sid])
-    await execute('DELETE FROM retro_sessions WHERE id = ?', [sid])
+
+    if (isStaticMode()) {
+      localStorage.removeItem(localKey(sprintId))
+      session.value = null
+      items.value = []
+      actions.value = []
+      await loadOrCreateSession()
+      return
+    }
+
+    await apiDelete(`/api/v2/retro/session/${session.value.id}`)
     session.value = null
     items.value = []
     actions.value = []
@@ -228,7 +312,7 @@ export function useRetro(sprintId: string) {
         lines.push('- (none)')
       } else {
         for (const item of catItems) {
-          const votes = item.voteCount > 0 ? ` (👍 ${item.voteCount})` : ''
+          const votes = item.voteCount > 0 ? ` (${item.voteCount} votes)` : ''
           lines.push(`- ${item.content}${votes} — _${item.author}_`)
         }
       }
@@ -236,10 +320,10 @@ export function useRetro(sprintId: string) {
     }
 
     if (actions.value.length > 0) {
-      lines.push('## 📋 Action Items')
+      lines.push('## Action Items')
       lines.push('')
       for (const a of actions.value) {
-        const check = a.status === 'done' ? '✅' : '⬜'
+        const check = a.status === 'done' ? '[x]' : '[ ]'
         const assignee = a.assignee ? ` @${a.assignee}` : ''
         lines.push(`- ${check} ${a.content}${assignee}`)
       }
@@ -252,17 +336,17 @@ export function useRetro(sprintId: string) {
     return lines.join('\n')
   }
 
-  // -- Refresh (items + actions + session phase) --
+  // -- Refresh --
   let _currentUser = ''
 
   async function refresh() {
-    if (!session.value) return
-    const r = await query<{ phase: string }>(
-      'SELECT phase FROM retro_sessions WHERE id = ?',
-      [session.value.id],
-    )
-    if (r.rows[0] && r.rows[0].phase !== session.value.phase) {
-      session.value = { ...session.value, phase: r.rows[0].phase as RetroPhase }
+    if (!session.value || isStaticMode()) return
+
+    const { data } = await apiGet<{ session: { phase: string } }>(`/api/v2/retro/session`, {
+      sprint: sprintId,
+    })
+    if (data?.session && data.session.phase !== session.value.phase) {
+      session.value = { ...session.value, phase: data.session.phase as RetroPhase }
     }
     await loadItems(_currentUser)
     await loadActions()
@@ -274,7 +358,9 @@ export function useRetro(sprintId: string) {
   function startPolling(currentUser: string) {
     _currentUser = currentUser
     stopPolling()
-    pollTimer = setInterval(refresh, POLL_INTERVAL_MS)
+    if (!isStaticMode()) {
+      pollTimer = setInterval(refresh, POLL_INTERVAL_MS)
+    }
   }
 
   function stopPolling() {

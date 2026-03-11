@@ -76,7 +76,7 @@ function isCustom(id: string) {
   background: transparent;
   color: #fff;
   font-size: 12px;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   cursor: pointer;
   transition: all 0.15s;
 }

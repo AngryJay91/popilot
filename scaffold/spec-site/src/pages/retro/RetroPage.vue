@@ -3,7 +3,7 @@ import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUser } from '@/composables/useUser'
 import { useRetro } from '@/composables/useRetro'
-import { getActiveSprint } from '@/data/navigation'
+import { getActiveSprint } from '@/composables/useNavStore'
 import RetroHeader from './RetroHeader.vue'
 import RetroBoard from './RetroBoard.vue'
 import RetroActions from './RetroActions.vue'
@@ -155,7 +155,7 @@ function handleExport() {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   cursor: pointer;
 }
 

@@ -95,7 +95,7 @@ function handleAdd() {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 13px;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -108,7 +108,7 @@ function handleAdd() {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 13px;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   background: #fff;
   min-width: 90px;
 }
@@ -121,7 +121,7 @@ function handleAdd() {
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   cursor: pointer;
   transition: opacity 0.15s;
   white-space: nowrap;

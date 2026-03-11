@@ -1,17 +1,23 @@
+/**
+ * User composable — Team member selection
+ *
+ * Stores current user in localStorage for retro/memo features.
+ * Team members list is configurable per project.
+ */
+
 import { ref } from 'vue'
 
-// TODO: Replace with your team members
-export const TEAM_MEMBERS = ['Member1', 'Member2', 'Member3'] as const
-export type TeamMember = (typeof TEAM_MEMBERS)[number]
+// TODO: Replace with your team members or load dynamically from API
+export const TEAM_MEMBERS: string[] = []
 
 const STORAGE_KEY = 'retro-user-name'
 
-const currentUser = ref<TeamMember | null>(
-  (localStorage.getItem(STORAGE_KEY) as TeamMember | null) ?? null,
+const currentUser = ref<string | null>(
+  localStorage.getItem(STORAGE_KEY) ?? null,
 )
 
 export function useUser() {
-  function setUser(name: TeamMember) {
+  function setUser(name: string) {
     currentUser.value = name
     localStorage.setItem(STORAGE_KEY, name)
   }

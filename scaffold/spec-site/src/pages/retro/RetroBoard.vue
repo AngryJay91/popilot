@@ -155,7 +155,7 @@ const COLUMNS: { id: RetroCategory; label: string; emoji: string; bg: string }[]
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 6px;
   font-size: 13px;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   resize: none;
   outline: none;
   transition: border-color 0.15s;
@@ -175,7 +175,7 @@ const COLUMNS: { id: RetroCategory; label: string; emoji: string; bg: string }[]
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   cursor: pointer;
   transition: opacity 0.15s;
 }

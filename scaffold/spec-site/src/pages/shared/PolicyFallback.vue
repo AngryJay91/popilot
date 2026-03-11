@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watchEffect, computed } from 'vue'
-import { sprints, getPagesByCategory, getEpicSpecFileName } from '@/data/navigation'
+import { sprints } from '@/composables/useNavStore'
 import { renderMarkdown } from '@/utils/markdown'
 
 const props = defineProps<{
@@ -9,11 +9,7 @@ const props = defineProps<{
   pageLabel: string
 }>()
 
-const sprintLabel = computed(() => sprints.find(s => s.id === props.sprint)?.label ?? props.sprint)
-const epicConfig = computed(() => {
-  const epics = getPagesByCategory(props.sprint, 'policy')
-  return epics.find(e => e.id === props.epicId)
-})
+const sprintLabel = computed(() => sprints.value.find((s: { id: string }) => s.id === props.sprint)?.label ?? props.sprint)
 
 const markdownHtml = ref('')
 const loading = ref(true)
@@ -29,15 +25,31 @@ watchEffect(async () => {
   error.value = false
   markdownHtml.value = ''
 
-  const fileName = getEpicSpecFileName(props.sprint, props.epicId)
-  if (!fileName) {
-    error.value = true
-    loading.value = false
-    return
+  // Try multiple filename patterns: E-XX.md, e-xx.md, partial match
+  const candidates = [
+    `${props.epicId}.md`,
+    `${props.epicId.toLowerCase()}.md`,
+    `${props.epicId.toUpperCase()}.md`,
+  ]
+
+  const prefix = `../../../../.context/sprints/${props.sprint}/epic-specs/`
+  let loader: (() => Promise<unknown>) | undefined
+
+  for (const name of candidates) {
+    const key = prefix + name
+    if (mdModules[key]) {
+      loader = mdModules[key]
+      break
+    }
   }
 
-  const key = `../../../../.context/sprints/${props.sprint}/epic-specs/${fileName}`
-  const loader = mdModules[key]
+  // Fallback: partial key match
+  if (!loader) {
+    const partialKey = Object.keys(mdModules).find(
+      (k: string) => k.includes(`/${props.sprint}/`) && k.toLowerCase().includes(props.epicId.toLowerCase())
+    )
+    if (partialKey) loader = mdModules[partialKey]
+  }
 
   if (!loader) {
     error.value = true

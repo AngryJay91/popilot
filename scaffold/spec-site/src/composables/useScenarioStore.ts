@@ -1,6 +1,25 @@
+/**
+ * Scenario store — CRUD for custom scenarios (API-backed or localStorage)
+ */
+
 import { ref } from 'vue'
-import { query, execute } from './useTurso'
+import { apiGet, apiPost, apiDelete, isStaticMode } from '@/api/client'
 import type { Scenario } from '@/data/types'
+
+function localKey(pageId: string, sprint: string) {
+  return `scenarios_${pageId}_${sprint}`
+}
+
+function loadLocal(pageId: string, sprint: string): Scenario<any>[] {
+  try {
+    const raw = localStorage.getItem(localKey(pageId, sprint))
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
+}
+
+function saveLocal(pageId: string, sprint: string, list: Scenario<any>[]) {
+  localStorage.setItem(localKey(pageId, sprint), JSON.stringify(list))
+}
 
 export function useScenarioStore(pageId: string, sprint: string) {
   const customScenarios = ref<Scenario<any>[]>([])
@@ -10,21 +29,26 @@ export function useScenarioStore(pageId: string, sprint: string) {
   async function loadCustomScenarios(): Promise<Scenario<any>[]> {
     loading.value = true
     error.value = null
-    const r = await query<{
-      scenario_id: string
-      label: string
-      data_json: string
-    }>(
-      'SELECT scenario_id, label, data_json FROM scenario_data WHERE page_id = ? AND sprint = ? ORDER BY created_at ASC',
-      [pageId, sprint],
-    )
-    loading.value = false
-    if (r.error) {
-      error.value = r.error
-      customScenarios.value = []
-      return []
+
+    if (isStaticMode()) {
+      customScenarios.value = loadLocal(pageId, sprint)
+      loading.value = false
+      return customScenarios.value
     }
-    const list = r.rows
+
+    const { data, error: apiError } = await apiGet<{
+      scenarios: Array<{ scenario_id: string; label: string; data_json: string }>
+    }>(`/api/v2/scenarios`, { pageId, sprint })
+
+    loading.value = false
+
+    if (apiError || !data) {
+      error.value = apiError ?? 'Unknown error'
+      customScenarios.value = loadLocal(pageId, sprint) // fallback
+      return customScenarios.value
+    }
+
+    const list = data.scenarios
       .map((row) => {
         try {
           return {
@@ -37,22 +61,35 @@ export function useScenarioStore(pageId: string, sprint: string) {
         }
       })
       .filter((s): s is Scenario<any> => s !== null)
+
     customScenarios.value = list
     return list
   }
 
   async function saveScenario(scenario: Scenario<any>, author: string): Promise<boolean> {
     error.value = null
-    const dataJson = JSON.stringify(scenario.data)
-    const res = await execute(
-      `INSERT INTO scenario_data (page_id, sprint, scenario_id, label, data_json, author)
-       VALUES (?, ?, ?, ?, ?, ?)
-       ON CONFLICT(page_id, sprint, scenario_id)
-       DO UPDATE SET label = ?, data_json = ?, author = ?, updated_at = datetime('now')`,
-      [pageId, sprint, scenario.id, scenario.label, dataJson, author, scenario.label, dataJson, author],
-    )
-    if (res.error) {
-      error.value = res.error
+
+    if (isStaticMode()) {
+      const existing = customScenarios.value.findIndex(s => s.id === scenario.id)
+      if (existing >= 0) {
+        customScenarios.value[existing] = scenario
+      } else {
+        customScenarios.value.push(scenario)
+      }
+      saveLocal(pageId, sprint, customScenarios.value)
+      return true
+    }
+
+    const { error: apiError } = await apiPost('/api/v2/scenarios', {
+      pageId, sprint,
+      scenarioId: scenario.id,
+      label: scenario.label,
+      dataJson: JSON.stringify(scenario.data),
+      author,
+    })
+
+    if (apiError) {
+      error.value = apiError
       return false
     }
     await loadCustomScenarios()
@@ -61,12 +98,19 @@ export function useScenarioStore(pageId: string, sprint: string) {
 
   async function deleteScenario(scenarioId: string): Promise<boolean> {
     error.value = null
-    const res = await execute(
-      'DELETE FROM scenario_data WHERE page_id = ? AND sprint = ? AND scenario_id = ?',
-      [pageId, sprint, scenarioId],
-    )
-    if (res.error) {
-      error.value = res.error
+
+    if (isStaticMode()) {
+      customScenarios.value = customScenarios.value.filter(s => s.id !== scenarioId)
+      saveLocal(pageId, sprint, customScenarios.value)
+      return true
+    }
+
+    const { error: apiError } = await apiDelete(`/api/v2/scenarios/${scenarioId}`, {
+      pageId, sprint,
+    })
+
+    if (apiError) {
+      error.value = apiError
       return false
     }
     await loadCustomScenarios()

@@ -1,26 +1,30 @@
+/**
+ * Shared domain types for spec-site.
+ *
+ * These types are project-agnostic. Categories and severity levels
+ * are strings to support any project's domain vocabulary.
+ */
+
 export type Severity = 'danger' | 'warning' | 'info' | 'good' | 'opportunity'
 
 export type ImplStatus = 'done' | 'data-ready' | 'logic-needed' | 'new-data'
 
-export type RuleCategory =
-  | 'AD' | 'PROD' | 'REV' | 'SET' | 'MALL'
-  | 'TAC' | 'SETUP' | 'OPP' | 'KW' | 'ACT'
-
 export interface Rule {
   id: string
-  category: RuleCategory
+  category: string
   name: string
   condition: string
-  severity: Severity
+  severity: string
   homeMessage: string
   action: string
   dataSource: string
-  implStatus: ImplStatus
+  implStatus: string
   implNote?: string
+  actionRoute?: string
 }
 
 export interface RuleGroup {
-  category: RuleCategory
+  category: string
   label: string
   icon: string
   ruleCount: number
@@ -28,41 +32,7 @@ export interface RuleGroup {
   rules: Rule[]
 }
 
-export interface ScenarioMockData {
-  greeting: string
-  healthStatus: 'good' | 'caution' | 'critical'
-  healthLabel: string
-  summary: {
-    revenue: string
-    revenueDelta: string
-    revenueDeltaDir: 'up' | 'down' | 'flat'
-    netProfit: string
-    netProfitDelta: string
-    netProfitDeltaDir: 'up' | 'down' | 'flat'
-    marginRate: string
-    marginRateDelta: string
-    marginRateDeltaDir: 'up' | 'down' | 'flat'
-    adCost: string
-    adCostDelta: string
-    adCostDeltaDir: 'up' | 'down' | 'flat'
-  }
-  coachingCards: CoachingCardData[]
-  showMallSection: boolean
-  showAdsSection: boolean
-  showGrowthCard: boolean
-  showExternalCta: boolean
-}
-
-export interface CoachingCardData {
-  severity: 'red' | 'yellow' | 'green'
-  severityLabel: string
-  title: string
-  action: string
-  effect: string
-  buttons: { label: string; variant: 'primary' | 'outline' }[]
-}
-
-export interface Scenario<T = ScenarioMockData> {
+export interface Scenario<T = Record<string, unknown>> {
   id: string
   label: string
   data: T

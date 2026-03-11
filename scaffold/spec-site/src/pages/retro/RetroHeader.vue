@@ -2,8 +2,6 @@
 import { ref } from 'vue'
 import type { RetroSession, RetroPhase } from '@/composables/useRetro'
 import { VOTES_PER_PERSON } from '@/composables/useRetro'
-import type { TeamMember } from '@/composables/useUser'
-
 const props = defineProps<{
   session: RetroSession | null
   sprintId: string
@@ -14,7 +12,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'phase-change', phase: RetroPhase): void
-  (e: 'select-user', name: TeamMember): void
+  (e: 'select-user', name: string): void
   (e: 'reset'): void
   (e: 'export'): void
 }>()
@@ -47,7 +45,7 @@ function phase(): RetroPhase {
 }
 
 function selectMember(name: string) {
-  emit('select-user', name as TeamMember)
+  emit('select-user', name)
   userOpen.value = false
 }
 
@@ -174,7 +172,7 @@ function handleExport() {
   background: #fff;
   font-size: 13px;
   font-weight: 500;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   cursor: pointer;
   color: var(--text-primary);
   transition: all 0.15s;
@@ -219,7 +217,7 @@ function handleExport() {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -233,7 +231,7 @@ function handleExport() {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   cursor: pointer;
   transition: opacity 0.15s;
 }

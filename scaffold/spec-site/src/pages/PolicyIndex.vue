@@ -1,26 +1,26 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { sprints, getPagesByCategory } from '../data/navigation'
+import { sprints, getPagesByCategory } from '../composables/useNavStore'
 
 const route = useRoute()
 const router = useRouter()
 
-const sprintId = computed(() => (route.params.sprint as string) || sprints[0]?.id || '')
-const sprintConfig = computed(() => sprints.find(s => s.id === sprintId.value))
-const epics = computed(() => getPagesByCategory(sprintId.value, 'policy'))
+const sprintId = computed(() => (route.params.sprint as string) || sprints.value[0]?.id || '')
+const sprintConfig = computed(() => sprints.value.find(s => s.id === sprintId.value))
+const epicList = computed(() => getPagesByCategory(sprintId.value, 'policy'))
 </script>
 
 <template>
   <div class="policy-index">
     <div class="policy-header">
       <h1>{{ sprintConfig?.label }} Policy</h1>
-      <p class="policy-subtitle">{{ sprintConfig?.theme }} · {{ epics.length }} epic specs</p>
+      <p class="policy-subtitle">{{ sprintConfig?.theme }} · {{ epicList.length }} epic specs</p>
     </div>
 
-    <div class="epic-grid">
+    <div class="epic-grid" v-if="epicList.length > 0">
       <div
-        v-for="epic in epics"
+        v-for="epic in epicList"
         :key="epic.id"
         class="epic-card"
         @click="router.push(`/policy/${sprintId}/${epic.id}`)"
@@ -32,6 +32,12 @@ const epics = computed(() => getPagesByCategory(sprintId.value, 'policy'))
         <div class="epic-title">{{ epic.label }}</div>
         <div v-if="epic.description" class="epic-desc">{{ epic.description }}</div>
       </div>
+    </div>
+
+    <div v-else class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h2>No epic specs yet</h2>
+      <p>Add epic specs in <code>.context/sprints/{{ sprintId }}/epic-specs/</code> or via the API.</p>
     </div>
   </div>
 </template>
@@ -71,4 +77,13 @@ h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
 .badge-muted { background: var(--border-light); color: var(--text-muted); }
 .epic-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
 .epic-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 80px 40px; text-align: center; color: var(--text-muted);
+}
+.empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
+.empty-state h2 { font-size: 24px; color: var(--text-primary); margin-bottom: 8px; }
+.empty-state p { font-size: 14px; line-height: 1.6; max-width: 480px; }
+.empty-state code { background: var(--border-light); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
 </style>

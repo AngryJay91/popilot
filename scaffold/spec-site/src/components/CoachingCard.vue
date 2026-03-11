@@ -99,7 +99,7 @@ function toggleCheck() {
   padding: 7px 16px;
   border-radius: 6px;
   font-size: 13px;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   font-weight: 500;
   cursor: pointer;
   border: none;

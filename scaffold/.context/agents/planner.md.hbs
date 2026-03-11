@@ -223,17 +223,18 @@ Upon receiving Simon's handoff document:
 |----|--------|--------|--------|
 ```
 
-### → Handing off to Dev Team (spec-site URL sharing)
+### → Handing off to Dev Team
 
+{{#if spec_site.deploy_url}}
 Share the spec-site URL during handoff:
 
 ```markdown
 ## 📋 Handoff: [Epic Name] Development Request
 
 ### 📍 Document Location (spec-site)
-- **Epic Spec**: {{spec_site.deploy_url}}/s{N}/epic-specs/E-XX
-- **Stories**: {{spec_site.deploy_url}}/s{N}/stories/E-XX-S-01
-- **Kanban Board**: {{spec_site.deploy_url}}/kanban
+- **Epic Spec**: {{spec_site.deploy_url}}/policy/{sprint}/E-XX
+- **Stories**: {{spec_site.deploy_url}}/board/{sprint}
+- **Kanban Board**: {{spec_site.deploy_url}}/board/{sprint}
 
 ### 📝 Summary
 - Why it's needed: [one-line explanation]
@@ -249,11 +250,38 @@ Share the spec-site URL during handoff:
 ```
 
 **Workflow:**
-{{#if spec_site.deploy_url}}
 1. Story authoring complete → trigger Hank for screen spec
-2. Hank completes spec → `git push` → auto-deploy
+2. Hank completes spec → `git push` → auto-deploy to spec-site
 3. Share spec-site URL with dev team
-4. Status update: edit `sprint-status.yaml` → Kanban board auto-reflects
+4. Status update: spec-site Board auto-reflects
+{{else}}
+Share the document paths during handoff:
+
+```markdown
+## 📋 Handoff: [Epic Name] Development Request
+
+### 📍 Document Location (local)
+- **Epic Spec**: `.context/sprints/s{N}/epic-specs/E-XX.md`
+- **Stories**: `.context/sprints/s{N}/stories/`
+- **Sprint Status**: `.context/templates/sprint-status.yaml`
+
+### 📝 Summary
+- Why it's needed: [one-line explanation]
+- Number of stories: [N]
+- Expected timeline: [duration]
+
+### ✅ Handoff Checklist
+- [x] Epic Spec finalized (PO approved)
+- [x] Story AC (Given-When-Then) written
+- [x] Screen spec attached (📐 Hank)
+- [x] Event logging defined (📡 Tara)
+- [x] Design links attached
+```
+
+**Workflow:**
+1. Story authoring complete → trigger Hank for screen spec
+2. Update local `.md` files with finalized specs
+3. Status update: edit `sprint-status.yaml`
 {{/if}}
 
 ---

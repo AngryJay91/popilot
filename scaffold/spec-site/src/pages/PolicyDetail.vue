@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { sprints, getPagesByCategory, getEpicSpecFileName } from '../data/navigation'
+import { sprints, getPagesByCategory } from '../composables/useNavStore'
 import { renderMarkdown } from '../utils/markdown'
 
 const route = useRoute()
 const router = useRouter()
 
-const sprintId = computed(() => (route.params.sprint as string) || sprints[0]?.id || '')
+const sprintId = computed(() => (route.params.sprint as string) || sprints.value[0]?.id || '')
 const epicId = computed(() => (route.params.epicId as string) || '')
-const sprintConfig = computed(() => sprints.find(s => s.id === sprintId.value))
-const epics = computed(() => getPagesByCategory(sprintId.value, 'policy'))
-const currentEpic = computed(() => epics.value.find(e => e.id === epicId.value))
+const sprintConfig = computed(() => sprints.value.find(s => s.id === sprintId.value))
+const epicList = computed(() => getPagesByCategory(sprintId.value, 'policy'))
+const currentEpic = computed(() => epicList.value.find(e => e.id === epicId.value))
 
 const markdownHtml = ref('')
 const loading = ref(true)
@@ -28,15 +28,34 @@ watchEffect(async () => {
   error.value = false
   markdownHtml.value = ''
 
-  const fileName = getEpicSpecFileName(sprintId.value, epicId.value)
-  if (!fileName) {
+  if (!epicId.value) {
     error.value = true
     loading.value = false
     return
   }
 
-  const key = `../../../.context/sprints/${sprintId.value}/epic-specs/${fileName}`
-  const loader = mdModules[key]
+  // Try to find a matching markdown file by convention: E-XX.md
+  const patterns = [
+    `../../../.context/sprints/${sprintId.value}/epic-specs/${epicId.value}.md`,
+    `../../../.context/sprints/${sprintId.value}/epic-specs/${epicId.value.toLowerCase()}.md`,
+  ]
+
+  let loader: (() => Promise<unknown>) | undefined
+  for (const key of patterns) {
+    if (mdModules[key]) {
+      loader = mdModules[key]
+      break
+    }
+  }
+
+  if (!loader) {
+    // Try matching by partial key
+    const prefix = `../../../.context/sprints/${sprintId.value}/epic-specs/`
+    const matchKey = Object.keys(mdModules).find(k =>
+      k.startsWith(prefix) && k.toLowerCase().includes(epicId.value.toLowerCase())
+    )
+    if (matchKey) loader = mdModules[matchKey]
+  }
 
   if (!loader) {
     error.value = true
@@ -66,7 +85,7 @@ function goBack() {
         <button class="back-btn" @click="goBack">&larr; {{ sprintConfig?.label }}</button>
       </div>
       <router-link
-        v-for="epic in epics"
+        v-for="epic in epicList"
         :key="epic.id"
         :to="`/policy/${sprintId}/${epic.id}`"
         class="sidebar-item"
@@ -112,7 +131,7 @@ function goBack() {
   background: none;
   border: none;
   cursor: pointer;
-  font-family: var(--font-kr);
+  font-family: var(--font-sans);
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.15s;
