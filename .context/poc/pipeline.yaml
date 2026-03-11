@@ -1,0 +1,19 @@
+idea: "팀 태스크 보드"
+created_at: "2026-03-11"
+status: done
+tech_stack: vue
+
+phases:
+  scope:
+    status: done
+    output: scope.md
+  spec:
+    status: done
+    output: stories/
+  build:
+    status: done
+    total_stories: 3
+    current_story: 3
+    output: spec-site/src/pages/poc/
+  verify:
+    status: done

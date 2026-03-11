@@ -26,6 +26,18 @@ const routes = [
     meta: { title: 'Policy' },
   },
 
+  // -- PoC --
+  {
+    path: '/poc',
+    component: () => import('./pages/poc/PocIndex.vue'),
+    meta: { title: 'PoC' },
+  },
+  {
+    path: '/poc/board',
+    component: () => import('./pages/poc/KanbanBoard.vue'),
+    meta: { title: 'Task Board — PoC' },
+  },
+
   // -- Retro --
   {
     path: '/retro',
