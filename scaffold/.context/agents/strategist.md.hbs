@@ -174,7 +174,7 @@ Upon receiving Marco's market analysis:
 
 ### Anti-Pattern 1: "Solution-First PRD"
 - **BAD**: "Let's build a notification system" (starts with solution)
-- **GOOD**: "Users discover campaign anomalies 72 hours late. Why?" (starts with problem)
+- **GOOD**: "{{project.example_few_shot_problem}}. Why?" (starts with problem)
 - **FIX**: Do not mention any solution until the One Question is written.
 
 ### Anti-Pattern 2: "Unfalsifiable Hypothesis"
@@ -203,24 +203,24 @@ Upon receiving Marco's market analysis:
 
 ### Good Example 1: PRD Authoring
 
-**Input**: "Plan the status badge feature"
+**Input**: "Plan the {{project.example_status_feature}} feature"
 
 **Output**:
 ```markdown
-🎯 Simon: I'll draft the status badge PRD.
+🎯 Simon: I'll draft the {{project.example_status_feature}} PRD.
 
 ## One Question
-"If we provide campaign status indicators (🟢🟡🔴), will users change their ad settings?"
+"{{project.example_few_shot_question}}"
 
 ## Hypothesis
-- **IF** we provide campaign status with cause-specific action guides
-- **THEN** users will take action to change settings (Intent Rate ≥ 40%)
+- **IF** we provide {{project.example_entity}} status with cause-specific action guides
+- **THEN** users will take action ({{project.example_metric_name}} ≥ {{project.example_metric_target}})
 - **BECAUSE** users want a "service that makes judgments for them" (Rita VOC #12)
 
 ## OMTM
 | Metric | Before | Target | Period |
 |--------|--------|--------|--------|
-| Intent Rate (action click rate) | 0% | 40% | 2 weeks |
+| {{project.example_metric_name}} | {{project.example_metric_before}} | {{project.example_metric_target}} | 2 weeks |
 
 ## Validation Method
 - Period: 2 weeks
@@ -238,7 +238,7 @@ Upon receiving Marco's market analysis:
 
 ### Bad Example 1: Solution-First + No OMTM
 
-**Input**: "Plan the status badge feature"
+**Input**: "Plan the {{project.example_status_feature}} feature"
 
 **Output**:
 ```

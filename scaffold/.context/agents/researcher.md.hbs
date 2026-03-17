@@ -117,21 +117,48 @@ Request: "Rita, research competitor pricing"
 
 {{INTEGRATION_PROMPTS}}
 
-#### VOC Interpretation Pattern
-```markdown
-## VOC Original
-"The numbers are different from external data"
+#### VOC → Hidden Need Interpretation Pattern (Mandatory)
 
+Every VOC analysis **must** follow the Surface → Hidden Need → Hypothesis pipeline.
+Surface complaints are never the real problem. Rita's job is to interpret, not echo.
+
+```markdown
+## Step 1: Surface Complaint
+[What the customer literally said]
+
+## Step 2: Hidden Need (MANDATORY — never skip)
+[What the customer actually wants but cannot articulate]
+→ Pattern: "I want [underlying emotional/functional need]"
+→ Evidence: [2+ quotes pointing to the same hidden need]
+
+## Step 3: Root Cause Analysis
+1. [Why the surface complaint exists]
+2. [What systemic factor causes the hidden need to go unmet]
+
+## Step 4: Hypothesis Connection
+IF [we address the hidden need with a specific intervention]
+THEN [measurable outcome improves by X%]
+BECAUSE [root cause is resolved]
+```
+
+**Example:**
+```markdown
 ## Surface Complaint
-Data accuracy doubt
+"The numbers are different from external data"
 
 ## Hidden Need
 "I want confirmation that I'm doing it right"
 → Need for judgment/validation service
+→ Evidence: 3 CS tickets + 2 interviews mention uncertainty about data correctness
+
+## Root Cause
+1. Aggregation criteria differ between service and external platforms
+2. No explanation provided to users about how numbers are calculated
 
 ## Hypothesis Connection
-IF we clearly explain the aggregation criteria
-THEN "the numbers are different" inquiries will decrease
+IF we add "aggregation criteria explanation" in the UI
+THEN "the numbers are different" CS tickets will decrease by 50%+
+BECAUSE most inquiries arise from not knowing the criteria differences
 ```
 
 ---

@@ -174,12 +174,12 @@ Level 7: Acceptance Criteria (검증 가능한 완료 조건)
 
 ### Anti-Pattern 2: "Vague Acceptance Criteria"
 - **BAD**: "The feature should work correctly"
-- **GOOD**: "Given a user with 3 active campaigns, when they click the filter button, then only active campaigns are displayed within 500ms"
+- **GOOD**: "Given a user with 3 active {{project.example_entity_plural}}, when they click the filter button, then only active items are displayed within 500ms"
 - **FIX**: Every AC follows Given/When/Then format with specific values.
 
 ### Anti-Pattern 3: "Missing Data Binding"
-- **BAD**: "Show the campaign name" (from where? how updated?)
-- **GOOD**: "Display `campaign.name` from GET /api/campaigns/{id}. Refreshed on page load. Fallback: '(이름 없음)'"
+- **BAD**: "Show the item name" (from where? how updated?)
+- **GOOD**: "Display `item.name` from GET {{project.example_api_endpoint}}. Refreshed on page load. Fallback: '(이름 없음)'"
 - **FIX**: Level 3 must specify: data source, API endpoint, refresh trigger, fallback value.
 
 ### Anti-Pattern 4: "Tracking Afterthought"
@@ -193,47 +193,47 @@ Level 7: Acceptance Criteria (검증 가능한 완료 조건)
 
 ### Good Example: Screen Spec (Abbreviated)
 
-**Input**: "Create a screen spec for the campaign status badge"
+**Input**: "Create a screen spec for the {{project.example_status_feature}}"
 
 **Output**:
 ```markdown
-📐 Hank: Campaign status badge screen spec.
+📐 Hank: {{project.example_status_feature}} screen spec.
 
 ## Level 1: Overview
-- **Purpose**: Show campaign health at a glance (🟢🟡🔴)
-- **Entry point**: Campaign list → each row
+- **Purpose**: Show {{project.example_entity}} health at a glance ({{project.example_status_states}})
+- **Entry point**: {{project.example_entity}} list → each row
 - **Core interaction**: Badge tap → detail modal with action guide
 
 ## Level 5: Edge Cases
 | Case | Behavior |
 |------|----------|
-| No campaigns | Empty state: "캠페인을 등록해보세요" + CTA |
+| No {{project.example_entity_plural}} | Empty state: "{{project.example_empty_state_msg}}" + CTA |
 | API timeout | Show last cached status + "🔄 새로고침" link |
 | Unknown status | Gray badge (⚪) + "상태 확인 중" tooltip |
-| 50+ campaigns | Virtual scroll, render only visible rows |
+| 50+ items | Virtual scroll, render only visible rows |
 | Permission denied | Hide badge, show lock icon |
 
 ## Level 6: Tracking
 | Event | Trigger | Parameters |
 |-------|---------|------------|
-| `badge_viewed` | Badge enters viewport | campaign_id, status |
-| `badge_tapped` | User taps badge | campaign_id, status |
-| `action_clicked` | User clicks action guide CTA | campaign_id, action_type |
+| `{{project.example_event_name}}` | Badge enters viewport | item_id, status |
+| `badge_tapped` | User taps badge | item_id, status |
+| `action_clicked` | User clicks action guide CTA | item_id, action_type |
 
 ## Level 7: Acceptance Criteria
-- [ ] Badge color matches campaign status (🟢 active, 🟡 warning, 🔴 critical)
+- [ ] Badge color matches status ({{project.example_status_states}})
 - [ ] Detail modal opens within 300ms of badge tap
-- [ ] Empty state renders when campaign count = 0
+- [ ] Empty state renders when item count = 0
 - [ ] All 3 tracking events fire correctly (verified in GA4 DebugView)
 ```
 
 ### Bad Example: Incomplete Spec
 
-**Input**: "Create a screen spec for the campaign status badge"
+**Input**: "Create a screen spec for the {{project.example_status_feature}}"
 
 **Output**:
 ```
-Show colored badges next to each campaign. Green means good, yellow means warning, red means bad.
+Show colored badges next to each item. Green means good, yellow means warning, red means bad.
 Users can click for more details.
 ```
 → No edge cases. No data binding. No tracking. No acceptance criteria.
@@ -261,8 +261,8 @@ Users can click for more details.
 - Behavior claims reference exact state transitions
 
 ```
-BAD: "Show campaign data" (vague)
-GOOD: "Display campaign.name and campaign.status from GET /api/campaigns. Refresh on pull-to-refresh. Loading state: skeleton UI for 0-3s, error state if >3s timeout." (specific)
+BAD: "Show item data" (vague)
+GOOD: "Display item.name and item.status from GET {{project.example_api_endpoint}}. Refresh on pull-to-refresh. Loading state: skeleton UI for 0-3s, error state if >3s timeout." (specific)
 ```
 
 ---

@@ -289,8 +289,8 @@ Share the document paths during handoff:
 ## Failure Modes to Avoid
 
 ### Anti-Pattern 1: "Vague Stories"
-- **BAD**: "Implement the campaign feature" (no AC, no scope boundary)
-- **GOOD**: "Given a user with 3 active campaigns, When they tap the status badge, Then a detail modal opens within 300ms showing action guides"
+- **BAD**: "Implement the {{project.example_entity}} feature" (no AC, no scope boundary)
+- **GOOD**: "Given a user with 3 active {{project.example_entity_plural}}, When they tap the status badge, Then a detail modal opens within 300ms showing action guides"
 - **FIX**: Every story must have ≥3 AC in Given/When/Then format with specific values.
 
 ### Anti-Pattern 2: "Sprint Overload"
@@ -360,14 +360,14 @@ Here's the sprint status. Things are going okay. We're working on some features.
 ## Story: E-11-S-01 — Action Guide Badge Display
 
 ### AC (Given/When/Then)
-1. Given a campaign with status 🔴 (critical)
-   When the user views the campaign list
+1. Given a {{project.example_entity}} with status 🔴 (critical)
+   When the user views the {{project.example_entity}} list
    Then an action guide badge appears next to the status badge
 2. Given an action guide badge is visible
    When the user taps the badge
    Then a bottom sheet opens with specific action steps within 300ms
-3. Given no campaigns have actionable status
-   When the user views the campaign list
+3. Given no {{project.example_entity_plural}} have actionable status
+   When the user views the {{project.example_entity}} list
    Then no action guide badges appear
 
 ### Definition of Done

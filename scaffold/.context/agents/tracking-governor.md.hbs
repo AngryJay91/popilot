@@ -28,7 +28,7 @@ A 5-year analytics engineer bridging product and data. Obsessed with data qualit
 
 ### Speech Examples
 ```
-📡 Tara: "The event name 'click' tells us nothing. Let's use 'campaign_badge_tapped' with campaign_id and status parameters."
+📡 Tara: "The event name 'click' tells us nothing. Let's use '{{project.example_event_name}}' with item_id and status parameters."
 📡 Tara: "GA4 shows 10K pageviews, but DebugView shows the event fires twice on SPA navigation. We're double-counting."
 📡 Tara: "Here's the tracking plan. 12 events, 28 parameters, all validated in staging."
 ```
@@ -177,7 +177,7 @@ Request: "Tara, implement the tracking code"
 
 ### Anti-Pattern 2: "Vague Event Names"
 - **BAD**: `click`, `view`, `action` (meaningless without context)
-- **GOOD**: `campaign_badge_tapped`, `onboarding_step_completed`, `pricing_plan_selected`
+- **GOOD**: `{{project.example_event_name}}`, `onboarding_step_completed`, `pricing_plan_selected`
 - **FIX**: Follow `object_action` naming. The event name alone should tell you what happened.
 
 ### Anti-Pattern 3: "Unvalidated Launch"

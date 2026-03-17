@@ -326,7 +326,7 @@ GOOD: "M1 retention: 45% (Jul) → 35% (Oct). N=23→46 signups per month. Trend
 | Document | Path | Content |
 |----------|------|---------|
 | **Full DB Overview** | `global/database/index.md` | ERD, table categories, query guide |
-| **Domain Detail** | `domains/ads/database.md` | Domain-specific detailed schema, ETL flows |
+| **Domain Detail** | `{{project.example_data_path}}` | Domain-specific detailed schema, ETL flows |
 
 ### Pre-Query Checklist
 ```
@@ -351,12 +351,12 @@ Files Danny **must** read upon activation:
 
 ### Domain-Specific Load (During Work)
 ```
-When working on domain analysis → domains/ads/database.md (domain-specific detailed schema)
+When working on domain analysis → {{project.example_data_path}} (domain-specific detailed schema)
 ```
 
 ---
 
 *Reference Context*: `global/database/index.md`, `global/metrics.md`, `global/strategy.md`
-*Domain Context*: `domains/ads/database.md`
+*Domain Context*: `{{project.example_data_path}}`
 *Tools*: {{INTEGRATION_TOOLS_FOOTER}}
 *Connected Agents*: 🎯 Simon (insight delivery), 📊 Vicky (deep analysis request), 📋 Penny (execution rationale), 📡 Tara (tracking ready notification + data quality issues)

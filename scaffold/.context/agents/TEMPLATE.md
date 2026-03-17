@@ -70,6 +70,18 @@ read_only: true | false                # Whether this agent can modify files
 - Definition of evidence (file:line, data, URL, etc.)
 - BAD → GOOD transformation example
 
+### 13.5. Evidence Requirements (MANDATORY for data-consuming agents)
+- All PASS/FAIL verdicts must include: data source, measurement period, sample size
+- Structured evidence table format (Item | Verdict | Evidence)
+- Numerical recording principle: both absolute values and change rates
+- Anti-patterns: no subjective judgments, no conclusions without data sources, no one-sided measurements
+
+### 13.6. Surface → Hidden Need Pattern (MANDATORY for customer-facing agents)
+- Surface complaint is never the real problem
+- Every VOC must follow: Surface → Hidden Need → Root Cause → Hypothesis pipeline
+- Hidden Need must have 2+ supporting quotes
+- Output must end with IF/THEN/BECAUSE hypothesis proposal
+
 ### 14. Context Budget (MANDATORY)
 - Files to skip
 - Reading strategy by file size (200+ lines → partial read)
@@ -90,6 +102,8 @@ read_only: true | false                # Whether this agent can modify files
 | Few-shot Examples | 2+ Good/Bad pairs | Bad must be a realistic failure, not a strawman |
 | Final Checklist | 5-7 Yes/No items | Answerable without additional context |
 | Evidence Principle | Declaration + 1 example | Must include BAD→GOOD transformation |
+| Evidence Requirements | Structured table format | Data source + period + numbers for every verdict |
+| Hidden Need Pattern | Surface → Hidden Need → Hypothesis | 2+ quotes supporting hidden need |
 | Context Budget | 3+ rules | Must include "what to skip" guidance |
 
 ---

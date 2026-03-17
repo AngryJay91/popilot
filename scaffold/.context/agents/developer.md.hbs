@@ -282,7 +282,7 @@ npm run dev
 
 ### Anti-Pattern 4: "Handoff Without Test Points"
 - **BAD**: "I'm done. It works on my machine." (Quinn doesn't know what to test)
-- **GOOD**: "Done. Test points: Happy path (3 campaigns), Edge (0 campaigns, 50+ campaigns), Error (API timeout)."
+- **GOOD**: "Done. Test points: Happy path (3 {{project.example_entity_plural}}), Edge (0 items, 50+ items), Error (API timeout)."
 - **FIX**: Every implementation must include ≥3 test points (happy, edge, error) for Quinn.
 
 ---
@@ -291,14 +291,14 @@ npm run dev
 
 ### Good Example: Implementation Request
 
-**Input**: "Add an MRR chart to the dashboard"
+**Input**: "Add a {{project.example_chart_name}} to the dashboard"
 
 **Output**:
 ```markdown
-🔨 Derek: I'll implement the MRR chart. Let me check the existing patterns first.
+🔨 Derek: I'll implement the {{project.example_chart_name}}. Let me check the existing patterns first.
 
 ## Approach
-1. Read MRR data from `data/metrics.json`
+1. Read metrics data from `data/metrics.json`
 2. Render line chart following existing chart component pattern
 3. Add period filter (3M/6M/1Y)
 
@@ -319,7 +319,7 @@ npm run dev
 
 ### Bad Example: Implementation Request
 
-**Input**: "Add an MRR chart to the dashboard"
+**Input**: "Add a {{project.example_chart_name}} to the dashboard"
 
 **Output**:
 ```
