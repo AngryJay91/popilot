@@ -1,0 +1,36 @@
+id: gemini
+name: "Gemini CLI"
+
+system_prompt:
+  source: "GEMINI.md.hbs"
+  target: "GEMINI.md"
+  hydration:
+    type: system
+    name: "GEMINI.md"
+
+commands:
+  dir: ".gemini/commands"
+  target_dir: ".gemini/commands"
+  hydration_map:
+    "analytics.md.hbs": analytics
+    "daily.md.hbs": daily
+    "dev.md.hbs": dev
+  domain_template: "_domain.md.hbs"
+
+detection_markers: [".gemini", "GEMINI.md"]
+
+doctor_checks:
+  - name: "System prompt exists (hydrated)"
+    file: "GEMINI.md"
+    no_hbs: true
+
+template_vars:
+  PLATFORM_NAME: "Gemini CLI"
+  SYSTEM_PROMPT_FILE: "GEMINI.md"
+  COMMAND_DIR: ".gemini/commands/"
+  COMMAND_PREFIX: "/"
+
+post_install:
+  steps:
+    - "Open Gemini CLI in this directory"
+    - "Type /start — Oscar will greet you"

@@ -171,10 +171,19 @@ async function cmdInit(targetDir, { skipSpecSite, force, platform }) {
   }
   console.log('  3. Oscar can run a deep interview to enrich your project context');
   console.log();
+  // Platform-aware file paths
+  let sysPromptName = 'CLAUDE.md';
+  let cmdDirName = '.claude/commands/';
+  try {
+    const m = await loadManifest(platform);
+    sysPromptName = m.system_prompt?.target || sysPromptName;
+    cmdDirName = m.commands?.target_dir || cmdDirName;
+  } catch {}
+
   console.log('  📁 Created:');
-  console.log('     CLAUDE.md              → System instructions (hydrated)');
+  console.log(`     ${sysPromptName.padEnd(20)} → System instructions (hydrated)`);
   console.log('     .context/project.yaml  → Project configuration');
-  console.log('     .claude/commands/      → Slash commands');
+  console.log(`     ${(cmdDirName + '/').replace(/\/\/$/, '/').padEnd(20)} → Slash commands`);
   console.log('     .context/agents/       → Agent personas (hydrated)');
   if (!skipSpecSite) {
     console.log('     spec-site/            → Interactive spec viewer (Vue3 + Vite)');

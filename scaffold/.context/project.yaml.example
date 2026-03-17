@@ -91,6 +91,12 @@ operations:
       enabled: false
       workspace_id: ""         # {{integrations.corti.workspace_id}}
       default_domain: ""       # {{integrations.corti.default_domain}}
+    turso_cf:
+      enabled: false
+    supabase:
+      enabled: false
+    sqlite_lambda:
+      enabled: false
 
   dev_scope:
     repo_name: ""              # {{dev_scope.repo_name}}

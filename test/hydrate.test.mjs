@@ -432,6 +432,16 @@ async function run() {
     assert.ok(adapters.includes('claude-code'), `Expected claude-code in ${adapters}`);
   });
 
+  await test('listAdapters returns codex', async () => {
+    const adapters = await listAdapters();
+    assert.ok(adapters.includes('codex'), `Expected codex in ${adapters}`);
+  });
+
+  await test('listAdapters returns gemini', async () => {
+    const adapters = await listAdapters();
+    assert.ok(adapters.includes('gemini'), `Expected gemini in ${adapters}`);
+  });
+
   await test('loadManifest parses claude-code manifest', async () => {
     const manifest = await loadManifest('claude-code');
     assert.equal(manifest.id, 'claude-code');
@@ -440,6 +450,22 @@ async function run() {
     assert.ok(manifest.template_vars, 'Missing template_vars');
     assert.equal(manifest.template_vars.SYSTEM_PROMPT_FILE, 'CLAUDE.md');
     assert.equal(manifest.template_vars.COMMAND_DIR, '.claude/commands/');
+  });
+
+  await test('loadManifest parses codex manifest', async () => {
+    const manifest = await loadManifest('codex');
+    assert.equal(manifest.id, 'codex');
+    assert.equal(manifest.system_prompt.target, 'AGENTS.md');
+    assert.equal(manifest.template_vars.PLATFORM_NAME, 'Codex CLI');
+    assert.equal(manifest.template_vars.COMMAND_DIR, '.codex/commands/');
+  });
+
+  await test('loadManifest parses gemini manifest', async () => {
+    const manifest = await loadManifest('gemini');
+    assert.equal(manifest.id, 'gemini');
+    assert.equal(manifest.system_prompt.target, 'GEMINI.md');
+    assert.equal(manifest.template_vars.PLATFORM_NAME, 'Gemini CLI');
+    assert.equal(manifest.template_vars.COMMAND_DIR, '.gemini/commands/');
   });
 
   // ── YAML parser tests ─────────────────────────────

@@ -1,0 +1,36 @@
+id: codex
+name: "OpenAI Codex"
+
+system_prompt:
+  source: "AGENTS.md.hbs"
+  target: "AGENTS.md"
+  hydration:
+    type: system
+    name: "AGENTS.md"
+
+commands:
+  dir: ".codex/commands"
+  target_dir: ".codex/commands"
+  hydration_map:
+    "analytics.md.hbs": analytics
+    "daily.md.hbs": daily
+    "dev.md.hbs": dev
+  domain_template: "_domain.md.hbs"
+
+detection_markers: [".codex", "AGENTS.md"]
+
+doctor_checks:
+  - name: "System prompt exists (hydrated)"
+    file: "AGENTS.md"
+    no_hbs: true
+
+template_vars:
+  PLATFORM_NAME: "Codex CLI"
+  SYSTEM_PROMPT_FILE: "AGENTS.md"
+  COMMAND_DIR: ".codex/commands/"
+  COMMAND_PREFIX: "/"
+
+post_install:
+  steps:
+    - "Open Codex CLI in this directory"
+    - "Type /start — Oscar will greet you"
