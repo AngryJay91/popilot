@@ -29,14 +29,70 @@ const routes = [
   // -- Tier 2: Board --
   {
     path: '/board',
+    redirect: () => `/board/${currentActiveSprint()}`,
+  },
+  {
+    path: '/board/backlog',
+    component: () => import('./pages/board/BoardPage.vue'),
+    meta: { title: 'Backlog' },
+    beforeEnter: featureGuard('board'),
+  },
+  {
+    path: '/board/:sprint',
     component: () => import('./pages/board/BoardPage.vue'),
     meta: { title: 'Board' },
+    beforeEnter: featureGuard('board'),
+  },
+
+  // -- Board Admin --
+  {
+    path: '/admin/board',
+    component: () => import('./pages/board/BoardAdmin.vue'),
+    meta: { title: 'Board Admin' },
+    beforeEnter: featureGuard('admin'),
+  },
+
+  // -- My Tasks --
+  {
+    path: '/my-tasks',
+    redirect: () => `/my-tasks/${currentActiveSprint()}`,
+  },
+  {
+    path: '/my-tasks/:sprint',
+    component: () => import('./pages/board/MyTasksPage.vue'),
+    meta: { title: 'My Tasks' },
+    beforeEnter: featureGuard('board'),
+  },
+
+  // -- Sprint Kickoff --
+  {
+    path: '/kickoff/new',
+    component: () => import('./pages/board/SprintKickoff.vue'),
+    meta: { title: 'Sprint Kickoff' },
+    beforeEnter: featureGuard('board'),
+  },
+  {
+    path: '/kickoff/:sprintId',
+    component: () => import('./pages/board/SprintKickoff.vue'),
+    meta: { title: 'Sprint Kickoff' },
+    beforeEnter: featureGuard('board'),
+  },
+
+  // -- Sprint Close --
+  {
+    path: '/close/:sprintId',
+    component: () => import('./pages/board/SprintClose.vue'),
+    meta: { title: 'Sprint Close' },
     beforeEnter: featureGuard('board'),
   },
 
   // -- Tier 2: Standup --
   {
     path: '/standup',
+    redirect: () => `/standup/${currentActiveSprint()}`,
+  },
+  {
+    path: '/standup/:sprint',
     component: () => import('./pages/standup/StandupPage.vue'),
     meta: { title: 'Standup' },
     beforeEnter: featureGuard('standup'),
@@ -56,6 +112,14 @@ const routes = [
     component: () => import('./pages/MyPage.vue'),
     meta: { title: 'My Page' },
     beforeEnter: featureGuard('my-page'),
+  },
+  {
+    path: '/me',
+    redirect: '/my',
+  },
+  {
+    path: '/my-page',
+    redirect: '/my',
   },
 
   // -- Tier 2: Admin --

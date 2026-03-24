@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import type { RetroItem, RetroPhase } from '@/composables/useRetro'
 
+const AUTHOR_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
+
+function authorColor(name: string): string {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return AUTHOR_COLORS[Math.abs(hash) % AUTHOR_COLORS.length]
+}
+
 const props = defineProps<{
   item: RetroItem
   phase: RetroPhase
@@ -15,10 +23,13 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="retro-card" :class="{ voted: item.hasVoted }">
+  <div class="retro-card" :class="{ voted: item.hasVoted, mine: item.author === currentUser }">
     <div class="card-content">{{ item.content }}</div>
     <div class="card-footer">
-      <span class="card-author">{{ item.author }}</span>
+      <div class="card-author-wrap">
+        <span class="card-author-dot" :style="{ background: authorColor(item.author) }">{{ item.author.charAt(0) }}</span>
+        <span class="card-author">{{ item.author }}</span>
+      </div>
       <div class="card-actions">
         <button
           v-if="phase === 'vote' || phase === 'discuss'"
@@ -71,10 +82,33 @@ const emit = defineEmits<{
   gap: 8px;
 }
 
+.card-author-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.card-author-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 .card-author {
   font-size: 12px;
   color: var(--text-muted);
   font-weight: 500;
+}
+
+.retro-card.mine {
+  border-left: 3px solid var(--primary);
 }
 
 .card-actions {

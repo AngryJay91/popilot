@@ -1,23 +1,40 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { RetroSession, RetroPhase } from '@/composables/useRetro'
 import { VOTES_PER_PERSON } from '@/composables/useRetro'
+
+const AUTHOR_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
+
 const props = defineProps<{
   session: RetroSession | null
   sprintId: string
-  currentUser: string | null
+  currentUser: string
   votesRemaining: number
   teamMembers: string[]
+  participants: string[]
+  itemCount?: number
 }>()
 
 const emit = defineEmits<{
   (e: 'phase-change', phase: RetroPhase): void
-  (e: 'select-user', name: string): void
   (e: 'reset'): void
   (e: 'export'): void
 }>()
 
-const userOpen = ref(false)
+function authorColor(name: string): string {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return AUTHOR_COLORS[Math.abs(hash) % AUTHOR_COLORS.length]
+}
+
+const participantList = computed(() =>
+  props.participants.map(name => ({
+    name,
+    initial: name.charAt(0),
+    color: authorColor(name),
+    isMe: name === props.currentUser,
+  }))
+)
 
 const PHASE_META: Record<RetroPhase, { label: string; next: string }> = {
   write: { label: 'Writing', next: 'Start Voting' },
@@ -36,17 +53,17 @@ function prevPhase() {
 
 function nextPhase() {
   if (!props.session) return
+  // write -> vote: require at least 1 card
+  if (props.session.phase === 'write' && (props.itemCount ?? 0) === 0) {
+    alert('Add at least one card before starting the vote.')
+    return
+  }
   const idx = PHASE_ORDER.indexOf(props.session.phase)
   if (idx < PHASE_ORDER.length - 1) emit('phase-change', PHASE_ORDER[idx + 1])
 }
 
 function phase(): RetroPhase {
   return props.session?.phase ?? 'write'
-}
-
-function selectMember(name: string) {
-  emit('select-user', name)
-  userOpen.value = false
 }
 
 const menuOpen = ref(false)
@@ -76,30 +93,33 @@ function handleExport() {
       </span>
     </div>
     <div class="rh-right">
-      <!-- User selector -->
-      <div class="rh-user-wrap">
-        <button class="rh-user-btn" @click.stop="userOpen = !userOpen">
-          {{ currentUser ?? 'Select name' }}
-          <span class="rh-chevron">&#9662;</span>
-        </button>
-        <div v-if="userOpen" class="rh-user-menu">
-          <div
-            v-for="m in teamMembers"
-            :key="m"
-            class="rh-user-item"
-            :class="{ active: m === currentUser }"
-            @click="selectMember(m)"
-          >
-            {{ m }}
-          </div>
+      <!-- Participants -->
+      <div class="rh-participants">
+        <div
+          v-for="p in participantList"
+          :key="p.name"
+          class="rh-avatar"
+          :class="{ 'rh-avatar--me': p.isMe }"
+          :style="{ background: p.color }"
+          :title="p.name + (p.isMe ? ' (me)' : '')"
+        >
+          {{ p.initial }}
         </div>
+        <span v-if="participantList.length === 0" class="rh-no-participants">No participants yet</span>
+        <span v-else class="rh-participant-count">{{ participantList.length }} joined</span>
+      </div>
+
+      <!-- Current user badge -->
+      <div v-if="currentUser" class="rh-me-badge">
+        <span class="rh-me-dot" :style="{ background: authorColor(currentUser) }" />
+        {{ currentUser }}
       </div>
 
       <!-- Phase controls -->
       <button v-if="phase() !== 'write'" class="rh-prev" @click="prevPhase">
         &larr; Prev
       </button>
-      <button v-if="phase() !== 'done'" class="rh-next" @click="nextPhase">
+      <button v-if="phase() !== 'done'" class="rh-next" :disabled="phase() === 'write' && (itemCount ?? 0) === 0" @click="nextPhase">
         {{ PHASE_META[phase()].next }} &rarr;
       </button>
 
@@ -159,54 +179,51 @@ function handleExport() {
   gap: 8px;
 }
 
-/* -- User dropdown -- */
-.rh-user-wrap { position: relative; }
-
-.rh-user-btn {
+/* -- Participants -- */
+.rh-participants {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+}
+
+.rh-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 2px solid transparent;
+  transition: transform 0.15s;
+}
+.rh-avatar:hover { transform: scale(1.15); }
+.rh-avatar--me { border-color: var(--primary); box-shadow: 0 0 0 1px #fff; }
+
+.rh-no-participants { font-size: 12px; color: var(--text-muted); }
+.rh-participant-count { font-size: 11px; color: var(--text-muted); margin-left: 2px; }
+
+.rh-me-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: #fff;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font-sans);
-  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-primary);
-  transition: all 0.15s;
 }
-.rh-user-btn:hover { background: var(--bg); }
-
-.rh-chevron {
-  font-size: 10px;
-  color: var(--text-muted);
+.rh-me-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
-
-.rh-user-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  min-width: 120px;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: var(--shadow-md);
-  padding: 4px;
-  z-index: 100;
-}
-
-.rh-user-item {
-  padding: 6px 12px;
-  font-size: 13px;
-  border-radius: 6px;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: all 0.1s;
-}
-.rh-user-item:hover { background: var(--bg); color: var(--text-primary); }
-.rh-user-item.active { color: var(--primary); font-weight: 600; }
 
 /* -- Phase buttons -- */
 .rh-prev {
@@ -217,7 +234,6 @@ function handleExport() {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  font-family: var(--font-sans);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -231,11 +247,11 @@ function handleExport() {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-sans);
   cursor: pointer;
   transition: opacity 0.15s;
 }
 .rh-next:hover { opacity: 0.9; }
+.rh-next:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* -- More menu -- */
 .rh-menu-wrap { position: relative; }

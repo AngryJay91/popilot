@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { sprints, getActiveSprint, type SprintConfig } from '../composables/useNavStore'
-import { getNavItems } from '@/features'
+import { getNavItems, isFeatureEnabled } from '@/features'
 import { useAuth } from '@/composables/useAuth'
 import { useTheme } from '@/composables/useTheme'
 import { useMediaQuery } from '@/composables/useMediaQuery'
@@ -30,8 +30,16 @@ const activeSprintLabel = computed(() => {
   return s?.label ?? currentSprint.value.toUpperCase()
 })
 
+// Sprint-level page detection
+const isBoardPage = computed(() => route.path.startsWith('/board') && route.path !== '/board/backlog')
+const isBacklogPage = computed(() => route.path === '/board/backlog')
+const isStandupPage = computed(() => route.path.startsWith('/standup'))
+const isRetroPage = computed(() => route.path.startsWith('/retro'))
+const isMyTasksPage = computed(() => route.path.startsWith('/my-tasks'))
+
 // Dropdown state
 const sprintOpen = ref(false)
+const sprintMenuOpen = ref(false)
 const mobileMenuOpen = ref(false)
 const userMenuOpen = ref(false)
 const notifOpen = ref(false)
@@ -43,7 +51,18 @@ function toggleSprint() {
 
 function selectSprint(s: SprintConfig) {
   sprintOpen.value = false
-  router.push(`${route.path.replace(/\/[^/]+$/, '')}/${s.id}`)
+  if (isBoardPage.value) {
+    router.push(`/board/${s.id}`)
+  } else if (isStandupPage.value) {
+    router.push(`/standup/${s.id}`)
+  } else if (isRetroPage.value) {
+    router.push(`/retro/${s.id}`)
+  } else if (isMyTasksPage.value) {
+    router.push(`/my-tasks/${s.id}`)
+  } else {
+    const basePath = route.path.replace(/\/[^/]+$/, '')
+    router.push(`${basePath}/${s.id}`)
+  }
 }
 
 function goHome() {
@@ -71,6 +90,7 @@ function handleLogout() {
 
 function navigateTo(path: string) {
   mobileMenuOpen.value = false
+  sprintMenuOpen.value = false
   router.push(path)
 }
 
@@ -114,6 +134,7 @@ function onDocClick(e: MouseEvent) {
   if (!target.closest('.dropdown')) sprintOpen.value = false
   if (!target.closest('.user-menu')) userMenuOpen.value = false
   if (!target.closest('.notification-bell')) notifOpen.value = false
+  if (!target.closest('.sprint-dropdown')) sprintMenuOpen.value = false
 }
 
 onMounted(() => {
@@ -154,8 +175,35 @@ onUnmounted(() => {
 
       <!-- Desktop navigation -->
       <nav v-if="!isMobile" class="page-tabs">
+        <!-- Sprint dropdown -->
+        <div v-if="isFeatureEnabled('board')" class="sprint-dropdown">
+          <button
+            class="page-tab"
+            :class="{ active: route.path === '/' || isBoardPage || isBacklogPage || isStandupPage || isRetroPage || isMyTasksPage }"
+            @click.stop="sprintMenuOpen = !sprintMenuOpen"
+          >
+            Sprint &#9662;
+          </button>
+          <div v-if="sprintMenuOpen" class="sprint-dropdown-menu">
+            <div class="dropdown-item" @click="navigateTo('/')">Dashboard</div>
+            <div class="dropdown-item" @click="navigateTo(`/board/${currentSprint}`)">Board</div>
+            <div class="dropdown-item" @click="navigateTo(`/standup/${currentSprint}`)">Standup</div>
+            <div class="dropdown-item" @click="navigateTo(`/retro/${currentSprint}`)">Retro</div>
+            <div class="menu-divider" />
+            <div class="dropdown-item" @click="navigateTo(`/board/${currentSprint}?view=timeline`)">Timeline</div>
+            <div class="dropdown-item" @click="navigateTo(`/board/${currentSprint}?view=roadmap`)">Roadmap</div>
+            <div class="dropdown-item" @click="navigateTo('/board/backlog')">Backlog</div>
+            <div class="dropdown-item" @click="navigateTo(`/my-tasks/${currentSprint}`)">My Tasks</div>
+            <div class="menu-divider" />
+            <div class="dropdown-item" @click="navigateTo('/kickoff/new')">New Sprint Kickoff</div>
+            <div class="dropdown-item" @click="navigateTo(`/close/${currentSprint}`)">Close Sprint</div>
+            <div class="dropdown-item" @click="navigateTo('/admin/board')">Board Admin</div>
+          </div>
+        </div>
+
+        <!-- Other nav items (excluding board/standup/retro which are in sprint dropdown) -->
         <router-link
-          v-for="item in navItems"
+          v-for="item in navItems.filter(n => !['board', 'standup', 'retro', 'dashboard'].includes(n.id))"
           :key="item.id"
           :to="item.path"
           class="page-tab"
@@ -232,7 +280,7 @@ onUnmounted(() => {
           <span v-if="!isMobile" class="user-name">{{ authUser }}</span>
         </button>
         <div v-if="userMenuOpen" class="dropdown-menu user-dropdown">
-          <div class="dropdown-item" @click="navigateTo('/my-page')">My Page</div>
+          <div class="dropdown-item" @click="navigateTo('/my')">My Page</div>
           <div class="dropdown-item" @click="handleLogout">Log out</div>
         </div>
       </div>
@@ -243,8 +291,21 @@ onUnmounted(() => {
   <Teleport to="body">
     <div v-if="isMobile && mobileMenuOpen" class="mobile-overlay" @click="mobileMenuOpen = false">
       <nav class="mobile-drawer" @click.stop>
+        <!-- Sprint section -->
+        <div class="mobile-section-label">Sprint</div>
+        <div class="mobile-nav-item" @click="navigateTo('/')">Dashboard</div>
+        <div class="mobile-nav-item" @click="navigateTo(`/board/${currentSprint}`)">Board</div>
+        <div class="mobile-nav-item" @click="navigateTo(`/standup/${currentSprint}`)">Standup</div>
+        <div class="mobile-nav-item" @click="navigateTo(`/retro/${currentSprint}`)">Retro</div>
+        <div class="mobile-nav-item" @click="navigateTo(`/my-tasks/${currentSprint}`)">My Tasks</div>
+        <div class="mobile-nav-item" @click="navigateTo('/board/backlog')">Backlog</div>
+        <div class="mobile-nav-item" @click="navigateTo('/kickoff/new')">Sprint Kickoff</div>
+
+        <div class="mobile-divider" />
+
+        <!-- Other nav items -->
         <router-link
-          v-for="item in navItems"
+          v-for="item in navItems.filter(n => !['board', 'standup', 'retro', 'dashboard'].includes(n.id))"
           :key="item.id"
           :to="item.path"
           class="mobile-nav-item"
@@ -253,6 +314,11 @@ onUnmounted(() => {
         >
           {{ item.label }}
         </router-link>
+
+        <template v-if="isAuthenticated">
+          <div class="mobile-divider" />
+          <div class="mobile-nav-item" @click="navigateTo('/my')">My Page</div>
+        </template>
       </nav>
     </div>
   </Teleport>
@@ -264,8 +330,10 @@ onUnmounted(() => {
 <style scoped>
 .app-header {
   height: var(--header-height);
-  background: #fff;
-  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.60);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -273,6 +341,8 @@ onUnmounted(() => {
   flex-shrink: 0;
   gap: 8px;
   z-index: 500;
+  position: sticky;
+  top: 0;
 }
 
 /* ---- Left section ---- */
@@ -335,17 +405,56 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
+  border: none;
   border-radius: 6px;
+  background: none;
   cursor: pointer;
   transition: all 0.15s;
   text-decoration: none;
   white-space: nowrap;
+  font-family: inherit;
 }
 .page-tab:hover { background: var(--bg); color: var(--text-primary); }
 .page-tab.active {
   background: var(--primary-light);
   color: var(--primary);
   font-weight: 600;
+}
+
+/* ---- Sprint dropdown ---- */
+.sprint-dropdown { position: relative; }
+.sprint-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.45);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  min-width: 180px;
+  padding: 4px;
+  margin-top: 4px;
+}
+.sprint-dropdown-menu .dropdown-item {
+  display: block;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.sprint-dropdown-menu .dropdown-item:hover {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+.menu-divider {
+  height: 1px;
+  background: rgba(0,0,0,0.06);
+  margin: 4px 8px;
 }
 
 /* ---- Right section ---- */
@@ -422,8 +531,10 @@ onUnmounted(() => {
   top: calc(100% + 4px);
   right: 0;
   min-width: 200px;
-  background: #fff;
-  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.45);
   border-radius: 8px;
   box-shadow: var(--shadow-md);
   padding: 4px;
@@ -522,7 +633,9 @@ onUnmounted(() => {
   left: 0;
   width: 260px;
   height: 100%;
-  background: #fff;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
   box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
   padding: 8px;
   display: flex;
@@ -540,11 +653,27 @@ onUnmounted(() => {
   border-radius: 8px;
   text-decoration: none;
   transition: all 0.15s;
+  cursor: pointer;
 }
 .mobile-nav-item:hover { background: var(--bg); color: var(--text-primary); }
 .mobile-nav-item.active {
   background: var(--primary-light);
   color: var(--primary);
   font-weight: 600;
+}
+
+.mobile-section-label {
+  padding: 8px 16px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mobile-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 12px;
 }
 </style>

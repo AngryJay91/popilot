@@ -1,26 +1,32 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useUser } from '@/composables/useUser'
 import { useRetro } from '@/composables/useRetro'
 import { getActiveSprint } from '@/composables/useNavStore'
+import { apiPost } from '@/api/client'
 import RetroHeader from './RetroHeader.vue'
 import RetroBoard from './RetroBoard.vue'
 import RetroActions from './RetroActions.vue'
 
 const route = useRoute()
+const router = useRouter()
 const sprintId = (route.params.sprint as string) || getActiveSprint().id
 
-const { currentUser, setUser, TEAM_MEMBERS } = useUser()
+async function completeAndKickoff() {
+  await apiPost(`/api/v2/retro/${sprintId}/complete`, {})
+  router.push('/kickoff/new')
+}
+
+const { currentUser, dynamicMembers, loadMembers } = useUser()
 const retro = useRetro(sprintId)
 
-onMounted(async () => {
-  await retro.loadOrCreateSession()
-  retro.startPolling(currentUser.value ?? '')
-})
+const userName = computed(() => currentUser.value ?? localStorage.getItem('retro-user-name') ?? '')
 
-watch(currentUser, (nextUser) => {
-  retro.startPolling(nextUser ?? '')
+onMounted(async () => {
+  loadMembers()
+  await retro.loadOrCreateSession()
+  retro.startPolling(userName.value)
 })
 
 function handleExport() {
@@ -37,11 +43,12 @@ function handleExport() {
     <RetroHeader
       :session="retro.session.value"
       :sprint-id="sprintId"
-      :current-user="currentUser"
+      :current-user="userName"
       :votes-remaining="retro.votesRemaining.value"
-      :team-members="[...TEAM_MEMBERS]"
+      :team-members="dynamicMembers"
+      :participants="retro.participants.value"
+      :item-count="retro.items.value.length"
       @phase-change="retro.setPhase"
-      @select-user="setUser"
       @reset="retro.resetSession"
       @export="handleExport"
     />
@@ -64,21 +71,28 @@ function handleExport() {
         :problem-items="retro.problemItems.value"
         :try-items="retro.tryItems.value"
         :phase="retro.session.value.phase"
-        :current-user="currentUser ?? ''"
+        :current-user="userName"
         :votes-remaining="retro.votesRemaining.value"
         @add-item="retro.addItem"
-        @delete-item="(id) => retro.deleteItem(id, currentUser ?? '')"
-        @toggle-vote="(id, hasVoted) => retro.toggleVote(id, currentUser ?? '', hasVoted)"
+        @delete-item="(id) => retro.deleteItem(id, userName)"
+        @toggle-vote="(id, hasVoted) => retro.toggleVote(id, userName, hasVoted)"
       />
 
       <div v-if="retro.session.value?.phase === 'done'" class="retro-done">
-        <div class="done-banner">Retro completed</div>
+        <div class="done-banner">
+          Retrospective completed
+          <div class="done-actions">
+            <button class="btn btn--primary" @click="completeAndKickoff">
+              Next Sprint Kickoff &rarr;
+            </button>
+          </div>
+        </div>
         <RetroBoard
           :keep-items="retro.keepItems.value"
           :problem-items="retro.problemItems.value"
           :try-items="retro.tryItems.value"
           phase="discuss"
-          :current-user="currentUser ?? ''"
+          :current-user="userName"
           :votes-remaining="0"
           @add-item="() => {}"
           @delete-item="() => {}"
@@ -92,7 +106,7 @@ function handleExport() {
           retro.session.value?.phase === 'done'
         "
         :actions="retro.actions.value"
-        :team-members="[...TEAM_MEMBERS]"
+        :team-members="dynamicMembers"
         :readonly="retro.session.value?.phase === 'done'"
         @add-action="retro.addAction"
         @toggle-status="retro.toggleActionStatus"
@@ -155,7 +169,6 @@ function handleExport() {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-sans);
   cursor: pointer;
 }
 
@@ -175,4 +188,20 @@ function handleExport() {
   font-size: 14px;
   border-bottom: 1px solid var(--green-border);
 }
+.done-actions {
+  margin-top: 8px;
+}
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn--primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn--primary:hover { opacity: 0.9; }
 </style>

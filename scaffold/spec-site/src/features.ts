@@ -101,6 +101,7 @@ export function getNavItems(): NavItem[] {
     { id: 'specs', label: 'Specs', path: '/specs', icon: '📐' },
     { id: 'docs', label: 'Docs', path: '/docs', icon: '📄' },
     { id: 'meetings', label: 'Meetings', path: '/meetings', icon: '🗓️' },
+    { id: 'rewards', label: 'Rewards', path: '/rewards', icon: '🏆' },
     { id: 'admin', label: 'Admin', path: '/admin', icon: '⚙️' },
   ]
   return items.filter(item => isFeatureEnabled(item.id))

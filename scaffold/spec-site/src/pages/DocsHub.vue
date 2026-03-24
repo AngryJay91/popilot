@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { apiGet } from '@/api/client'
+import { apiGet, isStaticMode } from '@/api/client'
 
 interface DocEntry {
   id: number
@@ -31,6 +31,7 @@ function toggleExpand(id: number) {
 }
 
 onMounted(async () => {
+  if (isStaticMode()) { loading.value = false; return }
   const { data, error: err } = await apiGet<DocsData>('/api/v2/docs')
   if (err) {
     error.value = err
