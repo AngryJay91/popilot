@@ -20,13 +20,13 @@ const sprint = computed(() => route.params.sprint as string)
 
 const myStories = computed(() => {
   if (!currentUser.value) return []
-  return getMyStories(currentUser.value).filter(s => s.sprint === sprint.value)
+  return getMyStories(currentUser.value).filter((s: PmStory) => s.sprint === sprint.value)
 })
 
 const myTasks = computed(() => {
   if (!currentUser.value) return []
-  return getMyTasks(currentUser.value).filter(t => {
-    const story = stories.value.find(s => s.id === t.storyId)
+  return getMyTasks(currentUser.value).filter((t: PmTask) => {
+    const story = stories.value.find((s: PmStory) => s.id === t.storyId)
     return story && story.sprint === sprint.value
   })
 })

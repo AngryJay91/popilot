@@ -142,7 +142,8 @@ export async function updateStory(id: number, data: {
   area?: string
   storyPoints?: number | null
   epicId?: number | null
-  sprint?: string
+  sprint?: string | null
+  figmaUrl?: string | null
 }): Promise<{ error?: string }> {
   if (isStaticMode()) return { error: 'CRUD not available in static mode' }
   const { error } = await apiPatch(`/api/v2/pm/stories/${id}`, data as Record<string, unknown>)
@@ -221,4 +222,50 @@ export function getEpicById(id: number): PmEpic | undefined {
 
 export function getTasksForStory(storyId: number): PmTask[] {
   return tasks.value.filter(t => t.storyId === storyId)
+}
+
+export function getBacklogStories(): PmStory[] {
+  return stories.value.filter(s => s.status === 'backlog')
+}
+
+export function getMyStories(user: string): PmStory[] {
+  return stories.value.filter(s => s.assignee === user)
+}
+
+export function getMyTasks(user: string): PmTask[] {
+  return tasks.value.filter(t => t.assignee === user)
+}
+
+export async function updateStoryStatus(id: number, status: StoryStatus): Promise<{ error?: string }> {
+  return updateStory(id, { status })
+}
+
+export async function updateTaskStatus(id: number, status: TaskStatus): Promise<{ error?: string }> {
+  return updateTask(id, { status })
+}
+
+export async function moveToSprint(storyId: number, sprint: string | null): Promise<{ error?: string }> {
+  return updateStory(storyId, { sprint })
+}
+
+export async function loadBacklog(): Promise<void> {
+  if (isStaticMode()) return
+  const { data, error } = await apiGet<{ stories: PmStoryRow[]; tasks: PmTaskRow[] }>(
+    '/api/v2/pm/data', { status: 'backlog' },
+  )
+  if (!error && data) {
+    // Merge backlog stories into existing list (avoid duplicates)
+    const existingIds = new Set(stories.value.map(s => s.id))
+    for (const row of data.stories) {
+      if (!existingIds.has(row.id)) {
+        stories.value.push(mapStory(row))
+      }
+    }
+    const existingTaskIds = new Set(tasks.value.map(t => t.id))
+    for (const row of data.tasks) {
+      if (!existingTaskIds.has(row.id)) {
+        tasks.value.push(mapTask(row))
+      }
+    }
+  }
 }

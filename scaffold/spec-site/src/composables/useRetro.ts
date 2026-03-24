@@ -372,6 +372,11 @@ export function useRetro(sprintId: string) {
 
   onUnmounted(stopPolling)
 
+  const participants = computed(() => {
+    const authors = new Set(items.value.map(i => i.author))
+    return Array.from(authors).sort()
+  })
+
   return {
     session,
     items,
@@ -383,6 +388,7 @@ export function useRetro(sprintId: string) {
     tryItems,
     myVoteCount,
     votesRemaining,
+    participants,
     loadOrCreateSession,
     setPhase,
     addItem,

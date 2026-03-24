@@ -28,7 +28,7 @@ const members = computed(() => {
 const standupNotWritten = computed(() => {
   if (!dashboard.standupStatus.value) return []
   const written = new Set(dashboard.standupStatus.value.written)
-  return members.value.filter(m => !written.has(m))
+  return members.value.filter((m: string) => !written.has(m))
 })
 
 function formatTime(ts: string): string {

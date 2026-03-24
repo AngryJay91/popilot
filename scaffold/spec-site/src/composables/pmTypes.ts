@@ -4,7 +4,7 @@
 
 // ── Domain types ──
 
-export type StoryStatus = 'draft' | 'backlog' | 'ready' | 'in-progress' | 'review' | 'done'
+export type StoryStatus = 'draft' | 'backlog' | 'ready' | 'in-progress' | 'review' | 'qa' | 'done'
 export type TaskStatus = 'todo' | 'in-progress' | 'done'
 export type Priority = 'low' | 'medium' | 'high' | 'critical'
 export type EpicStatus = 'active' | 'completed' | 'archived'
@@ -31,6 +31,10 @@ export interface PmStory {
   priority: Priority
   area: string
   storyPoints: number | null
+  startDate: string | null
+  dueDate: string | null
+  figmaUrl: string | null
+  relatedPrs: Array<{ prNumber: number; prUrl: string; prTitle: string; status: string }>
   sortOrder: number
   createdAt: string
   updatedAt: string
@@ -43,6 +47,8 @@ export interface PmTask {
   assignee: string | null
   status: TaskStatus
   description: string | null
+  storyPoints: number | null
+  dueDate: string | null
   sortOrder: number
   createdAt: string
   updatedAt: string
@@ -77,6 +83,10 @@ export function mapStory(r: PmStoryRow): PmStory {
     priority: (r.priority ?? 'medium') as Priority,
     area: r.area ?? 'FE',
     storyPoints: r.story_points,
+    startDate: r.start_date ?? null,
+    dueDate: r.due_date ?? null,
+    figmaUrl: r.figma_url ?? null,
+    relatedPrs: r.related_prs ? JSON.parse(r.related_prs) : [],
     sortOrder: r.sort_order,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
@@ -91,6 +101,8 @@ export function mapTask(r: PmTaskRow): PmTask {
     assignee: r.assignee,
     status: r.status as TaskStatus,
     description: r.description,
+    storyPoints: r.story_points ?? null,
+    dueDate: r.due_date ?? null,
     sortOrder: r.sort_order,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
@@ -99,7 +111,7 @@ export function mapTask(r: PmTaskRow): PmTask {
 
 // ── Status constants ──
 
-export const STORY_STATUSES: StoryStatus[] = ['draft', 'backlog', 'ready', 'in-progress', 'review', 'done']
+export const STORY_STATUSES: StoryStatus[] = ['draft', 'backlog', 'ready', 'in-progress', 'review', 'qa', 'done']
 export const TASK_STATUSES: TaskStatus[] = ['todo', 'in-progress', 'done']
 export const PRIORITIES: Priority[] = ['low', 'medium', 'high', 'critical']
 export const AREAS = ['FE', 'BE', 'Design', 'Data', 'Infra', 'PO'] as const
@@ -111,6 +123,7 @@ export const STORY_STATUS_LABELS: Record<StoryStatus, string> = {
   'ready': 'Ready',
   'in-progress': 'In Progress',
   'review': 'Review',
+  'qa': 'QA',
   'done': 'Done',
 }
 

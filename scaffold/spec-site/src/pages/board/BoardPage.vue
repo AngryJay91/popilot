@@ -53,11 +53,11 @@ const isBacklog = computed(() => sprint.value === 'backlog')
 
 // Timeline view
 const timelineStories = computed(() =>
-  sprintStories.value.filter(s => s.startDate || s.dueDate)
+  sprintStories.value.filter((s: PmStory) => s.startDate || s.dueDate)
 )
 
 const sprintRange = computed(() => {
-  const dates = timelineStories.value.flatMap(s => [s.startDate, s.dueDate].filter(Boolean) as string[])
+  const dates = timelineStories.value.flatMap((s: PmStory) => [s.startDate, s.dueDate].filter(Boolean) as string[])
   if (!dates.length) return { start: new Date(), end: new Date() }
   const sorted = dates.sort()
   return { start: new Date(sorted[0]), end: new Date(sorted[sorted.length - 1]) }
@@ -147,12 +147,12 @@ function toggleEpicExpand(id: number) {
 }
 
 function epicStories(epicId: number) {
-  return sprintStories.value.filter(s => s.epicId === epicId)
+  return sprintStories.value.filter((s: PmStory) => s.epicId === epicId)
 }
-function epicDoneCount(epicId: number) { return epicStories(epicId).filter(s => s.status === 'done').length }
+function epicDoneCount(epicId: number) { return epicStories(epicId).filter((s: PmStory) => s.status === 'done').length }
 function epicTotalCount(epicId: number) { return epicStories(epicId).length }
-function epicDoneSP(epicId: number) { return epicStories(epicId).filter(s => s.status === 'done').reduce((sum, s) => sum + (s.storyPoints ?? 0), 0) }
-function epicTotalSP(epicId: number) { return epicStories(epicId).reduce((sum, s) => sum + (s.storyPoints ?? 0), 0) }
+function epicDoneSP(epicId: number) { return epicStories(epicId).filter((s: PmStory) => s.status === 'done').reduce((sum: number, s: PmStory) => sum + (s.storyPoints ?? 0), 0) }
+function epicTotalSP(epicId: number) { return epicStories(epicId).reduce((sum: number, s: PmStory) => sum + (s.storyPoints ?? 0), 0) }
 function epicProgress(epicId: number) {
   const total = epicTotalCount(epicId)
   return total ? Math.round((epicDoneCount(epicId) / total) * 100) : 0
@@ -199,7 +199,7 @@ const kanbanColumns = computed(() => {
     cols.push({
       status,
       label: STORY_STATUS_LABELS[status],
-      stories: sprintStories.value.filter(s => s.status === status),
+      stories: sprintStories.value.filter((s: PmStory) => s.status === status),
     })
   }
   return cols
@@ -210,16 +210,16 @@ const statsSummary = computed(() => {
   const all = sprintStories.value
   return {
     total: all.length,
-    done: all.filter(s => s.status === 'done').length,
-    inProgress: all.filter(s => s.status === 'in-progress').length,
-    review: all.filter(s => s.status === 'review').length,
+    done: all.filter((s: PmStory) => s.status === 'done').length,
+    inProgress: all.filter((s: PmStory) => s.status === 'in-progress').length,
+    review: all.filter((s: PmStory) => s.status === 'review').length,
   }
 })
 
 async function refresh() {
   await loadPmData(isBacklog.value ? 'backlog' : sprint.value)
   if (selectedStory.value) {
-    const fresh = stories.value.find(s => s.id === selectedStory.value!.id)
+    const fresh = stories.value.find((s: PmStory) => s.id === selectedStory.value!.id)
     if (fresh) selectedStory.value = fresh
   }
 }
@@ -273,7 +273,7 @@ async function onDrop(e: DragEvent, targetStatus: StoryStatus) {
   dragStoryId.value = null
   if (!storyId) return
 
-  const story = stories.value.find(s => s.id === storyId)
+  const story = stories.value.find((s: PmStory) => s.id === storyId)
   if (!story || story.status === targetStatus) return
 
   // optimistic update

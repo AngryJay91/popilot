@@ -122,6 +122,10 @@ export interface PmStoryRow {
   priority: string
   area: string
   story_points: number | null
+  start_date: string | null
+  due_date: string | null
+  figma_url: string | null
+  related_prs: string | null
   sort_order: number
   created_at: string
   updated_at: string
@@ -134,6 +138,8 @@ export interface PmTaskRow {
   assignee: string | null
   status: string
   description: string | null
+  story_points: number | null
+  due_date: string | null
   sort_order: number
   created_at: string
   updated_at: string

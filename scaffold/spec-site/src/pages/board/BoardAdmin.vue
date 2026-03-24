@@ -98,7 +98,7 @@ async function handleAddStory() {
 
 // Story edit
 const editingStory = ref<number | null>(null)
-const editStoryData = ref({ title: '', description: '', acceptanceCriteria: '', assignee: '', status: 'draft' as StoryStatus, priority: 'medium' as Priority, area: 'FE', storyPoints: '' as string, epicId: null as number | null, sprint: '' as string | null })
+const editStoryData = ref({ title: '', description: '', acceptanceCriteria: '', assignee: '', status: 'draft' as StoryStatus, priority: 'medium' as Priority, area: 'FE', storyPoints: '' as string, epicId: null as number | null, sprint: '' as string | undefined })
 
 function startEditStory(s: PmStory) {
   editingStory.value = s.id
