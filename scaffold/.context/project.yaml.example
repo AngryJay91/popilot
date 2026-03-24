@@ -103,8 +103,27 @@ operations:
     service_repo: ""           # {{dev_scope.service_repo}}
 
   spec_site:
+    enabled: false
+    mode: "static"             # static | interactive
     title: ""                  # {{spec_site.title}}
     deploy_url: ""             # {{spec_site.deploy_url}}
+    backend: ""
+
+  # PM API Backend (Tier 2 — Full interactive mode)
+  pm_api:
+    enabled: false
+    url: ""                    # PM API URL (e.g. https://pm-api.your-domain.workers.dev)
+    features:
+      rewards: false
+      meetings: true
+      docs: true
+      initiatives: true
+    blockchain:
+      enabled: false
+      provider: ""             # tron | (future: eth, solana)
+      token_name: ""
+      contract_address: ""
+      token_decimals: 8
 
 # ============================================================
 # Metadata

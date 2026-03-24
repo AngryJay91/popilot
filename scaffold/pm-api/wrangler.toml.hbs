@@ -1,0 +1,11 @@
+name = "{{project.name}}-pm-api"
+main = "src/index.ts"
+compatibility_date = "2025-03-10"
+
+# Database credentials: npx wrangler secret put TURSO_URL && npx wrangler secret put TURSO_AUTH_TOKEN
+
+# Proactive Nudge schedule (UTC)
+# 01:00 UTC: Morning check — review_overdue, sprint_deadline, task_stagnant, blocker_open
+# 08:00 UTC: Afternoon check — all rules + standup_missing, sprint_daily_report
+[triggers]
+crons = ["0 1 * * *", "0 8 * * *"]

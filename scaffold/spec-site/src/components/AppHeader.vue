@@ -2,12 +2,27 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { sprints, getActiveSprint, type SprintConfig } from '../composables/useNavStore'
-import { featurePages } from '../data/navigation'
+import { getNavItems } from '@/features'
+import { useAuth } from '@/composables/useAuth'
+import { useTheme } from '@/composables/useTheme'
+import { useMediaQuery } from '@/composables/useMediaQuery'
+import { useNotification, type NotificationItem, shouldOpenMemoSidebar, pendingNotificationPageId } from '@/composables/useNotification'
+import NotificationDropdown from './NotificationDropdown.vue'
+import SearchModal from './SearchModal.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { isAuthenticated, authUser, logout } = useAuth()
+const { theme, toggle: toggleTheme } = useTheme()
+const isMobile = useMediaQuery('(max-width: 767px)')
 
-const currentPageId = computed(() => (route.params.pageId as string) || '')
+const {
+  notifications, unreadCount,
+  markAsRead, markAllAsRead,
+  startPolling, stopPolling,
+} = useNotification()
+
+const navItems = computed(() => getNavItems())
 const currentSprint = computed(() => (route.params.sprint as string) || getActiveSprint().id)
 
 const activeSprintLabel = computed(() => {
@@ -15,11 +30,12 @@ const activeSprintLabel = computed(() => {
   return s?.label ?? currentSprint.value.toUpperCase()
 })
 
-const isPolicyPage = computed(() => route.path.startsWith('/policy'))
-const isRetroPage = computed(() => route.path.startsWith('/retro'))
-
 // Dropdown state
 const sprintOpen = ref(false)
+const mobileMenuOpen = ref(false)
+const userMenuOpen = ref(false)
+const notifOpen = ref(false)
+const searchVisible = ref(false)
 
 function toggleSprint() {
   sprintOpen.value = !sprintOpen.value
@@ -27,57 +43,168 @@ function toggleSprint() {
 
 function selectSprint(s: SprintConfig) {
   sprintOpen.value = false
-  if (isPolicyPage.value) {
-    router.push(`/policy/${s.id}`)
-  } else if (isRetroPage.value) {
-    router.push(`/retro/${s.id}`)
-  } else {
-    router.push(`/${currentPageId.value}/${s.id}`)
-  }
+  router.push(`${route.path.replace(/\/[^/]+$/, '')}/${s.id}`)
 }
 
 function goHome() {
   router.push('/')
+  mobileMenuOpen.value = false
 }
 
-// Close dropdown on outside click
-function onDocClick(e: MouseEvent) {
-  const target = e.target as HTMLElement
-  if (!target.closest('.dropdown')) {
-    sprintOpen.value = false
+function toggleMobileMenu() {
+  mobileMenuOpen.value = !mobileMenuOpen.value
+}
+
+function toggleUserMenu() {
+  userMenuOpen.value = !userMenuOpen.value
+}
+
+function openSearch() {
+  searchVisible.value = true
+}
+
+function handleLogout() {
+  userMenuOpen.value = false
+  logout()
+  router.push('/')
+}
+
+function navigateTo(path: string) {
+  mobileMenuOpen.value = false
+  router.push(path)
+}
+
+function handleNotifToggle() {
+  notifOpen.value = !notifOpen.value
+}
+
+function handleNotifClick(n: NotificationItem) {
+  markAsRead(n.id)
+  notifOpen.value = false
+  if (n.sourceType === 'memo' && n.pageId) {
+    pendingNotificationPageId.value = n.pageId
+    shouldOpenMemoSidebar.value = true
+    router.push(`/${n.pageId}`)
+  } else {
+    router.push('/inbox')
   }
 }
 
-onMounted(() => document.addEventListener('click', onDocClick))
-onUnmounted(() => document.removeEventListener('click', onDocClick))
+function handleMarkAllRead() {
+  markAllAsRead()
+}
+
+const themeIcon = computed(() => {
+  if (theme.value === 'dark') return 'Dark'
+  if (theme.value === 'system') return 'Auto'
+  return 'Light'
+})
+
+// Ctrl+K shortcut
+function onGlobalKeydown(e: KeyboardEvent) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault()
+    searchVisible.value = !searchVisible.value
+  }
+}
+
+// Close dropdowns on outside click
+function onDocClick(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  if (!target.closest('.dropdown')) sprintOpen.value = false
+  if (!target.closest('.user-menu')) userMenuOpen.value = false
+  if (!target.closest('.notification-bell')) notifOpen.value = false
+}
+
+onMounted(() => {
+  document.addEventListener('click', onDocClick)
+  document.addEventListener('keydown', onGlobalKeydown)
+  startPolling()
+})
+onUnmounted(() => {
+  document.removeEventListener('click', onDocClick)
+  document.removeEventListener('keydown', onGlobalKeydown)
+  stopPolling()
+})
 </script>
 
 <template>
   <header class="app-header">
     <div class="header-left">
+      <!-- Mobile hamburger -->
+      <button v-if="isMobile" class="hamburger-btn" @click="toggleMobileMenu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <template v-if="!mobileMenuOpen">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </template>
+          <template v-else>
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </template>
+        </svg>
+      </button>
+
       <!-- Logo -->
       <div class="header-logo" @click="goHome">
-        <!-- TODO: Change logo text to your project name -->
         <span class="logo-mark">SPEC</span>
         <span class="logo-sub">SITE</span>
       </div>
 
-      <!-- Feature page tabs -->
-      <nav class="page-tabs">
+      <!-- Desktop navigation -->
+      <nav v-if="!isMobile" class="page-tabs">
         <router-link
-          v-for="fp in featurePages"
-          :key="fp.id"
-          :to="`/${fp.id}/${currentSprint}`"
+          v-for="item in navItems"
+          :key="item.id"
+          :to="item.path"
           class="page-tab"
-          :class="{ active: !isPolicyPage && !isRetroPage && currentPageId === fp.id }"
+          :class="{ active: route.path === item.path || route.path.startsWith(item.path + '/') }"
         >
-          {{ fp.label }}
+          {{ item.label }}
         </router-link>
       </nav>
     </div>
 
     <div class="header-right">
-      <!-- Sprint version selector -->
+      <!-- Search trigger -->
+      <button class="icon-btn" @click="openSearch" title="Search (Ctrl+K)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        <kbd v-if="!isMobile" class="kbd-hint">Ctrl+K</kbd>
+      </button>
+
+      <!-- Theme toggle -->
+      <button class="icon-btn" @click="toggleTheme" :title="`Theme: ${themeIcon}`">
+        <svg v-if="theme === 'light'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5" />
+          <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+          <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+        </svg>
+        <svg v-else-if="theme === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+        <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
+        </svg>
+      </button>
+
+      <!-- Notifications -->
+      <div class="notif-wrapper" :class="{ open: notifOpen }">
+        <NotificationDropdown
+          :notifications="notifications"
+          :unread-count="unreadCount"
+          @toggle="handleNotifToggle"
+          @click="handleNotifClick"
+          @mark-all-read="handleMarkAllRead"
+        />
+      </div>
+
+      <!-- Sprint selector -->
       <div class="dropdown" :class="{ open: sprintOpen }">
         <button class="dropdown-trigger" @click.stop="toggleSprint">
           {{ activeSprintLabel }}
@@ -98,26 +225,40 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
         </div>
       </div>
 
-      <!-- Sprint-level links -->
-      <div class="sprint-links">
-        <router-link
-          :to="`/policy/${currentSprint}`"
-          class="sprint-link"
-          :class="{ active: isPolicyPage }"
-        >
-          Policy
-        </router-link>
-        <span class="sprint-link-sep">|</span>
-        <router-link
-          :to="`/retro/${currentSprint}`"
-          class="sprint-link"
-          :class="{ active: isRetroPage }"
-        >
-          Retro
-        </router-link>
+      <!-- User menu -->
+      <div v-if="isAuthenticated" class="user-menu" :class="{ open: userMenuOpen }">
+        <button class="user-btn" @click.stop="toggleUserMenu">
+          <span class="user-avatar">{{ (authUser || '?').charAt(0).toUpperCase() }}</span>
+          <span v-if="!isMobile" class="user-name">{{ authUser }}</span>
+        </button>
+        <div v-if="userMenuOpen" class="dropdown-menu user-dropdown">
+          <div class="dropdown-item" @click="navigateTo('/my-page')">My Page</div>
+          <div class="dropdown-item" @click="handleLogout">Log out</div>
+        </div>
       </div>
     </div>
   </header>
+
+  <!-- Mobile navigation drawer -->
+  <Teleport to="body">
+    <div v-if="isMobile && mobileMenuOpen" class="mobile-overlay" @click="mobileMenuOpen = false">
+      <nav class="mobile-drawer" @click.stop>
+        <router-link
+          v-for="item in navItems"
+          :key="item.id"
+          :to="item.path"
+          class="mobile-nav-item"
+          :class="{ active: route.path === item.path || route.path.startsWith(item.path + '/') }"
+          @click="mobileMenuOpen = false"
+        >
+          {{ item.label }}
+        </router-link>
+      </nav>
+    </div>
+  </Teleport>
+
+  <!-- Search modal -->
+  <SearchModal :visible="searchVisible" @close="searchVisible = false" />
 </template>
 
 <style scoped>
@@ -140,6 +281,20 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   align-items: center;
   gap: 4px;
 }
+
+.hamburger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.hamburger-btn:hover { background: var(--bg); }
 
 .header-logo {
   display: flex;
@@ -200,6 +355,37 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   gap: 4px;
 }
 
+/* ---- Icon buttons ---- */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all 0.15s;
+}
+.icon-btn:hover { background: var(--bg); color: var(--text-primary); }
+
+.kbd-hint {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+
+/* ---- Notification wrapper ---- */
+.notif-wrapper { position: relative; }
+.notif-wrapper :deep(.notif-dropdown) { display: none; }
+.notif-wrapper.open :deep(.notif-dropdown) { display: flex; }
+
 /* ---- Dropdown ---- */
 .dropdown { position: relative; }
 
@@ -235,7 +421,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   position: absolute;
   top: calc(100% + 4px);
   right: 0;
-  min-width: 240px;
+  min-width: 200px;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -274,32 +460,91 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
   flex-shrink: 0;
 }
 
-/* ---- Sprint-level links ---- */
-.sprint-links {
+/* ---- User menu ---- */
+.user-menu {
+  position: relative;
+}
+
+.user-btn {
   display: flex;
   align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: var(--font-sans);
+}
+.user-btn:hover { background: var(--bg); }
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-light, #e0e7ff);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-dropdown {
+  min-width: 140px;
+}
+
+/* ---- Mobile drawer ---- */
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  top: var(--header-height);
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+}
+
+.mobile-drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100%;
+  background: #fff;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
   gap: 2px;
 }
 
-.sprint-link {
-  padding: 6px 10px;
-  font-size: 13px;
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
-  border-radius: 6px;
+  border-radius: 8px;
   text-decoration: none;
   transition: all 0.15s;
 }
-.sprint-link:hover { background: var(--bg); color: var(--text-primary); }
-.sprint-link.active {
+.mobile-nav-item:hover { background: var(--bg); color: var(--text-primary); }
+.mobile-nav-item.active {
   background: var(--primary-light);
   color: var(--primary);
   font-weight: 600;
-}
-
-.sprint-link-sep {
-  color: var(--border);
-  font-size: 12px;
-  user-select: none;
 }
 </style>

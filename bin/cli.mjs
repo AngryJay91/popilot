@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { resolve, basename } from 'node:path';
+import { readFileSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { copyScaffold, appendToFile, detectExisting } from '../lib/scaffold.mjs';
 import { runSetupWizard } from '../lib/setup-wizard.mjs';
@@ -15,6 +16,8 @@ const USAGE = `
     init [dir]      Scaffold + interactive setup + hydration (default)
     hydrate [dir]   Sync latest scaffold templates + re-hydrate from project.yaml
     doctor [dir]    Check installation health
+    deploy [dir]    Deploy pm-api to Cloudflare Workers (Tier 2)
+    migrate [dir]   Run SQL schema migrations on pm-api database (Tier 2)
     help            Show this help
 
   Options:
@@ -28,10 +31,12 @@ const USAGE = `
     npx popilot hydrate
     npx popilot hydrate --force
     npx popilot doctor
+    npx popilot deploy
+    npx popilot migrate
     npx popilot my-project          # same as: popilot init my-project
 `;
 
-const SUBCOMMANDS = new Set(['init', 'hydrate', 'doctor', 'help']);
+const SUBCOMMANDS = new Set(['init', 'hydrate', 'doctor', 'deploy', 'migrate', 'help']);
 
 async function main() {
   const args = process.argv.slice(2);
@@ -70,6 +75,12 @@ async function main() {
       break;
     case 'doctor':
       await cmdDoctor(targetDir, { skipSpecSite, platform });
+      break;
+    case 'deploy':
+      await cmdDeploy(targetDir);
+      break;
+    case 'migrate':
+      await cmdMigrate(targetDir);
       break;
   }
 }
@@ -133,7 +144,34 @@ async function cmdInit(targetDir, { skipSpecSite, force, platform }) {
     console.log(`     ${f} ✅ (domain)`);
   }
 
-  // 4. Install spec-site dependencies
+  // 4a. Install pm-api dependencies (Tier 2)
+  const pmApiDir = resolve(targetDir, 'pm-api');
+  try {
+    const { access: fsAccess } = await import('node:fs/promises');
+    await fsAccess(resolve(pmApiDir, 'package.json'));
+    console.log();
+    console.log('  📦 Installing pm-api dependencies...');
+    try {
+      execSync('npm install', { cwd: pmApiDir, stdio: 'pipe' });
+      console.log('     ✅ Done');
+    } catch {
+      console.log('     ⚠️  npm install failed. Run manually: cd pm-api && npm install');
+    }
+
+    // Also install mcp-pm
+    const mcpPmDir = resolve(targetDir, 'mcp-pm');
+    console.log('  📦 Installing mcp-pm dependencies...');
+    try {
+      execSync('npm install', { cwd: mcpPmDir, stdio: 'pipe' });
+      console.log('     ✅ Done');
+    } catch {
+      console.log('     ⚠️  npm install failed. Run manually: cd mcp-pm && npm install');
+    }
+  } catch {
+    // pm-api not present (Tier 0/1) — skip
+  }
+
+  // 4b. Install spec-site dependencies
   if (!skipSpecSite) {
     const specSiteDir = resolve(targetDir, 'spec-site');
     console.log();
@@ -239,6 +277,170 @@ async function cmdHydrate(targetDir, { skipSpecSite, platform, force }) {
 async function cmdDoctor(targetDir, { skipSpecSite, platform }) {
   const { passed, failed } = await runDoctor(targetDir, { skipSpecSite, platform });
   process.exit(failed.length > 0 ? 1 : 0);
+}
+
+// ── deploy ───────────────────────────────────────────────
+
+async function cmdDeploy(targetDir) {
+  console.log();
+  console.log('  🚀 Popilot — Deploy pm-api');
+  console.log('  ══════════════════════════════════════');
+  console.log();
+
+  const pmApiDir = resolve(targetDir, 'pm-api');
+
+  if (!existsSync(pmApiDir)) {
+    console.log('  ❌ pm-api directory not found.');
+    console.log(`     Expected at: ${pmApiDir}`);
+    console.log('     Deploy is only available for Tier 2 (interactive spec-site with backend).');
+    console.log();
+    process.exit(1);
+  }
+
+  const wranglerToml = resolve(pmApiDir, 'wrangler.toml');
+  if (!existsSync(wranglerToml)) {
+    console.log('  ❌ wrangler.toml not found in pm-api.');
+    console.log('     Found wrangler.toml.hbs — run `popilot hydrate` first to generate wrangler.toml.');
+    console.log();
+    process.exit(1);
+  }
+
+  console.log(`  📂 Deploying from: ${pmApiDir}`);
+  console.log();
+
+  try {
+    execSync('npx wrangler deploy', { cwd: pmApiDir, stdio: 'inherit' });
+    console.log();
+    console.log('  ✅ pm-api deployed successfully.');
+    console.log();
+  } catch {
+    console.log();
+    console.log('  ❌ Deploy failed. Check the wrangler output above for details.');
+    console.log();
+    process.exit(1);
+  }
+}
+
+// ── migrate ──────────────────────────────────────────────
+
+async function cmdMigrate(targetDir) {
+  console.log();
+  console.log('  🗄️  Popilot — Run SQL Migrations');
+  console.log('  ══════════════════════════════════════');
+  console.log();
+
+  const pmApiDir = resolve(targetDir, 'pm-api');
+
+  if (!existsSync(pmApiDir)) {
+    console.log('  ❌ pm-api directory not found.');
+    console.log(`     Expected at: ${pmApiDir}`);
+    console.log('     Migrate is only available for Tier 2 (interactive spec-site with backend).');
+    console.log();
+    process.exit(1);
+  }
+
+  const sqlDir = resolve(pmApiDir, 'sql');
+  if (!existsSync(sqlDir)) {
+    console.log('  ❌ pm-api/sql/ directory not found.');
+    console.log('     No migration files available.');
+    console.log();
+    process.exit(1);
+  }
+
+  // Read D1 database name from wrangler.toml
+  const wranglerToml = resolve(pmApiDir, 'wrangler.toml');
+  if (!existsSync(wranglerToml)) {
+    console.log('  ❌ wrangler.toml not found in pm-api.');
+    console.log('     Run `popilot hydrate` first to generate wrangler.toml.');
+    console.log();
+    process.exit(1);
+  }
+
+  const wranglerContent = readFileSync(wranglerToml, 'utf-8');
+  const dbNameMatch = wranglerContent.match(/database_name\s*=\s*"([^"]+)"/);
+  const dbName = dbNameMatch ? dbNameMatch[1] : null;
+
+  if (!dbName) {
+    console.log('  ❌ Could not find D1 database_name in wrangler.toml.');
+    console.log('     Ensure [[d1_databases]] is configured with a database_name.');
+    console.log();
+    process.exit(1);
+  }
+
+  console.log(`  📂 SQL directory: ${sqlDir}`);
+  console.log(`  🗃️  D1 database:  ${dbName}`);
+  console.log();
+
+  // Read project.yaml to determine enabled features
+  const projectYaml = resolve(targetDir, '.context', 'project.yaml');
+  let features = { rewards: false, meetings: true, docs: true };
+
+  if (existsSync(projectYaml)) {
+    try {
+      const yamlContent = readFileSync(projectYaml, 'utf-8');
+      // Parse feature flags from YAML (simple regex — avoids adding a YAML dep)
+      const rewardsMatch = yamlContent.match(/features:[\s\S]*?rewards:\s*(true|false)/);
+      const meetingsMatch = yamlContent.match(/features:[\s\S]*?meetings:\s*(true|false)/);
+      const docsMatch = yamlContent.match(/features:[\s\S]*?docs:\s*(true|false)/);
+
+      if (rewardsMatch) features.rewards = rewardsMatch[1] === 'true';
+      if (meetingsMatch) features.meetings = meetingsMatch[1] === 'true';
+      if (docsMatch) features.docs = docsMatch[1] === 'true';
+    } catch {
+      console.log('  ⚠️  Could not read project.yaml — using default feature flags.');
+    }
+  }
+
+  // Build list of schemas to apply
+  const schemas = [{ file: 'schema-core.sql', label: 'core (always)' }];
+
+  if (features.rewards) {
+    schemas.push({ file: 'schema-rewards.sql', label: 'rewards' });
+  }
+  if (features.meetings) {
+    schemas.push({ file: 'schema-meetings.sql', label: 'meetings' });
+  }
+  if (features.docs) {
+    schemas.push({ file: 'schema-docs.sql', label: 'docs' });
+  }
+
+  console.log('  📋 Schemas to apply:');
+  for (const s of schemas) {
+    console.log(`     - ${s.file} (${s.label})`);
+  }
+  console.log();
+
+  // Execute each schema
+  let applied = 0;
+  let failed = 0;
+
+  for (const s of schemas) {
+    const sqlFile = resolve(sqlDir, s.file);
+    if (!existsSync(sqlFile)) {
+      console.log(`  ⚠️  ${s.file} not found — skipped`);
+      continue;
+    }
+
+    try {
+      execSync(
+        `npx wrangler d1 execute ${dbName} --file=sql/${s.file} --remote`,
+        { cwd: pmApiDir, stdio: 'pipe' }
+      );
+      console.log(`  ✅ ${s.file} applied`);
+      applied++;
+    } catch (err) {
+      console.log(`  ❌ ${s.file} failed: ${err.message}`);
+      failed++;
+    }
+  }
+
+  console.log();
+  if (failed === 0) {
+    console.log(`  ✅ Migration complete — ${applied} schema(s) applied.`);
+  } else {
+    console.log(`  ⚠️  Migration finished with errors — ${applied} applied, ${failed} failed.`);
+  }
+  console.log();
 }
 
 // ── Run ─────────────────────────────────────────────────
