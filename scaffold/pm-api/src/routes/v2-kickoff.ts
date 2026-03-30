@@ -29,9 +29,9 @@ app.post('/create', async (c) => {
     return c.json({ error: 'id, startDate, endDate required' }, 400)
   }
   const { rowsAffected } = await executeOrThrow(
-    `INSERT INTO nav_sprints (id, label, theme, start_date, end_date, status, sort_order)
-     VALUES (?, ?, ?, ?, ?, 'planning', 0)`,
-    [body.id, body.label || body.id.toUpperCase(), body.theme ?? null, body.startDate, body.endDate],
+    `INSERT INTO nav_sprints (id, title, label, theme, start_date, end_date, status, sort_order)
+     VALUES (?, ?, ?, ?, ?, ?, 'planning', 0)`,
+    [body.id, body.label || body.id.toUpperCase(), body.label || body.id.toUpperCase(), body.theme ?? null, body.startDate, body.endDate],
   )
 
   const totalWorkingDays = countWorkingDays(body.startDate, body.endDate)

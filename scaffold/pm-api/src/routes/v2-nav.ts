@@ -8,7 +8,7 @@ const app = new Hono<AppEnv>()
 // GET / — load all sprints + epics (pm_epics = SSOT)
 app.get('/', async (c) => {
   const [sprints, epics] = await Promise.all([
-    query('SELECT * FROM nav_sprints ORDER BY sort_order'),
+    query('SELECT id, COALESCE(label, title) AS label, theme, status, active, start_date, end_date, velocity, team_size, sort_order, created_at, updated_at FROM nav_sprints ORDER BY sort_order'),
     query('SELECT * FROM pm_epics ORDER BY sort_order, id'),
   ])
   if (sprints.error) return c.json({ error: sprints.error }, 500)
@@ -62,7 +62,7 @@ app.get('/sprints/velocity', async (c) => {
 // GET /sprints/timeline — full sprint timeline
 app.get('/sprints/timeline', async (c) => {
   const sprints = await query(
-    'SELECT id, label, theme, status, start_date, end_date, velocity, team_size FROM nav_sprints ORDER BY sort_order',
+    'SELECT id, COALESCE(label, title) AS label, theme, status, start_date, end_date, velocity, team_size FROM nav_sprints ORDER BY sort_order',
   )
   if (sprints.error) return c.json({ error: sprints.error }, 500)
 
@@ -107,7 +107,10 @@ app.patch('/sprints/:id', async (c) => {
   const sets: string[] = []
   const args: (string | number | null)[] = []
 
-  if (body.label !== undefined) { sets.push('label = ?'); args.push(body.label) }
+  if (body.label !== undefined) {
+    sets.push('label = ?'); args.push(body.label)
+    sets.push('title = ?'); args.push(body.label) // 레거시 컬럼 동기화
+  }
   if (body.theme !== undefined) { sets.push('theme = ?'); args.push(body.theme) }
   if (body.startDate !== undefined) { sets.push('start_date = ?'); args.push(body.startDate) }
   if (body.endDate !== undefined) { sets.push('end_date = ?'); args.push(body.endDate) }

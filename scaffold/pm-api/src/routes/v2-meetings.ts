@@ -8,7 +8,11 @@ const app = new Hono<AppEnv>()
 // GET / - meeting minutes list
 app.get('/', async (c) => {
   const { rows } = await queryOrThrow(
-    'SELECT id, title, date, participants, created_by, created_at FROM meetings ORDER BY date DESC LIMIT 50',
+    `SELECT id, title,
+      COALESCE(date, meeting_date) AS date,
+      COALESCE(participants, attendees) AS participants,
+      created_by, created_at
+    FROM meetings ORDER BY COALESCE(date, meeting_date) DESC LIMIT 50`,
   )
   return c.json({ meetings: rows })
 })
@@ -31,11 +35,19 @@ app.post('/', async (c) => {
   const createdBy = c.get('userName')
 
   const { rowsAffected } = await executeOrThrow(
-    `INSERT INTO meetings (title, date, raw_transcript, summary, agenda, decisions, action_items, participants, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [body.title, body.date, body.rawTranscript ?? null, body.summary ?? null,
-     body.agenda ?? null, body.decisions ?? null, body.actionItems ?? null,
-     body.participants ?? null, createdBy],
+    `INSERT INTO meetings (title, meeting_date, date, raw_transcript, summary, agenda, decisions, action_items, attendees, participants, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [body.title,
+     body.date ?? null,         // meeting_date (legacy column)
+     body.date ?? null,         // date (new column)
+     body.rawTranscript ?? null,
+     body.summary ?? null,
+     body.agenda ?? null,
+     body.decisions ?? null,
+     body.actionItems ?? null,
+     body.participants ?? null, // attendees (legacy column)
+     body.participants ?? null, // participants (new column)
+     createdBy],
   )
   return c.json({ ok: true }, 201)
 })
