@@ -175,6 +175,63 @@ After setup, open Claude Code and type `/start`. Oscar can run a **deep intervie
 
 ---
 
+## 🔌 MCP-PM 연결 (Claude Code / Codex)
+
+Popilot의 PM 기능을 Claude Code나 Codex에 MCP 서버로 연결하는 방법입니다. 연결하면 에이전트가 49개 도구(스프린트, 에픽, 스토리, 회고 등)를 직접 호출할 수 있습니다.
+
+### 1. PM API 배포
+
+```bash
+cd your-project
+npx popilot deploy   # Cloudflare Workers에 pm-api 배포
+# → https://your-project-pm-api.YOUR_ACCOUNT.workers.dev
+```
+
+### 2. API 토큰 발급
+
+배포된 PM API에 Bearer 토큰을 등록합니다:
+
+```bash
+curl -X POST https://YOUR_PM_API_URL/api/v2/admin/members \
+  -H "Content-Type: application/json" \
+  -d '{"token":"my-secret-token","userName":"your-name"}'
+```
+
+### 3. .mcp.json 설정
+
+```bash
+cp .mcp.json.example .mcp.json
+# .mcp.json 편집: PM_API_URL과 PM_TOKEN 값 교체
+```
+
+```json
+{
+  "mcpServers": {
+    "pm": {
+      "command": "node",
+      "args": ["./mcp-pm/dist/index.js"],
+      "env": {
+        "PM_API_URL": "https://your-project-pm-api.workers.dev",
+        "PM_TOKEN": "my-secret-token"
+      }
+    }
+  }
+}
+```
+
+### 4. Claude Code에서 확인
+
+```
+claude
+> /mcp
+```
+
+pm 서버와 49개 도구 목록이 표시되면 연결 성공입니다.
+
+> ⚠️ **주의:** `.mcp.json`에는 토큰이 포함되므로 `.gitignore`에 추가하세요.
+
+---
+
 ## Integration Support
 
 Popilot supports 9 integrations out of the box. Enable them during setup or later in `project.yaml`:
