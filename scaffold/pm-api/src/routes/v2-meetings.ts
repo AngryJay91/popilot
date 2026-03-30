@@ -66,6 +66,9 @@ app.patch('/:id', async (c) => {
   for (const [key, col] of Object.entries(fieldMap)) {
     if (body[key] !== undefined) { sets.push(`${col} = ?`); args.push(body[key] as string ?? null) }
   }
+  // Legacy column sync
+  if (body.date !== undefined) { sets.push('meeting_date = ?'); args.push(body.date as string ?? null) }
+  if (body.participants !== undefined) { sets.push('attendees = ?'); args.push(body.participants as string ?? null) }
   if (!sets.length) return c.json({ ok: true })
   sets.push('updated_at = CURRENT_TIMESTAMP')
   args.push(String(id))

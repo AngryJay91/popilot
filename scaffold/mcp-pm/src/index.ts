@@ -626,7 +626,84 @@ server.tool(
   },
 )
 
-// ── Tool 18: resolve_memo ──
+// ── Tool 18: emit_event ──
+
+server.tool(
+  'emit_event',
+  'Emit agent event — push notification to target agent/user',
+  {
+    event_type: z.enum([
+      'memo_assigned', 'memo_replied', 'memo_resolved',
+      'review_requested', 'task_status_changed', 'decision_needed', 'sprint_alert',
+    ]).describe('Event type'),
+    target_agent: z.string().describe('Target agent (e.g. Oscar, Penny)'),
+    target_user: z.string().describe('Target user name'),
+    payload: z.string().describe('Event payload (JSON string)'),
+    ttl_hours: z.number().optional().describe('TTL hours (default: 24)'),
+    source_agent: z.string().optional().describe('Source agent name (default: calling user)'),
+  },
+  async ({ event_type, target_agent, target_user, payload, ttl_hours, source_agent }) => {
+    const { data, error } = await apiPost<{ ok: boolean; id: number; ttl_hours: number }>(
+      '/api/v2/agent-events',
+      { event_type, target_agent, target_user, payload, ttl_hours, source_agent },
+    )
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`✅ Event emitted: [${event_type}] → ${target_user} (ID: ${data.id}, TTL: ${data.ttl_hours}h)`)
+  },
+)
+
+// ── Tool 19: poll_events ──
+
+server.tool(
+  'poll_events',
+  'Poll pending events (SSE fallback for unsupported clients)',
+  {
+    event_type: z.string().optional().describe('Event type filter'),
+    limit: z.number().optional().describe('Max results (default: 20)'),
+  },
+  async ({ event_type, limit }) => {
+    const params: Record<string, string> = {}
+    if (event_type) params.event_type = event_type
+    if (limit !== undefined) params.limit = String(limit)
+
+    const { data, error } = await apiGet<{
+      events: Array<{
+        id: number; event_type: string; source_agent: string; target_agent: string
+        payload: string; status: string; created_at: string
+      }>
+    }>('/api/v2/agent-events', params)
+    if (error || !data) return err(error ?? 'Unknown error')
+
+    if (data.events.length === 0) return text('📭 No pending events.')
+
+    const lines = [`📬 Pending events (${data.events.length})`, '─────────────']
+    for (const e of data.events) {
+      const payloadPreview = e.payload.length > 60 ? e.payload.slice(0, 60) + '...' : e.payload
+      lines.push(`[E${e.id}] ${e.event_type} from ${e.source_agent} (${e.created_at.slice(5, 16)})`)
+      lines.push(`  payload: ${payloadPreview}`)
+    }
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 20: ack_event ──
+
+server.tool(
+  'ack_event',
+  'Acknowledge event',
+  {
+    event_id: z.number().describe('Event ID'),
+  },
+  async ({ event_id }) => {
+    const { data, error } = await apiPatch<{ ok: boolean; event_id: number }>(
+      `/api/v2/agent-events/${event_id}/ack`, {},
+    )
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`✅ Event #${event_id} acknowledged`)
+  },
+)
+
+// ── Tool 21: resolve_memo ──
 
 server.tool(
   'resolve_memo',
