@@ -5,7 +5,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod'
-import { apiGet, apiPost, apiPatch, apiPut } from './api-client.js'
+import { apiGet, apiPost, apiPatch, apiPut, apiDelete } from './api-client.js'
 
 let activeSprint = ''
 const PM_API_URL = process.env.PM_API_URL ?? ''
@@ -646,6 +646,795 @@ server.tool(
     }
 
     return text(`Memo #${memo_id} resolved by ${resolved_by}.`)
+  },
+)
+
+// ══════════════════════════════════════════════════
+// SPRINT TOOLS
+// ══════════════════════════════════════════════════
+
+// ── Tool 19: list_sprints ──
+
+server.tool(
+  'list_sprints',
+  'List all sprints with status and dates',
+  {
+    status: z.enum(['planning', 'active', 'closed']).optional().describe('Filter by status'),
+  },
+  async ({ status }) => {
+    const params: Record<string, string> = {}
+    if (status) params.status = status
+    const { data, error } = await apiGet<{
+      sprints: Array<{ id: string; title?: string; label?: string; status: string; start_date: string | null; end_date: string | null; active: number }>
+    }>('/api/v2/nav', params)
+    if (error || !data) return err(error ?? 'Unknown error')
+    const sprints = data.sprints
+    if (!sprints || sprints.length === 0) return text('No sprints found.')
+
+    const lines = ['Sprints', '─────────────']
+    for (const s of sprints) {
+      const marker = s.active ? ' ← active' : ''
+      const icon = s.active ? '[A]' : `[${s.status.toUpperCase().charAt(0)}]`
+      const label = s.title ?? s.label ?? s.id
+      const dates = s.start_date ? `${s.start_date} ~ ${s.end_date ?? '?'}` : 'dates not set'
+      lines.push(`${icon} ${s.id}: ${label} (${dates})${marker}`)
+    }
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 20: activate_sprint ──
+
+server.tool(
+  'activate_sprint',
+  'Activate a sprint (deactivates others)',
+  {
+    sprint_id: z.string().describe('Sprint ID (e.g. s55)'),
+  },
+  async ({ sprint_id }) => {
+    const { data, error } = await apiPost<{ ok: boolean }>(`/api/v2/nav/sprints/${sprint_id}/activate`, {})
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Sprint ${sprint_id} activated.`)
+  },
+)
+
+// ── Tool 21: kickoff_sprint ──
+
+server.tool(
+  'kickoff_sprint',
+  'Sprint kickoff — select stories from backlog + team + velocity check. Only available in planning state.',
+  {
+    sprint_id: z.string().describe('Sprint ID'),
+    story_ids: z.array(z.number()).describe('Story IDs selected from backlog'),
+    team_members: z.array(z.string()).optional().describe('Participating team member names'),
+    velocity: z.number().optional().describe('Target velocity (SP)'),
+  },
+  async ({ sprint_id, story_ids, team_members, velocity }) => {
+    const { data, error } = await apiPost<{ ok: boolean; storiesAssigned: number; totalSP: number; velocityWarning?: string | null }>(`/api/v2/nav/sprints/${sprint_id}/kickoff`, {
+      storyIds: story_ids,
+      teamMembers: team_members,
+      velocity,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+
+    const lines = [
+      `Sprint ${sprint_id} kickoff complete!`,
+      `Stories assigned: ${data.storiesAssigned}`,
+      `Total SP: ${data.totalSP}`,
+    ]
+    if (data.velocityWarning) lines.push(`Warning: ${data.velocityWarning}`)
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 22: close_sprint ──
+
+server.tool(
+  'close_sprint',
+  'Close sprint — active→closed. Incomplete stories return to backlog + velocity saved + retro session created.',
+  {
+    sprint_id: z.string().describe('Sprint ID (e.g. s55)'),
+  },
+  async ({ sprint_id }) => {
+    const { data, error } = await apiPost<{
+      ok: boolean
+      summary: { completedCount: number; incompleteCount: number; doneSP: number; completionRate: number }
+    }>(`/api/v2/kickoff/${sprint_id}/close`, {})
+    if (error || !data) return err(error ?? 'Unknown error')
+
+    const s = data.summary
+    const lines = [
+      `Sprint ${sprint_id} closed!`,
+      '─────────────',
+      `Completed: ${s.completedCount} (${s.doneSP} SP)`,
+      `Incomplete: ${s.incompleteCount} → Returned to backlog`,
+      `Completion rate: ${s.completionRate}%`,
+    ]
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 23: get_velocity ──
+
+server.tool(
+  'get_velocity',
+  'Velocity report — overall average + recent 3 sprint average',
+  {},
+  async () => {
+    const { data, error } = await apiGet<{
+      sprints: Array<{ sprint: string; done_sp: number; total_sp: number; story_count: number }>
+      avgVelocity: number
+      recentAvgVelocity: number
+      sprintCount: number
+    }>('/api/v2/nav/sprints/velocity')
+    if (error || !data) return err(error ?? 'Unknown error')
+
+    const lines = [
+      'Velocity Report',
+      '─────────────',
+      `Overall average: ${data.avgVelocity} SP (${data.sprintCount} sprints)`,
+      `Recent 3 average: ${data.recentAvgVelocity} SP`,
+      '',
+      'Sprint results:',
+    ]
+    for (const s of data.sprints) {
+      lines.push(`  ${s.sprint}: ${s.done_sp}/${s.total_sp} SP (${s.story_count} stories)`)
+    }
+    if (!data.sprints.length) lines.push('  (No completed sprints)')
+    return text(lines.join('\n'))
+  },
+)
+
+// ══════════════════════════════════════════════════
+// STANDUP TOOLS (extended)
+// ══════════════════════════════════════════════════
+
+// ── Tool 24: list_standup_entries ──
+
+server.tool(
+  'list_standup_entries',
+  'List standup entries (filter by sprint/date)',
+  {
+    sprint: z.string().optional().describe('Sprint (default: active sprint)'),
+    date: z.string().optional().describe('Date (YYYY-MM-DD)'),
+  },
+  async ({ sprint, date }) => {
+    const params: Record<string, string> = {}
+    if (sprint) params.sprint = sprint
+    if (date) params.date = date
+
+    const { data, error } = await apiGet<{
+      entries: Array<{ id: number; user_name: string; sprint: string; entry_date: string; done_text: string | null; plan_text: string | null; blockers: string | null }>
+    }>('/api/v2/standup/entries', params)
+    if (error || !data) return err(error ?? 'Unknown error')
+    if (!data.entries || data.entries.length === 0) return text('No standup entries found.')
+
+    const lines = ['Standup Entries', '─────────────']
+    for (const e of data.entries) {
+      lines.push(`[${e.entry_date}] ${e.user_name}`)
+      if (e.done_text) lines.push(`  Done: ${e.done_text.slice(0, 80)}`)
+      if (e.plan_text) lines.push(`  Plan: ${e.plan_text.slice(0, 80)}`)
+      if (e.blockers) lines.push(`  Blockers: ${e.blockers}`)
+    }
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 25: review_standup ──
+
+server.tool(
+  'review_standup',
+  'Write standup feedback (comment/approve/request_changes)',
+  {
+    standup_entry_id: z.number().describe('Target standup entry ID'),
+    sprint: z.string().describe('Sprint ID'),
+    target_user: z.string().describe('Standup author name'),
+    feedback_text: z.string().describe('Feedback content'),
+    review_type: z.enum(['comment', 'approve', 'request_changes']).optional().describe('Review type (default: comment)'),
+  },
+  async ({ standup_entry_id, sprint, target_user, feedback_text, review_type }) => {
+    const { data, error } = await apiPost<{ ok: boolean }>('/api/v2/standup/feedback', {
+      standup_entry_id,
+      sprint,
+      target_user,
+      feedback_text,
+      review_type: review_type ?? 'comment',
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Standup feedback submitted for ${target_user}`)
+  },
+)
+
+// ── Tool 26: get_standup_feedback ──
+
+server.tool(
+  'get_standup_feedback',
+  'Get standup feedback',
+  {
+    standup_entry_id: z.number().optional().describe('Standup entry ID'),
+    sprint: z.string().optional().describe('Sprint (used with user)'),
+    user: z.string().optional().describe('Target user (used with sprint)'),
+  },
+  async ({ standup_entry_id, sprint, user }) => {
+    const params: Record<string, string> = {}
+    if (standup_entry_id) params.standup_entry_id = String(standup_entry_id)
+    if (sprint) params.sprint = sprint
+    if (user) params.user = user
+
+    const { data, error } = await apiGet<{
+      feedback: Array<{ id: number; reviewer: string; review_type: string; feedback_text: string; created_at: string }>
+    }>('/api/v2/standup/feedback', params)
+    if (error || !data) return err(error ?? 'Unknown error')
+    if (!data.feedback || data.feedback.length === 0) return text('No feedback found.')
+
+    const lines = ['Standup Feedback', '─────────────']
+    for (const f of data.feedback) {
+      lines.push(`[${f.review_type.toUpperCase()}] ${f.reviewer} (${f.created_at})`)
+      lines.push(`  ${f.feedback_text}`)
+    }
+    return text(lines.join('\n'))
+  },
+)
+
+// ══════════════════════════════════════════════════
+// EPIC TOOLS
+// ══════════════════════════════════════════════════
+
+// ── Tool 27: list_epics ──
+
+server.tool(
+  'list_epics',
+  'List epics with story counts',
+  {},
+  async () => {
+    const { data, error } = await apiGet<{
+      epics: Array<{ id: number; title: string; status: string; owner: string | null; story_count?: number }>
+    }>('/api/v2/pm/epics')
+    if (error || !data) return err(error ?? 'Unknown error')
+    if (!data.epics || data.epics.length === 0) return text('No epics found.')
+
+    const statusIcon: Record<string, string> = { active: '[A]', planned: '[P]', completed: '[C]', archived: '[X]' }
+    const lines = ['Epic List', '─────────────']
+    for (const e of data.epics) {
+      const icon = statusIcon[e.status] ?? '[?]'
+      const storyCount = e.story_count !== undefined ? ` (${e.story_count} stories)` : ''
+      lines.push(`${icon} [E${e.id}] ${e.title}${e.owner ? ` | owner: ${e.owner}` : ''}${storyCount}`)
+    }
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 28: add_epic ──
+
+server.tool(
+  'add_epic',
+  'Create new epic',
+  {
+    title: z.string().describe('Epic title'),
+    description: z.string().optional().describe('Epic description'),
+    owner: z.string().optional().describe('Epic owner (default: token user)'),
+    status: z.enum(['active', 'planned', 'completed', 'archived']).optional().describe('Status'),
+  },
+  async ({ title, description, owner, status }) => {
+    const { data, error } = await apiPost<{ ok: boolean; epic?: { id: number } }>('/api/v2/pm/epics', {
+      title, description, owner, status,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Epic created: ${title}`)
+  },
+)
+
+// ── Tool 29: update_epic ──
+
+server.tool(
+  'update_epic',
+  'Update epic',
+  {
+    epic_id: z.number().describe('Epic ID'),
+    title: z.string().optional().describe('Title'),
+    description: z.string().optional().describe('Description'),
+    status: z.enum(['active', 'planned', 'completed', 'archived']).optional().describe('Status'),
+    owner: z.string().optional().describe('Owner'),
+  },
+  async ({ epic_id, title, description, status, owner }) => {
+    const { data, error } = await apiPatch<{ ok: boolean }>(`/api/v2/pm/epics/${epic_id}`, {
+      title, description, status, owner,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Epic #${epic_id} updated`)
+  },
+)
+
+// ── Tool 30: delete_epic ──
+
+server.tool(
+  'delete_epic',
+  "Delete epic (stories' epic_id set to null)",
+  {
+    epic_id: z.number().describe('Epic ID'),
+  },
+  async ({ epic_id }) => {
+    const { data, error } = await apiDelete<{ ok: boolean }>(`/api/v2/pm/epics/${epic_id}`)
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Epic #${epic_id} deleted`)
+  },
+)
+
+// ══════════════════════════════════════════════════
+// STORY TOOLS
+// ══════════════════════════════════════════════════
+
+// ── Tool 31: list_stories ──
+
+server.tool(
+  'list_stories',
+  "List stories (filter by sprint/epic). sprint='backlog' shows unassigned stories",
+  {
+    sprint: z.string().optional().describe('Sprint (default: active sprint)'),
+    epic_id: z.number().optional().describe('Epic ID filter'),
+    status: z.enum(['draft', 'backlog', 'ready', 'in-progress', 'review', 'done']).optional().describe('Status'),
+    assignee: z.string().optional().describe('Assignee filter'),
+  },
+  async ({ sprint, epic_id, status, assignee }) => {
+    const params: Record<string, string> = {}
+    if (sprint) params.sprint = sprint
+    if (epic_id) params.epic_id = String(epic_id)
+    if (status) params.status = status
+    if (assignee) params.assignee = assignee
+
+    const { data, error } = await apiGet<{
+      stories: Array<{ id: number; title: string; status: string; assignee: string | null; sprint: string | null; epic_id: number | null; story_points: number | null }>
+    }>('/api/v2/pm/stories', params)
+    if (error || !data) return err(error ?? 'Unknown error')
+    if (!data.stories || data.stories.length === 0) return text('No stories found.')
+
+    const statusIcon: Record<string, string> = { todo: '[ ]', 'in-progress': '[~]', done: '[x]', draft: '[d]', backlog: '[b]', ready: '[r]', review: '[v]' }
+    const lines = ['Story List', '─────────────']
+    for (const s of data.stories) {
+      const icon = statusIcon[s.status] ?? '[ ]'
+      const pts = s.story_points ? ` (${s.story_points}SP)` : ''
+      const assigneeStr = s.assignee ? ` → ${s.assignee}` : ''
+      lines.push(`${icon} [S${s.id}] ${s.title}${pts}${assigneeStr}`)
+    }
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 32: list_backlog ──
+
+server.tool(
+  'list_backlog',
+  'List backlog stories — unassigned (sprint IS NULL) stories only',
+  {
+    epic_id: z.number().optional().describe('Epic ID filter'),
+    status: z.enum(['draft', 'backlog', 'ready', 'in-progress', 'review', 'done']).optional().describe('Status'),
+    assignee: z.string().optional().describe('Assignee filter'),
+  },
+  async ({ epic_id, status, assignee }) => {
+    const params: Record<string, string> = { sprint: 'backlog' }
+    if (epic_id) params.epic_id = String(epic_id)
+    if (status) params.status = status
+    if (assignee) params.assignee = assignee
+
+    const { data, error } = await apiGet<{
+      stories: Array<{ id: number; title: string; status: string; assignee: string | null; story_points: number | null; epic_id: number | null }>
+    }>('/api/v2/pm/stories', params)
+    if (error || !data) return err(error ?? 'Unknown error')
+    if (!data.stories || data.stories.length === 0) return text('No backlog stories found.')
+
+    const lines = ['Backlog Stories', '─────────────']
+    for (const s of data.stories) {
+      const pts = s.story_points ? ` (${s.story_points}SP)` : ''
+      const assigneeStr = s.assignee ? ` → ${s.assignee}` : ''
+      lines.push(`[S${s.id}] ${s.title}${pts}${assigneeStr}`)
+    }
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 33: add_story ──
+
+server.tool(
+  'add_story',
+  'Create new story (under epic). If sprint not specified, creates as backlog',
+  {
+    title: z.string().describe('Story title'),
+    epic_id: z.number().optional().describe('Epic ID (optional)'),
+    sprint: z.string().optional().describe('Sprint. Enter "backlog" to move to backlog (sprint=NULL)'),
+    description: z.string().optional().describe('Story description'),
+    acceptance_criteria: z.string().optional().describe('Acceptance criteria'),
+    assignee: z.string().optional().describe('Assignee (comma-separated for multiple)'),
+    priority: z.enum(['low', 'medium', 'high', 'critical']).optional().describe('Priority (default: medium)'),
+    area: z.enum(['FE', 'BE', 'Design', 'Data', 'Infra', 'PO']).optional().describe('Area (default: FE)'),
+    story_points: z.number().optional().describe('Story points'),
+    start_date: z.string().optional().describe('Start date (YYYY-MM-DD)'),
+    due_date: z.string().optional().describe('Due date (YYYY-MM-DD)'),
+  },
+  async ({ title, epic_id, sprint, description, acceptance_criteria, assignee, priority, area, story_points, start_date, due_date }) => {
+    const { data, error } = await apiPost<{ ok: boolean; id?: number }>('/api/v2/pm/stories', {
+      title, epic_id, sprint, description, acceptance_criteria, assignee, priority, area,
+      story_points, start_date, due_date,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Story created: ${title}`)
+  },
+)
+
+// ── Tool 34: update_story ──
+
+server.tool(
+  'update_story',
+  'Update story',
+  {
+    story_id: z.number().describe('Story ID'),
+    title: z.string().optional().describe('Title'),
+    description: z.string().optional().describe('Description'),
+    acceptance_criteria: z.string().optional().describe('Acceptance criteria'),
+    assignee: z.string().optional().describe('Assignee (comma-separated for multiple)'),
+    status: z.enum(['draft', 'backlog', 'ready', 'in-progress', 'review', 'done']).optional().describe('Status'),
+    priority: z.enum(['low', 'medium', 'high', 'critical']).optional().describe('Priority'),
+    area: z.enum(['FE', 'BE', 'Design', 'Data', 'Infra', 'PO']).optional().describe('Area'),
+    story_points: z.number().optional().describe('Story points'),
+    figma_url: z.string().optional().describe('Figma URL'),
+    epic_id: z.number().optional().describe('Epic ID'),
+    sprint: z.string().optional().describe('Sprint. Enter "backlog" to move to backlog (sprint=NULL)'),
+  },
+  async ({ story_id, title, description, acceptance_criteria, assignee, status, priority, area, story_points, figma_url, epic_id, sprint }) => {
+    const { data, error } = await apiPatch<{ ok: boolean }>(`/api/v2/pm/stories/${story_id}`, {
+      title, description, acceptance_criteria, assignee, status, priority, area,
+      story_points, figma_url, epic_id, sprint,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Story #${story_id} updated`)
+  },
+)
+
+// ── Tool 35: delete_story ──
+
+server.tool(
+  'delete_story',
+  'Delete story (tasks also deleted)',
+  {
+    story_id: z.number().describe('Story ID'),
+  },
+  async ({ story_id }) => {
+    const { data, error } = await apiDelete<{ ok: boolean }>(`/api/v2/pm/stories/${story_id}`)
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Story #${story_id} deleted`)
+  },
+)
+
+// ══════════════════════════════════════════════════
+// TASK TOOLS (extended)
+// ══════════════════════════════════════════════════
+
+// ── Tool 36: update_task ──
+
+server.tool(
+  'update_task',
+  'Update task (title, assignee, status, description)',
+  {
+    task_id: z.number().describe('Task ID'),
+    title: z.string().optional().describe('Title'),
+    assignee: z.string().optional().describe('Assignee'),
+    status: z.enum(['todo', 'in-progress', 'done']).optional().describe('Status'),
+    description: z.string().optional().describe('Description'),
+  },
+  async ({ task_id, title, assignee, status, description }) => {
+    const { data, error } = await apiPatch<{ ok: boolean }>(`/api/v2/pm/tasks/${task_id}`, {
+      title, assignee, status, description,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Task #${task_id} updated`)
+  },
+)
+
+// ── Tool 37: delete_task ──
+
+server.tool(
+  'delete_task',
+  'Delete task',
+  {
+    task_id: z.number().describe('Task ID'),
+  },
+  async ({ task_id }) => {
+    const { data, error } = await apiDelete<{ ok: boolean }>(`/api/v2/pm/tasks/${task_id}`)
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Task #${task_id} deleted`)
+  },
+)
+
+// ══════════════════════════════════════════════════
+// TEAM / MEMBER TOOLS
+// ══════════════════════════════════════════════════
+
+// ── Tool 38: list_team_members ──
+
+server.tool(
+  'list_team_members',
+  'List team members (active users)',
+  {},
+  async () => {
+    const { data, error } = await apiGet<{
+      members: Array<{ id: number; display_name: string; role: string; is_active: number; email?: string | null }>
+    }>('/api/v2/admin/members')
+    if (error || !data) return err(error ?? 'Unknown error')
+    if (!data.members || data.members.length === 0) return text('No team members found.')
+
+    const lines = ['Team Members', '─────────────']
+    for (const m of data.members) {
+      const active = m.is_active ? '[active]' : '[inactive]'
+      const email = m.email ? ` <${m.email}>` : ''
+      lines.push(`${active} ${m.display_name} (${m.role})${email}`)
+    }
+    return text(lines.join('\n'))
+  },
+)
+
+// ══════════════════════════════════════════════════
+// INITIATIVE TOOLS
+// ══════════════════════════════════════════════════
+
+// ── Tool 39: create_initiative ──
+
+server.tool(
+  'create_initiative',
+  'Create initiative — register proposals discovered in conversations',
+  {
+    title: z.string().describe('One-line summary (required)'),
+    content: z.string().describe('Details (what, why)'),
+    decider: z.string().optional().describe('Decider name (nullable)'),
+    source_context: z.string().optional().describe('Source context'),
+  },
+  async ({ title, content, decider, source_context }) => {
+    const { data, error } = await apiPost<{ ok: boolean; id?: number }>('/api/v2/initiatives', {
+      title, content, decider, source_context,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Initiative created: ${title}`)
+  },
+)
+
+// ── Tool 40: list_initiatives ──
+
+server.tool(
+  'list_initiatives',
+  'List initiatives',
+  {
+    status: z.enum(['pending', 'approved', 'rejected', 'deferred']).optional().describe('Status filter'),
+  },
+  async ({ status }) => {
+    const params: Record<string, string> = {}
+    if (status) params.status = status
+
+    const { data, error } = await apiGet<{
+      initiatives: Array<{ id: number; title: string; status: string; content: string; decider: string | null; created_at: string }>
+    }>('/api/v2/initiatives', params)
+    if (error || !data) return err(error ?? 'Unknown error')
+    if (!data.initiatives || data.initiatives.length === 0) return text('No initiatives found.')
+
+    const statusIcon: Record<string, string> = { pending: '[?]', approved: '[✓]', rejected: '[✗]', deferred: '[~]' }
+    const lines = ['Initiatives', '─────────────']
+    for (const i of data.initiatives) {
+      const icon = statusIcon[i.status] ?? '[?]'
+      const preview = i.content.length > 60 ? i.content.slice(0, 60) + '...' : i.content
+      lines.push(`${icon} [I${i.id}] ${i.title}`)
+      lines.push(`       ${preview}`)
+    }
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 41: update_initiative_status ──
+
+server.tool(
+  'update_initiative_status',
+  'Update initiative status (pending→approved/rejected/deferred)',
+  {
+    initiative_id: z.number().describe('Initiative ID'),
+    status: z.enum(['pending', 'approved', 'rejected', 'deferred']).describe('New status'),
+    decision_note: z.string().optional().describe('Decision comment'),
+  },
+  async ({ initiative_id, status, decision_note }) => {
+    const { data, error } = await apiPatch<{ ok: boolean }>(`/api/v2/initiatives/${initiative_id}/status`, {
+      status, decision_note,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Initiative #${initiative_id} status updated to ${status}`)
+  },
+)
+
+// ══════════════════════════════════════════════════
+// RETRO TOOLS
+// ══════════════════════════════════════════════════
+
+// ── Tool 42: get_retro_session ──
+
+server.tool(
+  'get_retro_session',
+  'Get retro session (items + actions)',
+  {
+    sprint: z.string().optional().describe('Sprint (default: active sprint)'),
+  },
+  async ({ sprint: sprintArg }) => {
+    const sprint = resolveSprint(sprintArg)
+    const params: Record<string, string> = {}
+    if (sprint) params.sprint = sprint
+
+    const { data, error } = await apiGet<{
+      session: { id: number; sprint: string; phase: string; created_at: string } | null
+      items: Array<{ id: number; category: string; content: string; votes: number; created_by: string }>
+      actions: Array<{ id: number; content: string; assignee: string | null; status: string }>
+    }>('/api/v2/retro/session', params)
+    if (error || !data) return err(error ?? 'Unknown error')
+    if (!data.session) return text(`No retro session found${sprint ? ` for ${sprint}` : ''}.`)
+
+    const s = data.session
+    const lines = [`Retro Session: ${s.sprint.toUpperCase()} (${s.phase})`, '─────────────']
+
+    if (data.items && data.items.length > 0) {
+      const keep = data.items.filter(i => i.category === 'keep')
+      const problem = data.items.filter(i => i.category === 'problem')
+      const tryItems = data.items.filter(i => i.category === 'try')
+
+      if (keep.length) { lines.push('Keep:'); keep.forEach(i => lines.push(`  [${i.votes}v] ${i.content}`)) }
+      if (problem.length) { lines.push('Problem:'); problem.forEach(i => lines.push(`  [${i.votes}v] ${i.content}`)) }
+      if (tryItems.length) { lines.push('Try:'); tryItems.forEach(i => lines.push(`  [${i.votes}v] ${i.content}`)) }
+    }
+
+    if (data.actions && data.actions.length > 0) {
+      lines.push('', 'Actions:')
+      for (const a of data.actions) {
+        lines.push(`  [${a.status}] ${a.content}${a.assignee ? ` → ${a.assignee}` : ''}`)
+      }
+    }
+
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 43: add_retro_item ──
+
+server.tool(
+  'add_retro_item',
+  'Add retro item (keep/problem/try)',
+  {
+    session_id: z.number().describe('Session ID'),
+    category: z.enum(['keep', 'problem', 'try']).describe('Category'),
+    content: z.string().describe('Content'),
+  },
+  async ({ session_id, category, content }) => {
+    const { data, error } = await apiPost<{ ok: boolean }>('/api/v2/retro/items', {
+      session_id, category, content,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Retro item added to session #${session_id}: [${category}] ${content}`)
+  },
+)
+
+// ── Tool 44: vote_retro_item ──
+
+server.tool(
+  'vote_retro_item',
+  'Vote/unvote retro item',
+  {
+    item_id: z.number().describe('Item ID'),
+  },
+  async ({ item_id }) => {
+    const { data, error } = await apiPost<{ ok: boolean; votes?: number }>(`/api/v2/retro/items/${item_id}/vote`, {})
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Voted on retro item #${item_id}${data.votes !== undefined ? ` (${data.votes} votes total)` : ''}`)
+  },
+)
+
+// ── Tool 45: change_retro_phase ──
+
+server.tool(
+  'change_retro_phase',
+  'Change retro session phase',
+  {
+    session_id: z.number().describe('Session ID'),
+    phase: z.enum(['collect', 'vote', 'discuss', 'action', 'done']).describe('Phase'),
+  },
+  async ({ session_id, phase }) => {
+    const { data, error } = await apiPatch<{ ok: boolean }>(`/api/v2/retro/session/${session_id}/phase`, { phase })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Retro session #${session_id} phase changed to ${phase}`)
+  },
+)
+
+// ── Tool 46: add_retro_action ──
+
+server.tool(
+  'add_retro_action',
+  'Add retro action item',
+  {
+    session_id: z.number().describe('Session ID'),
+    content: z.string().describe('Action content'),
+    assignee: z.string().optional().describe('Assignee'),
+  },
+  async ({ session_id, content, assignee }) => {
+    const { data, error } = await apiPost<{ ok: boolean }>('/api/v2/retro/actions', {
+      session_id, content, assignee,
+    })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Retro action added: ${content}`)
+  },
+)
+
+// ── Tool 47: update_retro_action_status ──
+
+server.tool(
+  'update_retro_action_status',
+  'Update retro action status',
+  {
+    action_id: z.number().describe('Action ID'),
+    status: z.enum(['todo', 'in-progress', 'done']).describe('Status'),
+  },
+  async ({ action_id, status }) => {
+    const { data, error } = await apiPatch<{ ok: boolean }>(`/api/v2/retro/actions/${action_id}/status`, { status })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Retro action #${action_id} status updated to ${status}`)
+  },
+)
+
+// ── Tool 48: export_retro ──
+
+server.tool(
+  'export_retro',
+  'Export full retro summary (keep/problem/try + actions + votes)',
+  {
+    sprint: z.string().optional().describe('Sprint (default: active sprint)'),
+  },
+  async ({ sprint: sprintArg }) => {
+    const sprint = resolveSprint(sprintArg)
+    const params: Record<string, string> = {}
+    if (sprint) params.sprint = sprint
+
+    const { data, error } = await apiGet<{
+      session: { sprint: string; phase: string }
+      items: Array<{ category: string; content: string; votes: number }>
+      actions: Array<{ content: string; assignee: string | null; status: string }>
+    }>('/api/v2/retro/session', params)
+    if (error || !data) return err(error ?? 'Unknown error')
+    if (!data.session) return text(`No retro session found${sprint ? ` for ${sprint}` : ''}.`)
+
+    const lines = [
+      `Retro Export: ${data.session.sprint.toUpperCase()}`,
+      '═══════════════════════════',
+      '',
+    ]
+
+    const categories = ['keep', 'problem', 'try']
+    const labels: Record<string, string> = { keep: '✅ Keep', problem: '🔴 Problem', try: '💡 Try' }
+    for (const cat of categories) {
+      const items = data.items.filter(i => i.category === cat)
+      if (items.length) {
+        lines.push(labels[cat] + ':')
+        items.sort((a, b) => b.votes - a.votes).forEach(i => lines.push(`  - ${i.content} [${i.votes}v]`))
+        lines.push('')
+      }
+    }
+
+    if (data.actions && data.actions.length > 0) {
+      lines.push('📋 Action Items:')
+      data.actions.forEach(a => lines.push(`  - [${a.status}] ${a.content}${a.assignee ? ` (${a.assignee})` : ''}`))
+    }
+
+    return text(lines.join('\n'))
+  },
+)
+
+// ── Tool 49: mark_all_notifications_read ──
+
+server.tool(
+  'mark_all_notifications_read',
+  'Mark all notifications as read',
+  {},
+  async () => {
+    const { data, error } = await apiPost<{ ok: boolean; rows_affected?: number }>('/api/v2/notifications/mark-all-read', {})
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text('All notifications marked as read.')
   },
 )
 
