@@ -12,8 +12,11 @@ export interface SprintConfig {
   label: string
   theme: string
   active: boolean
+  status?: 'planning' | 'active' | 'closed'
   startDate?: string | null
   endDate?: string | null
+  velocity?: number | null
+  teamSize?: number | null
   sortOrder: number
 }
 

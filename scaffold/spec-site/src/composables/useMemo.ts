@@ -8,11 +8,50 @@
 import { ref, computed } from 'vue'
 import { isStaticMode } from '@/api/client'
 
+// ── Tier 1 (simple, localStorage-backed) ──
 export interface MemoItem {
   id: number
   text: string
   author: string
   ts: number
+  // Tier 2 extended fields (API-backed)
+  page_id?: string
+  content?: string
+  memo_type?: MemoType
+  status?: 'open' | 'resolved'
+  created_by?: string
+  assigned_to?: string | null
+  review_required?: number
+  title?: string | null
+  channel?: string
+  resolved_by?: string | null
+  resolved_at?: string | null
+  created_at?: string
+  updated_at?: string
+  checklist?: string | null
+  reply_count?: number
+  has_relations?: number
+}
+
+export type MemoType = 'memo' | 'decision' | 'request' | 'backlog' | 'blocker' | 'question' | 'announcement'
+
+export const MEMO_TYPES: { value: MemoType; label: string; icon: string; color: string }[] = [
+  { value: 'memo', label: 'Memo', icon: '📝', color: '#3b82f6' },
+  { value: 'decision', label: 'Decision', icon: '⚡', color: '#8b5cf6' },
+  { value: 'request', label: 'Request', icon: '📋', color: '#f59e0b' },
+  { value: 'backlog', label: 'Backlog', icon: '💡', color: '#22c55e' },
+  { value: 'blocker', label: 'Blocker', icon: '🚧', color: '#ef4444' },
+  { value: 'question', label: 'Question', icon: '❓', color: '#06b6d4' },
+  { value: 'announcement', label: 'Announcement', icon: '📢', color: '#6366f1' },
+]
+
+export interface ReplyItem {
+  id: number
+  memo_id: number
+  content: string
+  created_by: string
+  review_type?: string
+  created_at: string
 }
 
 export function useMemo(pageId: string) {
