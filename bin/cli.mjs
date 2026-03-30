@@ -163,9 +163,19 @@ async function cmdInit(targetDir, { skipSpecSite, force, platform }) {
     console.log('  📦 Installing mcp-pm dependencies...');
     try {
       execSync('npm install', { cwd: mcpPmDir, stdio: 'pipe' });
-      console.log('     ✅ Done');
+      console.log('     ✅ npm install done');
     } catch {
       console.log('     ⚠️  npm install failed. Run manually: cd mcp-pm && npm install');
+    }
+
+    // Build mcp-pm — generates dist/index.js required for MCP connection
+    console.log('  🔨 Building mcp-pm (TypeScript compile)...');
+    try {
+      execSync('npm run build', { cwd: mcpPmDir, stdio: 'pipe' });
+      console.log('     ✅ Done (dist/index.js ready)');
+    } catch {
+      console.log('     ⚠️  Build failed. Run manually: cd mcp-pm && npm run build');
+      console.log('     ℹ️  MCP connection requires dist/index.js to exist.');
     }
   } catch {
     // pm-api not present (Tier 0/1) — skip
