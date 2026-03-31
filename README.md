@@ -177,7 +177,7 @@ After setup, open Claude Code and type `/start`. Oscar can run a **deep intervie
 
 ## 🔌 MCP-PM 연결 (Claude Code / Codex)
 
-Popilot의 PM 기능을 Claude Code나 Codex에 MCP 서버로 연결하는 방법입니다. 연결하면 에이전트가 49개 도구(스프린트, 에픽, 스토리, 회고 등)를 직접 호출할 수 있습니다.
+Popilot의 PM 기능을 Claude Code나 Codex에 MCP 서버로 연결하는 방법입니다. 연결하면 에이전트가 52개 도구(스프린트, 에픽, 스토리, 회고 등)를 직접 호출할 수 있습니다.
 
 ### 1. PM API 배포
 
@@ -226,7 +226,7 @@ claude
 > /mcp
 ```
 
-pm 서버와 49개 도구 목록이 표시되면 연결 성공입니다.
+pm 서버와 52개 도구 목록이 표시되면 연결 성공입니다.
 
 > ⚠️ **주의:** `.mcp.json`에는 토큰이 포함되므로 `.gitignore`에 추가하세요.
 

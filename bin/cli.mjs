@@ -173,8 +173,10 @@ async function cmdInit(targetDir, { skipSpecSite, force, platform }) {
     try {
       execSync('npm run build', { cwd: mcpPmDir, stdio: 'pipe' });
       console.log('     ✅ Done (dist/index.js ready)');
-    } catch {
+    } catch (buildErr) {
+      const stderr = buildErr.stderr ? buildErr.stderr.toString().slice(0, 500) : '';
       console.log('     ⚠️  Build failed. Run manually: cd mcp-pm && npm run build');
+      if (stderr) console.log(`     📋 ${stderr}`);
       console.log('     ℹ️  MCP connection requires dist/index.js to exist.');
     }
   } catch {
@@ -452,8 +454,15 @@ async function cmdMigrate(targetDir) {
       console.log(`  ✅ ${s.file} applied`);
       applied++;
     } catch (err) {
-      console.log(`  ❌ ${s.file} failed: ${err.message}`);
-      failed++;
+      const msg = err.stderr ? err.stderr.toString() : err.message;
+      const isDuplicateColumn = /duplicate column|already exists/i.test(msg);
+      if (isDuplicateColumn) {
+        console.log(`  ⚠️  ${s.file} skipped (columns already exist)`);
+        applied++;
+      } else {
+        console.log(`  ❌ ${s.file} failed: ${msg.slice(0, 200)}`);
+        failed++;
+      }
     }
   }
 
