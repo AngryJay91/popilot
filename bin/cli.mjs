@@ -414,11 +414,16 @@ async function cmdMigrate(targetDir) {
     schemas.push({ file: 'schema-docs.sql', label: 'docs' });
   }
 
-  // Collect numbered migration files (NNN-*.sql) sorted by prefix
-  const numberedMigrations = readdirSync(sqlDir)
-    .filter(f => /^\d{3}-.*\.sql$/.test(f))
-    .sort()
-    .map(f => ({ file: f, label: `migration ${f.slice(0, 3)}` }));
+  // Collect numbered migration files (NNN-*.sql) sorted by numeric prefix
+  let numberedMigrations = [];
+  try {
+    numberedMigrations = readdirSync(sqlDir)
+      .filter(f => /^\d{3}-.+\.sql$/.test(f))
+      .sort((a, b) => parseInt(a.slice(0, 3), 10) - parseInt(b.slice(0, 3), 10))
+      .map(f => ({ file: f, label: `migration ${f.slice(0, 3)}` }));
+  } catch (err) {
+    console.log(`  ⚠️  Could not read sql/ directory for migrations: ${err.message}`);
+  }
 
   const allSteps = [...schemas, ...numberedMigrations];
 
