@@ -10,8 +10,10 @@ import MemoTimeline from '@/components/MemoTimeline.vue'
 import MemoChecklist from '@/components/MemoChecklist.vue'
 import MemoGraph from '@/components/MemoGraph.vue'
 import { useAuth } from '@/composables/useAuth'
+import { useConfirm } from '@/composables/useConfirm'
 
 const { authUser } = useAuth()
+const { showConfirm, showAlert } = useConfirm()
 
 interface Memo {
   id: number
@@ -265,7 +267,7 @@ async function createDocFromMemo() {
   if (!selectedMemo.value) return
   const { data } = await apiPost(`/api/v2/memos/${selectedMemo.value.id}/create-doc`, {})
   if ((data as any)?.docId) {
-    alert('Document has been created.')
+    await showAlert('Document has been created.')
     await loadLinkedDocs(selectedMemo.value.id)
   }
 }
@@ -339,7 +341,7 @@ function highlightMentions(text: string): string {
 }
 
 async function deleteReply(replyId: number) {
-  if (!confirm('Delete this reply?')) return
+  if (!await showConfirm('Delete this reply?')) return
   const { apiDelete } = await import('@/composables/useTurso')
   await apiDelete(`/api/v2/memos/replies/${replyId}`)
   await loadMemos()
@@ -366,14 +368,14 @@ async function reopenMemo() {
 async function convertToStory() {
   if (!selectedMemo.value) return
   const title = selectedMemo.value.content.split('\n')[0].slice(0, 100)
-  const ok = confirm(`Create story "${title}"?`)
+  const ok = await showConfirm(`Create story "${title}"?`)
   if (!ok) return
   const { error } = await apiPost('/api/v2/pm/stories', {
     title,
     description: selectedMemo.value.content,
     status: 'backlog',
   })
-  if (error) { alert(error); return }
+  if (error) { await showAlert(error); return }
   // resolve memo
   await apiPatch(`/api/v2/memos/${selectedMemo.value.id}/resolve`, {})
   await loadMemos()
@@ -382,14 +384,14 @@ async function convertToStory() {
 async function convertToInitiative() {
   if (!selectedMemo.value) return
   const title = selectedMemo.value.content.split('\n')[0].slice(0, 100)
-  const ok = confirm(`Create initiative "${title}"?`)
+  const ok = await showConfirm(`Create initiative "${title}"?`)
   if (!ok) return
   const { error } = await apiPost('/api/v2/initiatives', {
     title,
     content: selectedMemo.value.content,
     source_context: `Memo #${selectedMemo.value.id}`,
   })
-  if (error) { alert(error); return }
+  if (error) { await showAlert(error); return }
   await apiPatch(`/api/v2/memos/${selectedMemo.value.id}/resolve`, {})
   await loadMemos()
 }
@@ -402,7 +404,7 @@ async function loadMembers() {
 async function createMemo() {
   if (!newMemoContent.value.trim()) return
   if (!newMemoAssignees.value.length) {
-    if (!confirm('No recipients specified. Post anyway?')) return
+    if (!await showConfirm('No recipients specified. Post anyway?')) return
   }
   await apiPost('/api/v2/memos', {
     pageId: 'general',

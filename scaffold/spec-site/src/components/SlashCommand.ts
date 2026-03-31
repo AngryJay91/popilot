@@ -1,5 +1,6 @@
 import { Extension } from '@tiptap/core'
 import Suggestion from '@tiptap/suggestion'
+import { useConfirm } from '@/composables/useConfirm'
 
 interface SlashItem {
   title: string
@@ -30,9 +31,9 @@ const items: SlashItem[] = [
     try {
       const { apiPut } = await import('@/composables/useTurso')
       const { error } = await apiPut(`/api/v2/docs/${slug}`, { title, content: '', contentFormat: 'markdown', parentId })
-      if (error) { alert(`Failed to create sub page: ${error}`); return }
+      if (error) { const { showAlert } = useConfirm(); await showAlert(`Failed to create sub page: ${error}`); return }
       e.chain().focus().insertContent(`<p><a href="/docs/${slug}">${title}</a></p>`).run()
-    } catch (err) { alert(`Failed to create sub page: ${err}`) }
+    } catch (err) { const { showAlert } = useConfirm(); await showAlert(`Failed to create sub page: ${err}`) }
   }},
 ]
 

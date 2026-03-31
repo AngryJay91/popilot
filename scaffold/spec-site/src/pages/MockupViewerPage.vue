@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiGet } from '@/composables/useTurso'
+import { useConfirm } from '@/composables/useConfirm'
 import SplitPaneLayout from '@/layouts/SplitPaneLayout.vue'
 import MockupShell from '@/components/MockupShell.vue'
 import MockupCanvas from '@/mockup/MockupCanvas.vue'
@@ -13,6 +14,7 @@ import { useScenarios } from '@/mockup/useScenarios'
 
 const { setMode } = provideViewport()
 const { activeSection } = provideActiveSection()
+const { showAlert } = useConfirm()
 
 const route = useRoute()
 const router = useRouter()
@@ -83,10 +85,10 @@ function onSelect(id: string) {
   selectedId.value = id
 }
 
-function copySpec() {
+async function copySpec() {
   if (specDescription.value) {
     navigator.clipboard.writeText(specDescription.value)
-    alert('Spec copied')
+    await showAlert('Spec copied')
   }
 }
 

@@ -12,6 +12,9 @@ import { getActiveSprint } from '@/composables/useNavStore'
 import BoardEpicSection from './BoardEpicSection.vue'
 import BoardStoryCard from './BoardStoryCard.vue'
 import StoryDetailPanel from './StoryDetailPanel.vue'
+import { useConfirm } from '@/composables/useConfirm'
+
+const { showAlert } = useConfirm()
 
 const route = useRoute()
 const router = useRouter()
@@ -285,7 +288,7 @@ async function onDrop(e: DragEvent, targetStatus: StoryStatus) {
   } catch {
     // rollback
     story.status = prevStatus
-    alert('Status update failed. Reverted to previous status.')
+    await showAlert('Status update failed. Reverted to previous status.')
   }
 }
 

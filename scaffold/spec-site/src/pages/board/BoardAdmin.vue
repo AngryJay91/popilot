@@ -2,6 +2,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { sprints, loaded, loadNavData } from '@/composables/useNavStore'
+import { useConfirm } from '@/composables/useConfirm'
+
+const { showConfirm } = useConfirm()
 import {
   pmEpics, stories, tasks, pmLoaded, loadEpics, loadPmData,
   addEpic as addPmEpic, updateEpic as updatePmEpic, deleteEpic as deletePmEpic,
@@ -50,7 +53,7 @@ async function saveEditEpic(id: number) {
 }
 
 async function handleDeleteEpic(id: number, title: string) {
-  if (!confirm(`Delete "${title}" epic? Child stories will become unassigned.`)) return
+  if (!await showConfirm(`Delete "${title}" epic? Child stories will become unassigned.`)) return
   const r = await deletePmEpic(id)
   if (r.error) { statusMsg.value = `Error: ${r.error}` }
   else { statusMsg.value = 'Epic deleted' }
@@ -114,7 +117,7 @@ async function saveEditStory(id: number) {
 }
 
 async function handleDeleteStory(id: number, title: string) {
-  if (!confirm(`Delete "${title}" story and all its tasks?`)) return
+  if (!await showConfirm(`Delete "${title}" story and all its tasks?`)) return
   const r = await deleteStory(id)
   if (r.error) { statusMsg.value = `Error: ${r.error}` }
   else { statusMsg.value = 'Story deleted'; await loadPmData(selectedSprint.value) }
@@ -154,7 +157,7 @@ async function saveEditTask(id: number) {
 }
 
 async function handleDeleteTask(id: number) {
-  if (!confirm('Delete this task?')) return
+  if (!await showConfirm('Delete this task?')) return
   const r = await deleteTask(id)
   if (r.error) { statusMsg.value = `Error: ${r.error}` }
   else { statusMsg.value = 'Task deleted' }

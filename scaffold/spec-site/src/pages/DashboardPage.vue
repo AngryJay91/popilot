@@ -6,6 +6,7 @@ import { apiPatch, apiPost, apiGet } from '@/api/client'
 import { getActiveSprint } from '@/composables/useNavStore'
 import { useUser, TEAM_MEMBERS } from '@/composables/useUser'
 import { Bell, Rocket, BarChart3, Sun, Zap, FileText, ClipboardList, ScrollText } from 'lucide-vue-next'
+import { useConfirm } from '@/composables/useConfirm'
 
 const memoTypeComponentMap: Record<string, any> = {
   decision: Zap,
@@ -17,6 +18,7 @@ const memoTypeComponentMap: Record<string, any> = {
 
 const router = useRouter()
 const { currentUser, dynamicMembers, loadMembers } = useUser()
+const { showConfirm, showAlert } = useConfirm()
 const dashboard = useDashboard()
 
 const sprint = computed(() => getActiveSprint().id)
@@ -72,24 +74,24 @@ async function handleInitiative(id: number, status: 'approved' | 'rejected') {
 
 async function convertToEpic(item: any) {
   const title = item.title || item.content?.split('\n')[0]?.slice(0, 100) || 'New Epic'
-  if (!confirm(`Create epic "${title}"?`)) return
+  if (!await showConfirm(`Create epic "${title}"?`)) return
   const { error } = await apiPost('/api/v2/pm/epics', { title, description: item.content })
-  if (error) { alert(error); return }
+  if (error) { await showAlert(error); return }
   await handleInitiative(item.id, 'approved' as any)
-  alert('Epic created')
+  await showAlert('Epic created')
 }
 
 async function convertToStory(item: any) {
   const title = item.title || item.content?.split('\n')[0]?.slice(0, 100) || 'New Story'
-  if (!confirm(`Create story "${title}"?`)) return
+  if (!await showConfirm(`Create story "${title}"?`)) return
   const { error } = await apiPost('/api/v2/pm/stories', {
     title,
     description: item.content,
     status: 'backlog',
   })
-  if (error) { alert(error); return }
+  if (error) { await showAlert(error); return }
   await handleInitiative(item.id, 'approved' as any)
-  alert('Story created')
+  await showAlert('Story created')
 }
 
 async function resolveFromNudge(nudge: { title: string; body: string }) {

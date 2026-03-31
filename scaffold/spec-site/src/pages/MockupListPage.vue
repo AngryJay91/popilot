@@ -3,8 +3,10 @@ import Icon from '@/components/Icon.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiGet, apiPost, apiDelete } from '@/composables/useTurso'
+import { useConfirm } from '@/composables/useConfirm'
 
 const router = useRouter()
+const { showConfirm } = useConfirm()
 
 interface MockupPage {
   id: number; slug: string; title: string; category: string
@@ -21,7 +23,7 @@ const filteredMockups = computed(() => {
 const loading = ref(true)
 
 async function deleteMockup(slug: string) {
-  if (!confirm('Are you sure you want to delete this?')) return
+  if (!await showConfirm('Are you sure you want to delete this?')) return
   await apiDelete(`/api/v2/mockups/${slug}`)
   await loadMockups()
 }

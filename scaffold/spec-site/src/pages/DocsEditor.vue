@@ -2,12 +2,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiGet, apiPut } from '@/composables/useTurso'
+import { useConfirm } from '@/composables/useConfirm'
 import { renderMarkdown } from '@/utils/markdown'
 
 const route = useRoute()
 const router = useRouter()
 const docId = computed(() => route.params.docId as string | undefined)
 const isNew = computed(() => !docId.value)
+const { showConfirm, showAlert } = useConfirm()
 
 const title = ref('')
 const content = ref('')
@@ -31,7 +33,7 @@ function generateId(title: string): string {
 }
 
 async function save() {
-  if (!title.value.trim()) { alert('Please enter a title'); return }
+  if (!title.value.trim()) { await showAlert('Please enter a title'); return }
   saving.value = true
   conflictError.value = ''
   const id = docId.value || generateId(title.value)
@@ -46,7 +48,7 @@ async function save() {
     conflictError.value = 'Someone else edited this document while you were working. Please refresh the page to get the latest version, then re-apply your changes.'
     return
   }
-  if (error) { alert(error); return }
+  if (error) { await showAlert(error); return }
 
   // Update local version from server response
   if (data?.version !== undefined) {

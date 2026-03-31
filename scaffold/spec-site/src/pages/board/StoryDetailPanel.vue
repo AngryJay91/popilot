@@ -7,6 +7,7 @@ import {
   STORY_STATUSES, STORY_STATUS_LABELS, PRIORITY_LABELS,
 } from '@/composables/usePmStore'
 import { useAuth } from '@/composables/useAuth'
+import { useConfirm } from '@/composables/useConfirm'
 import StatusBadge from './StatusBadge.vue'
 import BoardTaskItem from './BoardTaskItem.vue'
 
@@ -14,6 +15,7 @@ const props = defineProps<{ story: PmStory }>()
 const emit = defineEmits<{ close: []; updated: [] }>()
 
 const { authUser } = useAuth()
+const { showConfirm } = useConfirm()
 
 // Inline task add
 const showAddTask = ref(false)
@@ -71,7 +73,7 @@ const acItems = computed(() => parseAcItems(props.story.acceptanceCriteria))
 const acDoneCount = computed(() => acItems.value.filter(i => i.checked).length)
 
 async function handleMergeOk() {
-  if (!confirm('Mark as Merge OK? Story status will change to done.')) return
+  if (!await showConfirm('Mark as Merge OK? Story status will change to done.')) return
   await updateStory(props.story.id, { status: 'done' } as any)
   emit('updated')
 }

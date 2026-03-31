@@ -3,6 +3,7 @@ import { onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUser } from '@/composables/useUser'
 import { useRetro } from '@/composables/useRetro'
+import { useConfirm } from '@/composables/useConfirm'
 import { getActiveSprint } from '@/composables/useNavStore'
 import { apiPost } from '@/api/client'
 import RetroHeader from './RetroHeader.vue'
@@ -11,6 +12,7 @@ import RetroActions from './RetroActions.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { showAlert } = useConfirm()
 const sprintId = (route.params.sprint as string) || getActiveSprint().id
 
 async function completeAndKickoff() {
@@ -32,8 +34,8 @@ onMounted(async () => {
 function handleExport() {
   const md = retro.exportMarkdown()
   if (!md) return
-  navigator.clipboard.writeText(md).then(() => {
-    alert('Copied to clipboard')
+  navigator.clipboard.writeText(md).then(async () => {
+    await showAlert('Copied to clipboard')
   })
 }
 </script>
