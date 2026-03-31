@@ -143,8 +143,8 @@ app.get('/:id/plan', async (c) => {
   const sprintId = c.req.param('id')
 
   const [sprint, members, absences, stories] = await Promise.all([
-    query<{ id: string; status: string; start_date: string; end_date: string; velocity: number | null; team_size: number | null }>(
-      'SELECT * FROM nav_sprints WHERE id = ?', [sprintId]),
+    query<{ id: string; label: string; status: string; start_date: string; end_date: string; velocity: number | null; team_size: number | null }>(
+      'SELECT id, COALESCE(label, title) AS label, theme, status, start_date, end_date, velocity, team_size, sort_order, updated_at FROM nav_sprints WHERE id = ?', [sprintId]),
     query<{ member_id: number; working_days: number; display_name: string }>(
       `SELECT sm.member_id, sm.working_days, m.display_name
        FROM sprint_members sm JOIN members m ON sm.member_id = m.id

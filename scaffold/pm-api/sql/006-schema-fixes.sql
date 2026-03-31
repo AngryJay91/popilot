@@ -1,19 +1,13 @@
 -- Migration 006: Schema fixes for P0 blockers
 -- 2026-03-31
--- ⚠️ ONE-TIME migration: migration runner must track applied files.
---    Re-running ALTER TABLE ADD COLUMN on SQLite will error if column exists.
---    Each ALTER is wrapped in a safe check via pragma table_info.
+-- ⚠️ D1/SQLite does not support IF NOT EXISTS for ADD COLUMN.
+--    The migration runner (bin/cli.mjs) handles failures gracefully:
+--    numbered migrations that fail (e.g. duplicate column) are logged
+--    as warnings, not hard errors. Safe to re-run.
 
 -- ──────────────────────────────────────────────
 -- Fix 1: nav_sprints label 컬럼 추가
 -- ──────────────────────────────────────────────
--- SQLite-safe: skip if column already exists
-CREATE TABLE IF NOT EXISTS _migration_check (x INT);
-DROP TABLE _migration_check;
-
--- We use INSERT-OR-IGNORE trick: if ALTER fails, the migration runner
--- should be configured to continue on error for ADD COLUMN statements.
--- Alternatively, check column existence in app code before running.
 ALTER TABLE nav_sprints ADD COLUMN label TEXT;
 UPDATE nav_sprints SET label = title WHERE label IS NULL;
 
