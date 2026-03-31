@@ -13,10 +13,27 @@ const tokenInput = ref('')
 const loginError = ref(false)
 const initializing = ref(true)
 
-const redirectTo = (route.query.redirect as string) || '/'
+// Fix 1: Sanitize redirect to prevent open-redirect attacks.
+// Must start with '/' but NOT '//' (protocol-relative URLs), and no protocols.
+const raw = (route.query.redirect as string) || '/'
+const redirectTo = (raw.startsWith('/') && !raw.startsWith('//') && !/^[a-z][a-z0-9+\-.]*:/i.test(raw))
+  ? raw
+  : '/'
+
+// Fix 3: Cache auth verification in sessionStorage to avoid repeated API calls.
+// If we already verified this session, trust localStorage token directly.
+const AUTH_VERIFIED_KEY = 'auth-verified'
 
 onMounted(async () => {
-  const ok = await tryAutoLogin()
+  const alreadyVerified = sessionStorage.getItem(AUTH_VERIFIED_KEY) === '1'
+  let ok: boolean
+  if (alreadyVerified) {
+    // Already verified this session — trust the stored token without API call
+    ok = !!localStorage.getItem('spec-auth-token')
+  } else {
+    ok = await tryAutoLogin()
+    if (ok) sessionStorage.setItem(AUTH_VERIFIED_KEY, '1')
+  }
   if (ok) {
     loadNavData()
     router.replace(redirectTo)
@@ -31,6 +48,7 @@ async function handleLogin() {
     loginError.value = true
   } else {
     tokenInput.value = ''
+    sessionStorage.setItem(AUTH_VERIFIED_KEY, '1')
     loadNavData()
     router.replace(redirectTo)
   }

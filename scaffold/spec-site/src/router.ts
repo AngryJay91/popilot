@@ -31,7 +31,7 @@ const routes = [
   {
     path: '/dashboard',
     component: () => import('./pages/DashboardPage.vue'),
-    meta: { title: 'Dashboard', requiresAuth: true },
+    meta: { title: 'Dashboard' },
     beforeEnter: featureGuard('dashboard'),
   },
 
@@ -222,6 +222,9 @@ const router = createRouter({
 /**
  * Global auth guard.
  *
+ * Auth is enforced by default. Only routes with `meta: { public: true }` skip auth.
+ * (Do NOT use `requiresAuth: true` — that pattern is redundant here and causes confusion.)
+ *
  * In static mode (no API), auth is always bypassed — the spec-site runs
  * as a public local/preview build.
  *
@@ -238,11 +241,13 @@ router.beforeEach((to) => {
   // Public routes: always accessible
   if (to.meta.public) return true
 
-  // Check for stored token
+  // Fix 4: Basic token sanity check — non-empty and reasonable length (8–512 chars).
+  // This avoids accepting a stale empty string or obviously corrupt value.
   const token = localStorage.getItem(AUTH_STORAGE_KEY)
-  if (token) return true
+  const tokenValid = typeof token === 'string' && token.length >= 8 && token.length <= 512
+  if (tokenValid) return true
 
-  // No token — redirect to login, preserving intended destination
+  // No valid token — redirect to login, preserving intended destination
   return {
     path: '/login',
     query: { redirect: to.fullPath },
