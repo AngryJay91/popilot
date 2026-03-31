@@ -12,7 +12,7 @@ app.get('/entries', async (c) => {
 
   if (date && sprint) {
     const { rows } = await queryOrThrow(
-      'SELECT * FROM pm_standup_entries WHERE sprint = ? AND entry_date = ? ORDER BY user_name',
+      'SELECT id, sprint, user_name, entry_date, done_text, plan_text, plan_story_ids, blockers, created_at, updated_at FROM pm_standup_entries WHERE sprint = ? AND entry_date = ? ORDER BY user_name',
       [sprint, date],
     )
     return c.json({ entries: rows })
@@ -20,7 +20,7 @@ app.get('/entries', async (c) => {
 
   if (date) {
     const { rows } = await queryOrThrow(
-      'SELECT * FROM pm_standup_entries WHERE entry_date = ? ORDER BY user_name',
+      'SELECT id, sprint, user_name, entry_date, done_text, plan_text, plan_story_ids, blockers, created_at, updated_at FROM pm_standup_entries WHERE entry_date = ? ORDER BY user_name',
       [date],
     )
     return c.json({ entries: rows })
@@ -28,7 +28,7 @@ app.get('/entries', async (c) => {
 
   if (sprint) {
     const { rows } = await queryOrThrow(
-      'SELECT * FROM pm_standup_entries WHERE sprint = ? ORDER BY entry_date DESC, user_name LIMIT 50',
+      'SELECT id, sprint, user_name, entry_date, done_text, plan_text, plan_story_ids, blockers, created_at, updated_at FROM pm_standup_entries WHERE sprint = ? ORDER BY entry_date DESC, user_name LIMIT 50',
       [sprint],
     )
     return c.json({ entries: rows })
@@ -61,6 +61,51 @@ app.put('/entries', async (c) => {
   return c.json({ ok: true })
 })
 
+// GET /entries-with-feedback — batch fetch entries + feedback in 2 queries (N+1 fix)
+app.get('/entries-with-feedback', async (c) => {
+  const sprint = c.req.query('sprint')
+  const date = c.req.query('date')
+
+  if (!sprint && !date) {
+    return c.json({ error: 'sprint or date query param required' }, 400)
+  }
+
+  const conditions: string[] = []
+  const params: (string | number)[] = []
+  if (sprint) { conditions.push('e.sprint = ?'); params.push(sprint) }
+  if (date) { conditions.push('e.entry_date = ?'); params.push(date) }
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
+
+  const { rows: entries } = await queryOrThrow(
+    `SELECT e.id, e.sprint, e.user_name, e.entry_date, e.done_text, e.plan_text, e.plan_story_ids, e.blockers, e.created_at, e.updated_at FROM pm_standup_entries e ${where} ORDER BY e.entry_date DESC, e.user_name LIMIT 100`,
+    params,
+  )
+
+  if (entries.length === 0) return c.json({ entries: [] })
+
+  // Batch-fetch all feedback for these entries in a single IN query — eliminates N+1
+  const entryIds = (entries as Array<{ id: number }>).map(e => e.id)
+  const ph = entryIds.map(() => '?').join(',')
+  const { rows: allFeedback } = await queryOrThrow(
+    `SELECT id, standup_entry_id, sprint, target_user, feedback_by, feedback_text, review_type, created_at FROM pm_standup_feedback WHERE standup_entry_id IN (${ph}) ORDER BY created_at ASC`,
+    entryIds,
+  )
+
+  // Group feedback by standup_entry_id
+  const feedbackMap: Record<number, unknown[]> = {}
+  for (const f of allFeedback as Array<{ standup_entry_id: number }>) {
+    if (!feedbackMap[f.standup_entry_id]) feedbackMap[f.standup_entry_id] = []
+    feedbackMap[f.standup_entry_id].push(f)
+  }
+
+  const result = (entries as Array<{ id: number }>).map(e => ({
+    ...e,
+    feedback: feedbackMap[e.id] ?? [],
+  }))
+
+  return c.json({ entries: result })
+})
+
 // ── Standup Feedback (1:N) ──
 
 // GET /feedback?standup_entry_id= or ?sprint=&user=
@@ -71,7 +116,7 @@ app.get('/feedback', async (c) => {
 
   if (entryId) {
     const { rows } = await queryOrThrow(
-      'SELECT * FROM pm_standup_feedback WHERE standup_entry_id = ? ORDER BY created_at ASC',
+      'SELECT id, standup_entry_id, sprint, target_user, feedback_by, feedback_text, review_type, created_at FROM pm_standup_feedback WHERE standup_entry_id = ? ORDER BY created_at ASC',
       [Number(entryId)],
     )
     return c.json({ feedback: rows })
@@ -79,7 +124,7 @@ app.get('/feedback', async (c) => {
 
   if (sprint && user) {
     const { rows } = await queryOrThrow(
-      'SELECT f.* FROM pm_standup_feedback f WHERE f.sprint = ? AND f.target_user = ? ORDER BY f.created_at DESC LIMIT 50',
+      'SELECT f.id, f.standup_entry_id, f.sprint, f.target_user, f.feedback_by, f.feedback_text, f.review_type, f.created_at FROM pm_standup_feedback f WHERE f.sprint = ? AND f.target_user = ? ORDER BY f.created_at DESC LIMIT 50',
       [sprint, user],
     )
     return c.json({ feedback: rows })
