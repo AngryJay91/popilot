@@ -61,6 +61,51 @@ app.put('/entries', async (c) => {
   return c.json({ ok: true })
 })
 
+// GET /entries-with-feedback — batch fetch entries + feedback in 2 queries (N+1 fix)
+app.get('/entries-with-feedback', async (c) => {
+  const sprint = c.req.query('sprint')
+  const date = c.req.query('date')
+
+  if (!sprint && !date) {
+    return c.json({ error: 'sprint or date query param required' }, 400)
+  }
+
+  const conditions: string[] = []
+  const params: (string | number)[] = []
+  if (sprint) { conditions.push('e.sprint = ?'); params.push(sprint) }
+  if (date) { conditions.push('e.entry_date = ?'); params.push(date) }
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
+
+  const { rows: entries } = await queryOrThrow(
+    `SELECT e.* FROM pm_standup_entries e ${where} ORDER BY e.entry_date DESC, e.user_name`,
+    params,
+  )
+
+  if (entries.length === 0) return c.json({ entries: [] })
+
+  // Batch-fetch all feedback for these entries in a single IN query — eliminates N+1
+  const entryIds = (entries as Array<{ id: number }>).map(e => e.id)
+  const ph = entryIds.map(() => '?').join(',')
+  const { rows: allFeedback } = await queryOrThrow(
+    `SELECT * FROM pm_standup_feedback WHERE standup_entry_id IN (${ph}) ORDER BY created_at ASC`,
+    entryIds,
+  )
+
+  // Group feedback by standup_entry_id
+  const feedbackMap: Record<number, unknown[]> = {}
+  for (const f of allFeedback as Array<{ standup_entry_id: number }>) {
+    if (!feedbackMap[f.standup_entry_id]) feedbackMap[f.standup_entry_id] = []
+    feedbackMap[f.standup_entry_id].push(f)
+  }
+
+  const result = (entries as Array<{ id: number }>).map(e => ({
+    ...e,
+    feedback: feedbackMap[e.id] ?? [],
+  }))
+
+  return c.json({ entries: result })
+})
+
 // ── Standup Feedback (1:N) ──
 
 // GET /feedback?standup_entry_id= or ?sprint=&user=

@@ -388,12 +388,13 @@ const TOOLS = [
   },
   {
     name: 'list_standup_entries',
-    description: 'List standup entries (filter by sprint/date)',
+    description: 'List standup entries (filter by sprint/date). Use with_feedback=true to include all feedback in a single batch query (no N+1).',
     inputSchema: {
       type: 'object',
       properties: {
         sprint: { type: 'string', description: 'Sprint (default: active sprint)' },
         date: { type: 'string', description: 'Date (YYYY-MM-DD)' },
+        with_feedback: { type: 'boolean', description: 'Include feedback for each entry (batch-loaded, no N+1)' },
       },
     },
   },

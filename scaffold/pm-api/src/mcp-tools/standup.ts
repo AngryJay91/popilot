@@ -42,6 +42,7 @@ export async function toolSaveStandup(user: string, args: Record<string, unknown
 export async function toolListStandupEntries(args: Record<string, unknown>): Promise<ToolResult> {
   const sprint = await resolveSprint(args.sprint as string | undefined)
   const date = args.date as string | undefined
+  const withFeedback = Boolean(args.with_feedback)
 
   let sql: string
   const sqlArgs: (string | number)[] = []
@@ -59,9 +60,27 @@ export async function toolListStandupEntries(args: Record<string, unknown>): Pro
     return err('Please specify a sprint or date.')
   }
 
-  const result = await query<{ user_name: string; entry_date: string; done_text: string | null; plan_text: string | null; blockers: string | null }>(sql, sqlArgs)
+  const result = await query<{ id: number; user_name: string; entry_date: string; done_text: string | null; plan_text: string | null; blockers: string | null }>(sql, sqlArgs)
   if (result.error) return err(result.error)
   if (result.rows.length === 0) return text('No standup records found.')
+
+  // Batch-fetch feedback in a single IN query when requested — eliminates N+1
+  type FeedbackRow = { standup_entry_id: number; feedback_by: string; feedback_text: string; review_type: string; created_at: string }
+  const feedbackMap: Record<number, FeedbackRow[]> = {}
+  if (withFeedback && result.rows.length > 0) {
+    const ids = result.rows.map(e => e.id)
+    const ph = ids.map(() => '?').join(',')
+    const fbResult = await query<FeedbackRow>(
+      `SELECT standup_entry_id, feedback_by, feedback_text, review_type, created_at FROM pm_standup_feedback WHERE standup_entry_id IN (${ph}) ORDER BY created_at ASC`,
+      ids,
+    )
+    if (!fbResult.error) {
+      for (const f of fbResult.rows) {
+        if (!feedbackMap[f.standup_entry_id]) feedbackMap[f.standup_entry_id] = []
+        feedbackMap[f.standup_entry_id].push(f)
+      }
+    }
+  }
 
   const lines = ['📝 Standup Records', '─────────────']
   for (const e of result.rows) {
@@ -69,6 +88,16 @@ export async function toolListStandupEntries(args: Record<string, unknown>): Pro
     if (e.done_text) lines.push(`  ✅ ${e.done_text}`)
     if (e.plan_text) lines.push(`  📌 ${e.plan_text}`)
     if (e.blockers) lines.push(`  🚧 ${e.blockers}`)
+    if (withFeedback) {
+      const fb = feedbackMap[e.id] ?? []
+      if (fb.length > 0) {
+        lines.push(`  💬 Feedback (${fb.length}):`)
+        for (const f of fb) {
+          const icon = f.review_type === 'approve' ? '✅' : f.review_type === 'request_changes' ? '🔄' : '💬'
+          lines.push(`    ${icon} ${f.feedback_by}: ${f.feedback_text}`)
+        }
+      }
+    }
   }
   return text(lines.join('\n'))
 }
