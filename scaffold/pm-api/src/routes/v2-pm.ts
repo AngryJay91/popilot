@@ -26,6 +26,14 @@ app.get('/epics', async (c) => {
   return c.json({ epics: rows })
 })
 
+// GET /epics/:id
+app.get('/epics/:id', async (c) => {
+  const id = c.req.param('id')
+  const result = await query<Record<string, unknown>>('SELECT * FROM pm_epics WHERE id = ?', [id])
+  if (!result.rows.length) return c.json({ error: 'Not found' }, 404)
+  return c.json(result.rows[0])
+})
+
 // GET /data
 app.get('/data', async (c) => {
   const sprint = c.req.query('sprint')
@@ -112,6 +120,14 @@ app.delete('/epics/:id', async (c) => {
   return c.json({ ok: true })
 })
 
+// GET /stories/:id
+app.get('/stories/:id', async (c) => {
+  const id = c.req.param('id')
+  const result = await query<Record<string, unknown>>('SELECT * FROM pm_stories WHERE id = ?', [id])
+  if (!result.rows.length) return c.json({ error: 'Not found' }, 404)
+  return c.json(result.rows[0])
+})
+
 // POST /stories
 app.post('/stories', async (c) => {
   const body = await c.req.json<{
@@ -190,6 +206,14 @@ app.delete('/stories/:id', async (c) => {
   const r2 = await execute('DELETE FROM pm_stories WHERE id = ?', [id])
   if (r2.error) return c.json({ error: r2.error }, 500)
   return c.json({ ok: true })
+})
+
+// GET /tasks/:id
+app.get('/tasks/:id', async (c) => {
+  const id = c.req.param('id')
+  const result = await query<Record<string, unknown>>('SELECT * FROM pm_tasks WHERE id = ?', [id])
+  if (!result.rows.length) return c.json({ error: 'Not found' }, 404)
+  return c.json(result.rows[0])
 })
 
 // POST /tasks

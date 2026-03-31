@@ -98,6 +98,17 @@ app.get('/sprints/timeline', async (c) => {
   return c.json({ timeline })
 })
 
+// GET /sprints/:id
+app.get('/sprints/:id', async (c) => {
+  const id = c.req.param('id')
+  const result = await query<Record<string, unknown>>(
+    'SELECT id, COALESCE(label, title) AS label, theme, status, active, start_date, end_date, velocity, team_size, sort_order, created_at, updated_at FROM nav_sprints WHERE id = ?',
+    [id],
+  )
+  if (!result.rows.length) return c.json({ error: 'Not found' }, 404)
+  return c.json(result.rows[0])
+})
+
 // PATCH /sprints/:id
 app.patch('/sprints/:id', async (c) => {
   const id = c.req.param('id')
