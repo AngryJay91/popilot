@@ -401,19 +401,117 @@ popilot <command> [target-dir] [options]
 Commands:
   init [dir]      Scaffold + interactive setup + hydration (default)
   hydrate [dir]   Sync latest scaffold templates + re-hydrate from project.yaml
+  deploy [dir]    Deploy pm-api to Cloudflare Workers (Tier 2)
+  migrate [dir]   Run SQL schema migrations on pm-api database (Tier 2)
   doctor [dir]    Check installation health
   help            Show this help
 
 Options:
-  --skip-spec-site   Skip spec-site (Vue 3 + Vite) scaffold
-  --force            Overwrite existing files
+  --skip-spec-site       Skip spec-site (Vue 3 + Vite) scaffold
+  --force                Overwrite existing files
+  --platform=<id>        Target AI platform adapter (default: claude-code)
+  -h, --help             Show this help
 
 Examples:
   npx popilot init my-project
   npx popilot@latest hydrate
   npx popilot@latest hydrate --force
   npx popilot doctor
+  npx popilot deploy
+  npx popilot migrate
   npx popilot my-project          # same as: popilot init my-project
+```
+
+### Command Details
+
+#### `init [dir]`
+
+Scaffolds a new Popilot project, runs the interactive setup wizard, and hydrates all templates.
+
+```bash
+npx popilot init my-project
+npx popilot init my-project --skip-spec-site
+npx popilot init my-project --platform=codex
+```
+
+- Creates the full `.context/`, `spec-site/` (unless `--skip-spec-site`), and agent scaffold
+- Runs the interactive setup wizard to collect project info, user preferences, and integrations
+- Hydrates all `.hbs` template files using the collected config
+
+#### `hydrate [dir]`
+
+Syncs the latest scaffold templates and re-hydrates all `.hbs` files from the existing `project.yaml`. Use this after upgrading Popilot or editing `project.yaml` manually.
+
+```bash
+npx popilot@latest hydrate          # safe: adds missing files only
+npx popilot@latest hydrate --force  # full refresh: overwrites scaffold files
+```
+
+- `hydrate` now syncs the latest scaffold before rendering.
+- Use `--force` only when you intentionally want to replace existing scaffold-managed files.
+
+#### `deploy [dir]`
+
+Deploys the `pm-api` backend to Cloudflare Workers. Requires Tier 2 setup (pm-api present) and `wrangler` authentication.
+
+```bash
+npx popilot deploy
+```
+
+Prerequisites:
+1. Run `npx wrangler login` to authenticate with Cloudflare
+2. Ensure `project.yaml` is hydrated (run `popilot hydrate` first)
+3. `pm-api/wrangler.toml` must exist
+
+#### `migrate [dir]`
+
+Runs SQL schema migrations against the Cloudflare D1 database configured in `pm-api/wrangler.toml`. Applies `schema-core.sql` plus feature-specific schemas based on `project.yaml` flags, then runs any numbered migration files (`NNN-*.sql`) in order.
+
+```bash
+npx popilot migrate
+```
+
+Applies migrations in this order:
+1. `schema-core.sql` (always)
+2. `schema-rewards.sql` (if `pm_api.features.rewards: true`)
+3. `schema-meetings.sql` (if `pm_api.features.meetings: true`)
+4. `schema-docs.sql` (if `pm_api.features.docs: true`)
+5. `NNN-*.sql` numbered migrations (sorted by prefix)
+
+Already-applied migrations are skipped automatically (duplicate column detection).
+
+#### `doctor [dir]`
+
+Checks the health of your Popilot installation and reports any missing or misconfigured files.
+
+```bash
+npx popilot doctor
+```
+
+Exits with code `0` if all checks pass, `1` if any checks fail.
+
+### `--platform` Option
+
+The `--platform` flag selects the AI coding agent adapter. Each adapter customizes the system prompt file, slash command directory, and platform-specific instructions.
+
+| Platform ID | Target | Description |
+|-------------|--------|-------------|
+| `claude-code` | `CLAUDE.md` + `.claude/commands/` | Anthropic Claude Code (default) |
+| `codex` | `AGENTS.md` + `.codex/commands/` | OpenAI Codex CLI |
+| `gemini` | `GEMINI.md` + `.gemini/commands/` | Google Gemini CLI |
+
+```bash
+# Initialize for Claude Code (default)
+npx popilot init my-project
+
+# Initialize for OpenAI Codex
+npx popilot init my-project --platform=codex
+
+# Initialize for Gemini CLI
+npx popilot init my-project --platform=gemini
+
+# Re-hydrate for a specific platform
+npx popilot hydrate --platform=codex
 ```
 
 ---
@@ -443,6 +541,101 @@ npx popilot@latest hydrate --force
 4. **Claude Code** loads `CLAUDE.md` as system instructions — Oscar is now active
 5. **Oscar** routes your natural language requests to the right agent
 6. **Agents** use your `.context/` files, integrations, and templates to do real work
+
+---
+
+## Troubleshooting
+
+### `popilot init` fails with "Existing Popilot structure detected"
+
+You're running `init` in a directory that already has Popilot files. Options:
+
+```bash
+# Overwrite existing files
+npx popilot init my-project --force
+
+# Or run in a fresh directory
+npx popilot init new-project
+```
+
+### Templates not updating after editing `project.yaml`
+
+Run `hydrate` to re-render all templates:
+
+```bash
+npx popilot@latest hydrate
+```
+
+If you want to also pull down the latest scaffold files from this version:
+
+```bash
+npx popilot@latest hydrate --force
+```
+
+### `deploy` fails: "wrangler.toml not found"
+
+You need to hydrate first so the `.hbs` template is rendered:
+
+```bash
+npx popilot hydrate
+npx popilot deploy
+```
+
+### `deploy` fails: "Not authenticated"
+
+Log in to Cloudflare:
+
+```bash
+npx wrangler login
+npx popilot deploy
+```
+
+### `migrate` fails with "duplicate column" / "already exists"
+
+This is expected for idempotent re-runs — Popilot automatically skips migrations that have already been applied. Safe to ignore.
+
+### MCP connection not working (`/mcp` shows no tools)
+
+1. Ensure `mcp-pm` was built: `cd mcp-pm && npm run build` (generates `dist/index.js`)
+2. Verify `.mcp.json` has the correct `PM_API_URL` and `PM_TOKEN`
+3. Restart Claude Code to reload MCP servers
+
+```bash
+# Rebuild mcp-pm
+cd your-project/mcp-pm
+npm install
+npm run build
+```
+
+### Oscar not responding / slash commands missing
+
+Your system prompt file may not be hydrated. Run:
+
+```bash
+npx popilot@latest hydrate
+```
+
+Then re-open Claude Code — it loads `CLAUDE.md` (or `AGENTS.md` / `GEMINI.md`) on startup.
+
+### `spec-site` fails to start
+
+```bash
+cd your-project/spec-site
+npm install    # install/reinstall dependencies
+npm run dev    # → http://localhost:5173
+```
+
+If `npm run dev` errors on a Turso/retro feature, ensure `VITE_TURSO_URL` and `VITE_TURSO_TOKEN` are set in `spec-site/.env.local` (or disable that feature in `project.yaml`).
+
+### `doctor` reports failures
+
+Run `popilot doctor` for a detailed health report:
+
+```bash
+npx popilot doctor
+```
+
+Fix each reported issue, then re-run to confirm all checks pass.
 
 ---
 
