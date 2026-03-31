@@ -1515,6 +1515,96 @@ server.tool(
   },
 )
 
+// ══════════════════════════════════════════════════
+// SPRINT / STORY ASSIGNMENT TOOLS
+// ══════════════════════════════════════════════════
+
+// ── Tool: assign_story_to_sprint ──
+
+server.tool(
+  'assign_story_to_sprint',
+  'Assign a story to a sprint',
+  {
+    story_id: z.number().describe('Story ID'),
+    sprint_id: z.string().describe('Sprint ID'),
+  },
+  async ({ story_id, sprint_id }) => {
+    const { data, error } = await apiPatch<{ ok: boolean }>(`/api/v2/pm/stories/${story_id}`, { sprint: sprint_id })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Story #${story_id} assigned to sprint ${sprint_id}`)
+  },
+)
+
+// ── Tool: unassign_story_from_sprint ──
+
+server.tool(
+  'unassign_story_from_sprint',
+  'Remove a story from its sprint (move to backlog)',
+  {
+    story_id: z.number().describe('Story ID'),
+  },
+  async ({ story_id }) => {
+    const { data, error } = await apiPatch<{ ok: boolean }>(`/api/v2/pm/stories/${story_id}`, { sprint: 'backlog' })
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Story #${story_id} moved to backlog`)
+  },
+)
+
+// ── Tool: checkin_sprint ──
+
+server.tool(
+  'checkin_sprint',
+  'Register team members for a sprint',
+  {
+    sprint_id: z.string().describe('Sprint ID'),
+    member_ids: z.array(z.number()).describe('Member IDs to register'),
+  },
+  async ({ sprint_id, member_ids }) => {
+    const { data, error } = await apiPost<{ ok: boolean; velocity?: number; teamSize?: number }>(
+      `/api/v2/kickoff/${sprint_id}/checkin`,
+      { memberIds: member_ids },
+    )
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Sprint ${sprint_id} check-in complete: ${member_ids.length} members registered`)
+  },
+)
+
+// ── Tool: add_absence ──
+
+server.tool(
+  'add_absence',
+  'Register absence dates for a sprint member',
+  {
+    sprint_id: z.string().describe('Sprint ID'),
+    member_id: z.number().describe('Member ID'),
+    dates: z.array(z.string()).describe('Absence dates (YYYY-MM-DD)'),
+    reason: z.string().optional().describe('Absence reason'),
+  },
+  async ({ sprint_id, member_id, dates, reason }) => {
+    const { data, error } = await apiPost<{ ok: boolean }>(
+      `/api/v2/kickoff/${sprint_id}/absence`,
+      { memberId: member_id, dates, reason },
+    )
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Absence registered for member #${member_id} in sprint ${sprint_id}: ${dates.length} day(s)`)
+  },
+)
+
+// ── Tool: reject_memo ──
+
+server.tool(
+  'reject_memo',
+  'Reject/reopen a resolved memo',
+  {
+    memo_id: z.number().describe('Memo ID to reject'),
+  },
+  async ({ memo_id }) => {
+    const { data, error } = await apiPatch<{ ok: boolean }>(`/api/v2/memos/${memo_id}/reopen`, {})
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(`Memo #${memo_id} rejected (reopened)`)
+  },
+)
+
 // ── Start ──
 
 async function main() {

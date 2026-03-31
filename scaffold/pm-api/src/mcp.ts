@@ -650,6 +650,68 @@ const TOOLS = [
       required: ['event_id'],
     },
   },
+
+  // ── Sprint / Story Assignment ──
+  {
+    name: 'assign_story_to_sprint',
+    description: 'Assign a story to a sprint',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        story_id: { type: 'number', description: 'Story ID' },
+        sprint_id: { type: 'string', description: 'Sprint ID' },
+      },
+      required: ['story_id', 'sprint_id'],
+    },
+  },
+  {
+    name: 'unassign_story_from_sprint',
+    description: 'Remove a story from its sprint (move to backlog)',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        story_id: { type: 'number', description: 'Story ID' },
+      },
+      required: ['story_id'],
+    },
+  },
+  {
+    name: 'checkin_sprint',
+    description: 'Register team members for a sprint',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        sprint_id: { type: 'string', description: 'Sprint ID' },
+        member_ids: { type: 'array', items: { type: 'number' }, description: 'Member IDs to register' },
+      },
+      required: ['sprint_id', 'member_ids'],
+    },
+  },
+  {
+    name: 'add_absence',
+    description: 'Register absence dates for a sprint member',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        sprint_id: { type: 'string', description: 'Sprint ID' },
+        member_id: { type: 'number', description: 'Member ID' },
+        dates: { type: 'array', items: { type: 'string' }, description: 'Absence dates (YYYY-MM-DD)' },
+        reason: { type: 'string', description: 'Absence reason' },
+      },
+      required: ['sprint_id', 'member_id', 'dates'],
+    },
+  },
+  {
+    name: 'reject_memo',
+    description: 'Reject/reopen a resolved memo',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        memo_id: { type: 'number', description: 'Memo ID to reject' },
+      },
+      required: ['memo_id'],
+    },
+  },
 ]
 
 // ── Tool Handlers ──
