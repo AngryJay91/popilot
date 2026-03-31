@@ -3,6 +3,9 @@ import { isValidFeaturePage, featurePages } from './data/navigation'
 import { getWireframe, getAvailableSprints } from './data/wireframeRegistry'
 import { getActiveSprint, sprints } from './composables/useNavStore'
 import { isFeatureEnabled } from './features'
+import { isStaticMode } from './api/client'
+
+const AUTH_STORAGE_KEY = 'spec-auth-token'
 
 function currentActiveSprint(): string {
   return getActiveSprint().id
@@ -16,7 +19,13 @@ function featureGuard(featureId: string) {
 }
 
 const routes = [
-  { path: '/', component: () => import('./pages/IndexPage.vue') },
+  // -- Public routes --
+  {
+    path: '/login',
+    component: () => import('./pages/LoginPage.vue'),
+    meta: { public: true },
+  },
+  { path: '/', component: () => import('./pages/IndexPage.vue'), meta: { public: true } },
 
   // -- Tier 2: Dashboard --
   {
@@ -208,6 +217,41 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+/**
+ * Global auth guard.
+ *
+ * Auth is enforced by default. Only routes with `meta: { public: true }` skip auth.
+ * (Do NOT use `requiresAuth: true` — that pattern is redundant here and causes confusion.)
+ *
+ * In static mode (no API), auth is always bypassed — the spec-site runs
+ * as a public local/preview build.
+ *
+ * In API mode, all routes require authentication unless:
+ *   - route.meta.public === true  (e.g. /login, /)
+ *
+ * Unauthenticated users are redirected to /login with the original path
+ * preserved as ?redirect=... so they can be sent back after logging in.
+ */
+router.beforeEach((to) => {
+  // Static mode: no auth required
+  if (isStaticMode()) return true
+
+  // Public routes: always accessible
+  if (to.meta.public) return true
+
+  // Fix 4: Basic token sanity check — non-empty and reasonable length (8–512 chars).
+  // This avoids accepting a stale empty string or obviously corrupt value.
+  const token = localStorage.getItem(AUTH_STORAGE_KEY)
+  const tokenValid = typeof token === 'string' && token.length >= 8 && token.length <= 512
+  if (tokenValid) return true
+
+  // No valid token — redirect to login, preserving intended destination
+  return {
+    path: '/login',
+    query: { redirect: to.fullPath },
+  }
 })
 
 router.afterEach((to) => {
