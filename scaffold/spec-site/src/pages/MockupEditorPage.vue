@@ -439,7 +439,10 @@ onUnmounted(() => document.removeEventListener("keydown", onEditorKeydown))
           @drop.prevent="onTreeDrop($event, c)">
           {{ getComponentDef(c.componentType)?.icon }} {{ getComponentDef(c.componentType)?.name }}
           <span class="layer-z">z:{{ c.props.zIndex || 0 }}</span>
-          <button class="layer-btn" @click.stop="c.props.locked = !c.props.locked" :title="c.props.locked ? 'Unlock' : 'Lock'">{{ c.props.locked ? '<Icon name="unlock" :size="14" />' : '<Icon name="lock" :size="14" />' }}</button>
+          <button class="layer-btn" @click.stop="c.props.locked = !c.props.locked" :title="c.props.locked ? 'Unlock' : 'Lock'">
+            <Icon v-if="c.props.locked" name="unlock" :size="14" />
+            <Icon v-else name="lock" :size="14" />
+          </button>
           <div v-if="selectedId === c.id" class="layer-controls">
             <button class="layer-btn" @click.stop="bringToFront(c.id)" title="Bring to front">⬆⬆</button>
             <button class="layer-btn" @click.stop="bringForward(c.id)" title="Bring forward">⬆</button>
