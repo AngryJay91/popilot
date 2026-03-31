@@ -45,13 +45,7 @@ app.put('/:id', async (c) => {
   const clientVersion = body.version
 
   if (clientVersion === undefined || clientVersion === null) {
-    // Legacy client without version support — allow save but warn
-    // (graceful degradation: skips conflict check)
-    await executeOrThrow(
-      `UPDATE docs SET title = ?, content = ?, updated_at = CURRENT_TIMESTAMP, version = version + 1 WHERE id = ?`,
-      [body.title, body.content, id],
-    )
-    return c.json({ ok: true, version: currentVersion + 1 })
+    return c.json({ error: 'version required for optimistic locking' }, 400)
   }
 
   // Versioned save: only update if version matches
@@ -63,7 +57,7 @@ app.put('/:id', async (c) => {
 
   if (result.rowsAffected === 0) {
     return c.json(
-      { error: 'Conflict: document was modified by someone else. Please refresh and try again.', code: 'VERSION_CONFLICT' },
+      { error: 'conflict', message: 'Document was modified by another user', currentVersion },
       409,
     )
   }

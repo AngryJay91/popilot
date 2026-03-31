@@ -42,7 +42,7 @@ async function save() {
   })
   saving.value = false
 
-  if (error?.includes('HTTP 409') || error?.includes('VERSION_CONFLICT')) {
+  if ((data as any)?.error === 'conflict' || error?.includes('HTTP 409')) {
     conflictError.value = 'Someone else edited this document while you were working. Please refresh the page to get the latest version, then re-apply your changes.'
     return
   }

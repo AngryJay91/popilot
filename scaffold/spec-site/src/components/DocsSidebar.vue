@@ -2,6 +2,9 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiGet, apiPut, apiPatch } from '@/composables/useTurso'
+import { useConfirm } from '@/composables/useConfirm'
+
+const { showConfirm, showAlert } = useConfirm()
 import TreeNode from './TreeNode.vue'
 import Icon from './Icon.vue'
 
@@ -93,12 +96,12 @@ async function bulkUploadMd(e: Event) {
   input.value = ''
   const failed = fileArr.length - count
   uploadProgress.value = { current: 0, total: 0 }
-  alert(`${count} uploaded successfully${failed ? `, ${failed} failed` : ''}`)
+  await showAlert(`${count} uploaded successfully${failed ? `, ${failed} failed` : ''}`)
   await loadTree()
 }
 
 async function ctxDelete() {
-  if (!ctxMenu.value || !confirm('Delete this document?')) return
+  if (!ctxMenu.value || !await showConfirm('Delete this document?')) return
   await apiPatch(`/api/v2/docs/${ctxMenu.value.node.id}`, { archived: 1 })
   closeCtxMenu(); await loadTree()
 }
