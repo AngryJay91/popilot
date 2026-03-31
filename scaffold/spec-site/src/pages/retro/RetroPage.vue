@@ -34,7 +34,7 @@ onMounted(async () => {
 function handleExport() {
   const md = retro.exportMarkdown()
   if (!md) return
-  navigator.clipboard.writeText(md).then(() => {
+  navigator.clipboard.writeText(md).then(async () => {
     await showAlert('Copied to clipboard')
   })
 }

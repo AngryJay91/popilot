@@ -345,7 +345,7 @@ function redo() {
   }
 }
 
-function onDelete(id: string) {
+async function onDelete(id: string) {
   if (!await showConfirm('Are you sure you want to delete this?')) return
   saveUndo()
   components.value = removeComponent(components.value, id)
