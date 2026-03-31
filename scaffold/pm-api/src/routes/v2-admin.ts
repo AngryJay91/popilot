@@ -51,6 +51,9 @@ app.post('/members', async (c) => {
   let sql: string
   let args: (string | null)[]
 
+  // Store original token in `token` column (NOT NULL constraint during migration period).
+  // token_hash is the authoritative lookup key; plaintext token is kept only as a placeholder.
+  // Once all tokens are re-issued, the token column can be dropped.
   if (body.ttlDays) {
     sql = `INSERT INTO auth_tokens (token, token_hash, user_name, user_email, expires_at) VALUES (?, ?, ?, ?, datetime('now', '+' || ? || ' days'))`
     args = [body.token, tokenHash, body.userName, body.userEmail ?? null, String(body.ttlDays)]
@@ -100,8 +103,8 @@ app.post('/members/:token/regenerate', async (c) => {
   const body = await c.req.json<{ newToken: string }>()
   const newTokenHash = await hashToken(body.newToken)
   const { rowsAffected } = await executeOrThrow(
-    'UPDATE auth_tokens SET token = ?, token_hash = ?, created_at = CURRENT_TIMESTAMP WHERE token = ?',
-    [body.newToken, newTokenHash, token],
+    'UPDATE auth_tokens SET token = ?, token_hash = ?, created_at = CURRENT_TIMESTAMP WHERE token = ? OR token_hash = ?',
+    [body.newToken, newTokenHash, token, await hashToken(token)],
   )
   return c.json({ ok: true })
 })

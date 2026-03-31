@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import type { AppEnv } from '../types.js'
 import { query } from '../db/adapter.js'
+import { hashToken } from '../utils/hash.js'
 
 const app = new Hono<AppEnv>()
 
@@ -12,11 +13,13 @@ app.post('/verify', async (c) => {
     return c.json({ error: 'Missing token' }, 400)
   }
 
+  const tokenHash = await hashToken(token)
+
   const result = await query<{ user_name: string }>(
     `SELECT user_name FROM auth_tokens
-     WHERE token = ? AND is_active = 1
+     WHERE (token_hash = ? OR token = ?) AND is_active = 1
      AND (expires_at IS NULL OR expires_at > datetime('now'))`,
-    [token],
+    [tokenHash, token],
   )
 
   if (result.error) {
