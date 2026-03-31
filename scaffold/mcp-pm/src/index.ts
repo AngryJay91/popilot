@@ -730,6 +730,21 @@ server.tool(
 // SPRINT TOOLS
 // ══════════════════════════════════════════════════
 
+// ── Tool: get_sprint ──
+
+server.tool(
+  'get_sprint',
+  'Get sprint by ID',
+  {
+    sprint_id: z.string().describe('Sprint ID (e.g. s55)'),
+  },
+  async ({ sprint_id }) => {
+    const { data, error } = await apiGet<Record<string, unknown>>(`/api/v2/nav/sprints/${sprint_id}`)
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(JSON.stringify(data, null, 2))
+  },
+)
+
 // ── Tool 19: list_sprints ──
 
 server.tool(
@@ -957,6 +972,21 @@ server.tool(
 // EPIC TOOLS
 // ══════════════════════════════════════════════════
 
+// ── Tool: get_epic ──
+
+server.tool(
+  'get_epic',
+  'Get epic by ID',
+  {
+    epic_id: z.number().describe('Epic ID'),
+  },
+  async ({ epic_id }) => {
+    const { data, error } = await apiGet<Record<string, unknown>>(`/api/v2/pm/epics/${epic_id}`)
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(JSON.stringify(data, null, 2))
+  },
+)
+
 // ── Tool 27: list_epics ──
 
 server.tool(
@@ -1040,6 +1070,21 @@ server.tool(
 // ══════════════════════════════════════════════════
 // STORY TOOLS
 // ══════════════════════════════════════════════════
+
+// ── Tool: get_story ──
+
+server.tool(
+  'get_story',
+  'Get story by ID',
+  {
+    story_id: z.number().describe('Story ID'),
+  },
+  async ({ story_id }) => {
+    const { data, error } = await apiGet<Record<string, unknown>>(`/api/v2/pm/stories/${story_id}`)
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(JSON.stringify(data, null, 2))
+  },
+)
 
 // ── Tool 31: list_stories ──
 
@@ -1184,6 +1229,21 @@ server.tool(
 // ══════════════════════════════════════════════════
 // TASK TOOLS (extended)
 // ══════════════════════════════════════════════════
+
+// ── Tool: get_task_raw ──
+
+server.tool(
+  'get_task_raw',
+  'Get task by ID (raw DB row)',
+  {
+    task_id: z.number().describe('Task ID'),
+  },
+  async ({ task_id }) => {
+    const { data, error } = await apiGet<Record<string, unknown>>(`/api/v2/pm/tasks/${task_id}`)
+    if (error || !data) return err(error ?? 'Unknown error')
+    return text(JSON.stringify(data, null, 2))
+  },
+)
 
 // ── Tool 36: update_task ──
 

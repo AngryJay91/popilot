@@ -44,6 +44,15 @@ const TOOLS = [
     inputSchema: { type: 'object', properties: {} },
   },
   {
+    name: 'get_sprint',
+    description: 'Get sprint by ID',
+    inputSchema: {
+      type: 'object',
+      properties: { sprint_id: { type: 'string', description: 'Sprint ID (e.g. s55)' } },
+      required: ['sprint_id'],
+    },
+  },
+  {
     name: 'activate_sprint',
     description: 'Activate a sprint (deactivates others)',
     inputSchema: {
@@ -142,6 +151,15 @@ const TOOLS = [
     inputSchema: { type: 'object', properties: {} },
   },
   {
+    name: 'get_epic',
+    description: 'Get epic by ID',
+    inputSchema: {
+      type: 'object',
+      properties: { epic_id: { type: 'number', description: 'Epic ID' } },
+      required: ['epic_id'],
+    },
+  },
+  {
     name: 'add_epic',
     description: 'Create new epic',
     inputSchema: {
@@ -204,6 +222,15 @@ const TOOLS = [
         status: { type: 'string', enum: ['draft', 'backlog', 'ready', 'in-progress', 'review', 'done'], description: 'Status' },
         assignee: { type: 'string', description: 'Assignee filter' },
       },
+    },
+  },
+  {
+    name: 'get_story',
+    description: 'Get story by ID',
+    inputSchema: {
+      type: 'object',
+      properties: { story_id: { type: 'number', description: 'Story ID' } },
+      required: ['story_id'],
     },
   },
   {
@@ -739,6 +766,12 @@ async function handleTool(name: string, args: Record<string, unknown>, user: str
 
     // Epics
     case 'list_epics': return toolListEpics()
+    case 'get_epic': {
+      const id = args.epic_id as number
+      const result = await query<Record<string, unknown>>('SELECT * FROM pm_epics WHERE id = ?', [id])
+      if (!result.rows.length) return err('Epic not found')
+      return text(JSON.stringify(result.rows[0], null, 2))
+    }
     case 'add_epic': return toolAddEpic(user, args)
     case 'update_epic': return toolUpdateEpic(args)
     case 'delete_epic': return toolDeleteEpic(args)
@@ -746,6 +779,12 @@ async function handleTool(name: string, args: Record<string, unknown>, user: str
     // Stories
     case 'list_stories': return toolListStories(args)
     case 'list_backlog': return toolListBacklog(args)
+    case 'get_story': {
+      const id = args.story_id as number
+      const result = await query<Record<string, unknown>>('SELECT * FROM pm_stories WHERE id = ?', [id])
+      if (!result.rows.length) return err('Story not found')
+      return text(JSON.stringify(result.rows[0], null, 2))
+    }
     case 'add_story': return toolAddStory(user, args)
     case 'update_story': return toolUpdateStory(user, args)
     case 'delete_story': return toolDeleteStory(args)
@@ -753,6 +792,15 @@ async function handleTool(name: string, args: Record<string, unknown>, user: str
     // Tasks
     case 'list_my_tasks': return toolListTasks(user, args)
     case 'get_task': return toolGetTask(args)
+    case 'get_sprint': {
+      const id = args.sprint_id as string
+      const result = await query<Record<string, unknown>>(
+        'SELECT id, COALESCE(label, title) AS label, theme, status, active, start_date, end_date, velocity, team_size, sort_order, created_at, updated_at FROM nav_sprints WHERE id = ?',
+        [id],
+      )
+      if (!result.rows.length) return err('Sprint not found')
+      return text(JSON.stringify(result.rows[0], null, 2))
+    }
     case 'update_task_status': return toolUpdateTaskStatus(args)
     case 'update_task': return toolUpdateTask(user, args)
     case 'add_task': return toolAddTask(user, args)
