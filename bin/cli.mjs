@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { resolve, basename } from 'node:path';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { copyScaffold, appendToFile, detectExisting } from '../lib/scaffold.mjs';
 import { runSetupWizard } from '../lib/setup-wizard.mjs';
@@ -414,17 +414,25 @@ async function cmdMigrate(targetDir) {
     schemas.push({ file: 'schema-docs.sql', label: 'docs' });
   }
 
-  console.log('  📋 Schemas to apply:');
-  for (const s of schemas) {
+  // Collect numbered migration files (NNN-*.sql) sorted by prefix
+  const numberedMigrations = readdirSync(sqlDir)
+    .filter(f => /^\d{3}-.*\.sql$/.test(f))
+    .sort()
+    .map(f => ({ file: f, label: `migration ${f.slice(0, 3)}` }));
+
+  const allSteps = [...schemas, ...numberedMigrations];
+
+  console.log('  📋 Steps to apply:');
+  for (const s of allSteps) {
     console.log(`     - ${s.file} (${s.label})`);
   }
   console.log();
 
-  // Execute each schema
+  // Execute each step (schemas first, then numbered migrations in order)
   let applied = 0;
   let failed = 0;
 
-  for (const s of schemas) {
+  for (const s of allSteps) {
     const sqlFile = resolve(sqlDir, s.file);
     if (!existsSync(sqlFile)) {
       console.log(`  ⚠️  ${s.file} not found — skipped`);
@@ -446,7 +454,7 @@ async function cmdMigrate(targetDir) {
 
   console.log();
   if (failed === 0) {
-    console.log(`  ✅ Migration complete — ${applied} schema(s) applied.`);
+    console.log(`  ✅ Migration complete — ${applied} step(s) applied (${schemas.length} schema + ${numberedMigrations.length} migration).`);
   } else {
     console.log(`  ⚠️  Migration finished with errors — ${applied} applied, ${failed} failed.`);
   }
