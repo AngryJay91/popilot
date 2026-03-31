@@ -42,7 +42,7 @@ export async function toolSaveStandup(user: string, args: Record<string, unknown
 export async function toolListStandupEntries(args: Record<string, unknown>): Promise<ToolResult> {
   const sprint = await resolveSprint(args.sprint as string | undefined)
   const date = args.date as string | undefined
-  const withFeedback = Boolean(args.with_feedback)
+  const withFeedback = args.with_feedback === true || args.with_feedback === 'true'
 
   let sql: string
   const sqlArgs: (string | number)[] = []
@@ -64,6 +64,8 @@ export async function toolListStandupEntries(args: Record<string, unknown>): Pro
   if (result.error) return err(result.error)
   if (result.rows.length === 0) return text('No standup records found.')
 
+  const lines = ['📝 Standup Records', '─────────────']
+
   // Batch-fetch feedback in a single IN query when requested — eliminates N+1
   type FeedbackRow = { standup_entry_id: number; feedback_by: string; feedback_text: string; review_type: string; created_at: string }
   const feedbackMap: Record<number, FeedbackRow[]> = {}
@@ -79,10 +81,10 @@ export async function toolListStandupEntries(args: Record<string, unknown>): Pro
         if (!feedbackMap[f.standup_entry_id]) feedbackMap[f.standup_entry_id] = []
         feedbackMap[f.standup_entry_id].push(f)
       }
+    } else {
+      lines.push('⚠️ Warning: could not load feedback data.')
     }
   }
-
-  const lines = ['📝 Standup Records', '─────────────']
   for (const e of result.rows) {
     lines.push(`\n👤 ${e.user_name} (${e.entry_date})`)
     if (e.done_text) lines.push(`  ✅ ${e.done_text}`)
