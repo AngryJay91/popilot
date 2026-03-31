@@ -3,12 +3,14 @@ import Icon from '@/components/Icon.vue'
 import { ref, onMounted, computed, nextTick, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { renderMarkdown } from '@/utils/markdown'
+import { useConfirm } from '@/composables/useConfirm'
 import DocsSidebar from '@/components/DocsSidebar.vue'
 import DocEditor from '@/components/DocEditor.vue'
 import DocComments from '@/components/DocComments.vue'
 
 const route = useRoute()
 const docId = computed(() => route.params.docId as string)
+const { showConfirm } = useConfirm()
 const content = ref('')
 const title = ref('')
 const author = ref('')
@@ -106,7 +108,7 @@ async function previewRev(revId: number) {
 }
 
 async function restoreRev(revId: number) {
-  if (!confirm('Restore this version?')) return
+  if (!await showConfirm('Restore this version?')) return
   const { apiPost: ap } = await import('@/composables/useTurso')
   await ap(`/api/v2/docs/${docId.value}/revisions/restore/${revId}`, {})
   location.reload()

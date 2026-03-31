@@ -7,6 +7,9 @@ import {
   addEpic, updateEpic, deleteEpic, carryOverEpic,
   type SprintConfig, type PageConfig,
 } from '@/composables/useNavStore'
+import { useConfirm } from '@/composables/useConfirm'
+
+const { showConfirm } = useConfirm()
 
 const router = useRouter()
 const statusMsg = ref('')
@@ -122,7 +125,7 @@ async function handleSetActive(id: string) {
 }
 
 async function handleDeleteSprint(id: string, label: string) {
-  if (!confirm(`Delete sprint "${label}" and all its epics? This cannot be undone.`)) return
+  if (!await showConfirm(`Delete sprint "${label}" and all its epics? This cannot be undone.`)) return
   const r = await deleteSprint(id)
   if (r.error) {
     statusMsg.value = `Error: ${r.error}`
@@ -187,7 +190,7 @@ async function saveEditEpic(sprint: string, epicId: string) {
 }
 
 async function handleDeleteEpic(sprint: string, epicId: string) {
-  if (!confirm(`Delete ${epicId}? This cannot be undone.`)) return
+  if (!await showConfirm(`Delete ${epicId}? This cannot be undone.`)) return
   const r = await deleteEpic(sprint, epicId)
   if (r.error) {
     statusMsg.value = `Error: ${r.error}`

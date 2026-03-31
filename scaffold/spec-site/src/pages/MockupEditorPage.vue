@@ -3,6 +3,7 @@ import Icon from '@/components/Icon.vue'
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiGet, apiPut } from '@/composables/useTurso'
+import { useConfirm } from '@/composables/useConfirm'
 import ComponentPalette from '@/mockup/ComponentPalette.vue'
 import MockupCanvas from '@/mockup/MockupCanvas.vue'
 import PropertyPanel from '@/mockup/PropertyPanel.vue'
@@ -11,6 +12,7 @@ import { useScenarios } from '@/mockup/useScenarios'
 
 const route = useRoute()
 const slug = computed(() => route.params.slug as string)
+const { showConfirm } = useConfirm()
 
 interface CanvasComponent {
   id: string; componentType: string; props: Record<string, unknown>; children: CanvasComponent[]
@@ -344,7 +346,7 @@ function redo() {
 }
 
 function onDelete(id: string) {
-  if (!confirm('Are you sure you want to delete this?')) return
+  if (!await showConfirm('Are you sure you want to delete this?')) return
   saveUndo()
   components.value = removeComponent(components.value, id)
   if (selectedId.value === id) selectedId.value = null

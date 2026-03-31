@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { apiGet, apiPost, apiPatch, apiDelete, apiPut } from '@/api/client'
+import { useConfirm } from '@/composables/useConfirm'
+
+const { showConfirm } = useConfirm()
 
 interface MemberRow {
   id: number
@@ -94,7 +97,7 @@ async function addMember() {
 }
 
 async function revokeToken(id: string, name: string) {
-  if (!confirm(`Revoke token for ${name}?`)) return
+  if (!await showConfirm(`Revoke token for ${name}?`)) return
   const { error: apiError } = await apiPatch(`/api/v2/admin/members/${id}/revoke`, {})
   if (!apiError) { statusMsg.value = `${name} token revoked`; await loadMembers() }
   clearStatus()
@@ -107,7 +110,7 @@ async function reactivateToken(id: string, name: string) {
 }
 
 async function regenerateToken(oldToken: string, name: string) {
-  if (!confirm(`Regenerate token for ${name}? The old token will be invalidated.`)) return
+  if (!await showConfirm(`Regenerate token for ${name}? The old token will be invalidated.`)) return
   const newToken = generateToken()
   const { error: apiError } = await apiPost(`/api/v2/admin/members/${oldToken}/regenerate`, { newToken })
   if (!apiError) { statusMsg.value = `${name} token regenerated`; await loadMembers() }
@@ -115,7 +118,7 @@ async function regenerateToken(oldToken: string, name: string) {
 }
 
 async function deleteMember(id: string, name: string) {
-  if (!confirm(`Permanently delete ${name}? This cannot be undone.`)) return
+  if (!await showConfirm(`Permanently delete ${name}? This cannot be undone.`)) return
   const { error: apiError } = await apiDelete(`/api/v2/admin/members/${id}`)
   if (!apiError) { statusMsg.value = `${name} deleted`; await loadMembers() }
   clearStatus()

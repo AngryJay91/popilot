@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { RetroSession, RetroPhase } from '@/composables/useRetro'
+import { useConfirm } from '@/composables/useConfirm'
 import { VOTES_PER_PERSON } from '@/composables/useRetro'
 
 const AUTHOR_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
@@ -51,11 +52,11 @@ function prevPhase() {
   if (idx > 0) emit('phase-change', PHASE_ORDER[idx - 1])
 }
 
-function nextPhase() {
+async function nextPhase() {
   if (!props.session) return
   // write -> vote: require at least 1 card
   if (props.session.phase === 'write' && (props.itemCount ?? 0) === 0) {
-    alert('Add at least one card before starting the vote.')
+    await showAlert('Add at least one card before starting the vote.')
     return
   }
   const idx = PHASE_ORDER.indexOf(props.session.phase)
@@ -66,11 +67,12 @@ function phase(): RetroPhase {
   return props.session?.phase ?? 'write'
 }
 
+const { showConfirm, showAlert } = useConfirm()
 const menuOpen = ref(false)
 
-function handleReset() {
+async function handleReset() {
   menuOpen.value = false
-  if (confirm('Reset all retro data for this sprint?')) {
+  if (await showConfirm('Reset all retro data for this sprint?')) {
     emit('reset')
   }
 }

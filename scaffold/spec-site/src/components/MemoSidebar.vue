@@ -3,6 +3,9 @@ import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMemo } from '@/composables/useMemo'
 import { useUser } from '@/composables/useUser'
+import { useConfirm } from '@/composables/useConfirm'
+
+const { showConfirm } = useConfirm()
 
 const route = useRoute()
 const pageId = computed(() => (route.params.pageId as string) || 'global')
@@ -31,8 +34,8 @@ async function handleAdd() {
   newMemo.value = ''
 }
 
-function handleClearAll() {
-  if (confirm('Delete all memos?')) {
+async function handleClearAll() {
+  if (await showConfirm('Delete all memos?')) {
     memoStore.value.clearAll()
   }
 }

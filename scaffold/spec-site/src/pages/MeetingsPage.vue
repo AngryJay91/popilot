@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { apiGet, apiPost, apiPatch, isStaticMode } from '@/api/client'
 import MemberSelect from '@/components/MemberSelect.vue'
+import { useConfirm } from '@/composables/useConfirm'
+
+const { showAlert } = useConfirm()
 
 interface Meeting { id: number; title: string; date: string; participants: string | null; created_by: string }
 
@@ -65,7 +68,7 @@ async function uploadAudio(e: Event, meetingId: number) {
   const input = e.target as HTMLInputElement
   const file = input.files?.[0]
   if (!file) return
-  if (file.size > 25 * 1024 * 1024) { alert('File size exceeds 25MB limit'); return }
+  if (file.size > 25 * 1024 * 1024) { await showAlert('File size exceeds 25MB limit'); return }
 
   uploading.value = true
   const formData = new FormData()
@@ -82,18 +85,18 @@ async function uploadAudio(e: Event, meetingId: number) {
   uploading.value = false
   input.value = ''
 
-  if (data.error) { alert(data.error); return }
-  alert('Transcription complete')
+  if (data.error) { await showAlert(data.error); return }
+  await showAlert('Transcription complete')
   await viewMeeting(meetingId)
 }
 
 async function structurize(id: number) {
-  if (!selectedMeeting.value?.raw_transcript) { alert('No transcript available'); return }
+  if (!selectedMeeting.value?.raw_transcript) { await showAlert('No transcript available'); return }
 
   const { data: settingsData } = await apiGet<{ settings: Record<string, string> }>('/api/v2/admin/settings')
   const settings = settingsData?.settings ?? {}
   const apiKey = settings.llm_api_key
-  if (!apiKey) { alert('Please set an API key in /admin settings'); return }
+  if (!apiKey) { await showAlert('Please set an API key in /admin settings'); return }
 
   const provider = settings.llm_provider ?? (apiKey.startsWith('sk-ant') ? 'anthropic' : apiKey.startsWith('AI') ? 'gemini' : 'openai')
   const model = settings.llm_model ?? (provider === 'openai' ? 'gpt-4o-mini' : provider === 'gemini' ? 'gemini-2.0-flash' : 'claude-sonnet-4-20250514')
@@ -164,13 +167,13 @@ Return only JSON.`
     await saveMeetingEdits()
     await viewMeeting(id)
   } catch (e) {
-    alert(`AI structuring failed: ${String(e)}`)
+    await showAlert(`AI structuring failed: ${String(e)}`)
   } finally { structurizing.value = false }
 }
 
 async function createTasks(id: number) {
   const { data } = await apiPost(`/api/v2/meetings/${id}/create-tasks`, {})
-  if (data) alert(`${(data as any).created} tasks created`)
+  if (data) await showAlert(`${(data as any).created} tasks created`)
 }
 
 onMounted(loadMeetings)
