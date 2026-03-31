@@ -10,3 +10,4 @@ scaffold/mcp-pm/dist/
 scaffold/pm-api/node_modules/
 scaffold/pm-api/package-lock.json
 scaffold/mcp-pm/package-lock.json
+verification*.md
