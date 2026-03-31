@@ -79,7 +79,10 @@ onMounted(loadMockups)
 
     <div v-else class="mockup-grid">
       <div v-for="m in filteredMockups" :key="m.id" class="mockup-card" @click="router.push(`/mockup-viewer/${m.slug}`)">
-        <div class="card-viewport">{{ m.viewport === 'mobile' ? '📱' : '<Icon name="monitor" :size="14" />' }}</div>
+        <div class="card-viewport">
+          <span v-if="m.viewport === 'mobile'">📱</span>
+          <Icon v-else name="monitor" :size="28" />
+        </div>
         <div class="card-info">
           <h3>{{ m.title }}</h3>
           <div class="card-meta">
