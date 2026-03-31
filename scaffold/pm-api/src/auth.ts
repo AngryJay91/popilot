@@ -1,6 +1,7 @@
 import type { Context, Next } from 'hono'
 import type { AppEnv } from './types.js'
 import { query } from './db/adapter.js'
+import { hashToken } from './utils/hash.js'
 
 export async function authMiddleware(c: Context<AppEnv>, next: Next) {
   const header = c.req.header('Authorization')
@@ -8,12 +9,16 @@ export async function authMiddleware(c: Context<AppEnv>, next: Next) {
     return c.json({ error: 'Missing or invalid Authorization header' }, 401)
   }
 
-  const token = header.slice(7)
+  const rawToken = header.slice(7)
+  const hashedToken = await hashToken(rawToken)
+
+  // Support both hashed (new) and plaintext (legacy) tokens during migration period.
+  // First try token_hash match, then fall back to plaintext token match.
   const result = await query<{ user_name: string }>(
     `SELECT user_name FROM auth_tokens
-     WHERE token = ? AND is_active = 1
+     WHERE (token_hash = ? OR token = ?) AND is_active = 1
      AND (expires_at IS NULL OR expires_at > datetime('now'))`,
-    [token],
+    [hashedToken, rawToken],
   )
 
   if (result.error) {
