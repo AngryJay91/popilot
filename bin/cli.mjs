@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { resolve, basename } from 'node:path';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { copyScaffold, appendToFile, detectExisting } from '../lib/scaffold.mjs';
 import { runSetupWizard } from '../lib/setup-wizard.mjs';
@@ -163,9 +163,19 @@ async function cmdInit(targetDir, { skipSpecSite, force, platform }) {
     console.log('  📦 Installing mcp-pm dependencies...');
     try {
       execSync('npm install', { cwd: mcpPmDir, stdio: 'pipe' });
-      console.log('     ✅ Done');
+      console.log('     ✅ npm install done');
     } catch {
       console.log('     ⚠️  npm install failed. Run manually: cd mcp-pm && npm install');
+    }
+
+    // Build mcp-pm — generates dist/index.js required for MCP connection
+    console.log('  🔨 Building mcp-pm (TypeScript compile)...');
+    try {
+      execSync('npm run build', { cwd: mcpPmDir, stdio: 'pipe' });
+      console.log('     ✅ Done (dist/index.js ready)');
+    } catch {
+      console.log('     ⚠️  Build failed. Run manually: cd mcp-pm && npm run build');
+      console.log('     ℹ️  MCP connection requires dist/index.js to exist.');
     }
   } catch {
     // pm-api not present (Tier 0/1) — skip
@@ -404,17 +414,30 @@ async function cmdMigrate(targetDir) {
     schemas.push({ file: 'schema-docs.sql', label: 'docs' });
   }
 
-  console.log('  📋 Schemas to apply:');
-  for (const s of schemas) {
+  // Collect numbered migration files (NNN-*.sql) sorted by numeric prefix
+  let numberedMigrations = [];
+  try {
+    numberedMigrations = readdirSync(sqlDir)
+      .filter(f => /^\d{3}-.+\.sql$/.test(f))
+      .sort((a, b) => parseInt(a.slice(0, 3), 10) - parseInt(b.slice(0, 3), 10))
+      .map(f => ({ file: f, label: `migration ${f.slice(0, 3)}` }));
+  } catch (err) {
+    console.log(`  ⚠️  Could not read sql/ directory for migrations: ${err.message}`);
+  }
+
+  const allSteps = [...schemas, ...numberedMigrations];
+
+  console.log('  📋 Steps to apply:');
+  for (const s of allSteps) {
     console.log(`     - ${s.file} (${s.label})`);
   }
   console.log();
 
-  // Execute each schema
+  // Execute each step (schemas first, then numbered migrations in order)
   let applied = 0;
   let failed = 0;
 
-  for (const s of schemas) {
+  for (const s of allSteps) {
     const sqlFile = resolve(sqlDir, s.file);
     if (!existsSync(sqlFile)) {
       console.log(`  ⚠️  ${s.file} not found — skipped`);
@@ -436,7 +459,7 @@ async function cmdMigrate(targetDir) {
 
   console.log();
   if (failed === 0) {
-    console.log(`  ✅ Migration complete — ${applied} schema(s) applied.`);
+    console.log(`  ✅ Migration complete — ${applied} step(s) applied (${schemas.length} schema + ${numberedMigrations.length} migration).`);
   } else {
     console.log(`  ⚠️  Migration finished with errors — ${applied} applied, ${failed} failed.`);
   }

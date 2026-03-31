@@ -228,3 +228,38 @@ export async function toolUnassignStory(args: Record<string, unknown>): Promise<
   if (r.error) return err(r.error)
   return text(`✅ S${storyId} → backlog unassigned`)
 }
+
+export async function toolListMyStories(user: string, args: Record<string, unknown>): Promise<ToolResult> {
+  const sprintArg = args.sprint as string | undefined
+  const sprint = await resolveSprint(sprintArg)
+  if (!sprint) return err('Please specify a sprint.')
+
+  const result = await query<{
+    id: number; title: string; status: string; epic_title: string | null
+  }>(
+    `SELECT s.id, s.title, s.status, e.title as epic_title
+     FROM pm_stories s
+     LEFT JOIN pm_epics e ON s.epic_id = e.id
+     WHERE s.assignee = ? AND s.sprint = ?
+     ORDER BY e.title, s.status`,
+    [user, sprint],
+  )
+  if (result.error) return err(result.error)
+  if (result.rows.length === 0) return text(`No stories found for ${user}.`)
+
+  const statusIcon: Record<string, string> = { todo: '[ ]', 'in-progress': '[~]', done: '[x]' }
+
+  const lines = [`Stories for ${user} (${sprint.toUpperCase()})`, '─────────────']
+  let lastEpic = ''
+  for (const s of result.rows) {
+    const epic = s.epic_title ?? '(No epic)'
+    if (epic !== lastEpic) {
+      lines.push(`\n# ${epic}`)
+      lastEpic = epic
+    }
+    lines.push(`  ${statusIcon[s.status] ?? '[ ]'} [S${s.id}] ${s.title}`)
+  }
+  lines.push('', "Tip: Pass story IDs as an array to save_standup's plan_story_ids parameter.")
+
+  return text(lines.join('\n'))
+}

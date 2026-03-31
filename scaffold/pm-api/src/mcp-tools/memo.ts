@@ -162,3 +162,30 @@ export async function toolRejectMemo(args: Record<string, unknown>): Promise<Too
   if (r.error) return err(r.error)
   return text(`✅ Memo #${memoId} rejected (reopened)`)
 }
+
+export async function toolCheckOpenMemos(args: Record<string, unknown>): Promise<ToolResult> {
+  const userName = args.user_name as string
+  if (!userName) return err('user_name required')
+
+  const result = await query<{
+    id: number; page_id: string; content: string; memo_type: string;
+    status: string; created_by: string; assigned_to: string | null; created_at: string
+  }>(
+    "SELECT * FROM memos_v2 WHERE assigned_to = ? AND status = 'open' ORDER BY created_at DESC",
+    [userName],
+  )
+  if (result.error) return err(result.error)
+  if (result.rows.length === 0) return text(`No open memos assigned to ${userName}.`)
+
+  const typeIcons: Record<string, string> = {
+    memo: '[memo]', decision: '[decision]', request: '[request]', backlog: '[idea]',
+  }
+
+  const lines = result.rows.map((m, i) => {
+    const icon = typeIcons[m.memo_type] ?? '[memo]'
+    const preview = m.content.length > 80 ? m.content.slice(0, 80) + '...' : m.content
+    return `${i + 1}. ${icon} [ID:${m.id}] ${m.created_by} -> ${m.assigned_to}\n   ${preview}\n   Page: ${m.page_id} | ${m.created_at}`
+  })
+
+  return text(`Open memos for ${userName} (${result.rows.length}):\n\n${lines.join('\n\n')}`)
+}

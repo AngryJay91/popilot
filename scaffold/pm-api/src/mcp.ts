@@ -20,7 +20,8 @@ import {
   toolSendMemo, toolListMemos, toolReadMemo, toolReplyMemo,
   toolResolveMemo, toolRejectMemo,
   toolCreateInitiative, toolListInitiatives, toolUpdateInitiativeStatus,
-  toolCheckNotifications, toolMarkNotificationRead, toolMarkAllNotificationsRead,
+  toolCheckNotifications, toolMarkNotificationRead, toolMarkAllNotificationsRead, toolCreateNotification,
+  toolCheckOpenMemos, toolListMyStories,
   toolGetStandup, toolSaveStandup, toolListStandupEntries,
   toolReviewStandup, toolGetStandupFeedback,
   toolGetRetroSession, toolAddRetroItem, toolVoteRetroItem,
@@ -568,6 +569,44 @@ const TOOLS = [
     inputSchema: { type: 'object', properties: {} },
   },
 
+  // ── Cross-Module Convenience ──
+  {
+    name: 'check_open_memos',
+    description: 'Check all open memos assigned to a user',
+    inputSchema: {
+      type: 'object',
+      properties: { user_name: { type: 'string', description: 'User name to check' } },
+      required: ['user_name'],
+    },
+  },
+  {
+    name: 'create_notification',
+    description: 'Create a notification for a user (triggered by memo events)',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        user_name: { type: 'string', description: 'Notification recipient' },
+        type: { type: 'string', enum: ['memo_assigned', 'memo_mention_all', 'reply_received', 'memo_resolved', 'memo_reopened'], description: 'Notification type' },
+        title: { type: 'string', description: 'Notification title' },
+        body: { type: 'string', description: 'Notification body preview (under 60 chars)' },
+        source_id: { type: 'number', description: 'Related memo ID' },
+        page_id: { type: 'string', description: 'Page ID where the memo belongs' },
+        actor: { type: 'string', description: 'Name of the user who performed the action' },
+      },
+      required: ['user_name', 'type', 'title', 'source_id', 'page_id', 'actor'],
+    },
+  },
+  {
+    name: 'list_my_stories',
+    description: 'My story list — find story IDs to reference in standups',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        sprint: { type: 'string', description: 'Sprint ID (default: active sprint)' },
+      },
+    },
+  },
+
   // ── Agent Events (Push-Native) ──
   {
     name: 'emit_event',
@@ -684,6 +723,11 @@ async function handleTool(name: string, args: Record<string, unknown>, user: str
     case 'check_notifications': return toolCheckNotifications(user, args)
     case 'mark_notification_read': return toolMarkNotificationRead(args)
     case 'mark_all_notifications_read': return toolMarkAllNotificationsRead(user)
+    case 'create_notification': return toolCreateNotification(args)
+
+    // Cross-Module Convenience
+    case 'check_open_memos': return toolCheckOpenMemos(args)
+    case 'list_my_stories': return toolListMyStories(user, args)
 
     // Agent Events
     case 'emit_event': return toolEmitEvent(user, args)

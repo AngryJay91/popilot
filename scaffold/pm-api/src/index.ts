@@ -26,6 +26,7 @@ import v2MeetingsRoutes from './routes/v2-meetings.js'
 import v2RewardsRoutes from './routes/v2-rewards.js'
 import v2ActivityRoutes from './routes/v2-activity.js'
 import v2SearchRoutes from './routes/v2-search.js'
+import v2AgentEventsRoutes from './routes/v2-agent-events.js'
 
 const app = new Hono<AppEnv>()
 
@@ -86,6 +87,7 @@ app.route('/api/v2/meetings', v2MeetingsRoutes)
 app.route('/api/v2/rewards', v2RewardsRoutes)
 app.route('/api/v2/activity', v2ActivityRoutes)
 app.route('/api/v2/search', v2SearchRoutes)
+app.route('/api/v2/agent-events', v2AgentEventsRoutes)
 
 // Proactive Nudge (Cron Trigger)
 import { handleScheduled } from './nudge.js'

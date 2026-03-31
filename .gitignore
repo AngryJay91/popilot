@@ -5,3 +5,8 @@
 # spec-site
 spec-site/node_modules/
 spec-site/dist/
+scaffold/mcp-pm/node_modules/
+scaffold/mcp-pm/dist/
+scaffold/pm-api/node_modules/
+scaffold/pm-api/package-lock.json
+scaffold/mcp-pm/package-lock.json

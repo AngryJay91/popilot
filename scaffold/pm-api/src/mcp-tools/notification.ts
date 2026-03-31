@@ -35,3 +35,26 @@ export async function toolMarkAllNotificationsRead(user: string): Promise<ToolRe
   if (result.error) return err(result.error)
   return text(`✅ ${result.rowsAffected} notifications marked as read.`)
 }
+
+export async function toolCreateNotification(args: Record<string, unknown>): Promise<ToolResult> {
+  const userName = args.user_name as string
+  const type = args.type as string
+  const title = args.title as string
+  const body = (args.body as string) ?? null
+  const sourceId = args.source_id as number
+  const pageId = args.page_id as string
+  const actor = args.actor as string
+
+  if (!userName || !type || !title || sourceId === undefined || !pageId || !actor) {
+    return err('Missing required fields: user_name, type, title, source_id, page_id, actor')
+  }
+
+  const result = await execute(
+    `INSERT INTO notifications (user_name, type, title, body, source_type, source_id, page_id, actor)
+     VALUES (?, ?, ?, ?, 'memo', ?, ?, ?)`,
+    [userName, type, title, body, sourceId, pageId, actor],
+  )
+  if (result.error) return err(result.error)
+
+  return text(`Notification created: [${type}] "${title}" -> ${userName}`)
+}

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "pm": {
+      "command": "node",
+      "args": ["./mcp-pm/dist/index.js"],
+      "env": {
+        "PM_API_URL": "https://YOUR_PROJECT_NAME-pm-api.YOUR_CF_ACCOUNT.workers.dev",
+        "PM_TOKEN": "YOUR_BEARER_TOKEN"
+      }
+    }
+  }
+}
