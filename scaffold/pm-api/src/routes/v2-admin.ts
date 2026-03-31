@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import type { AppEnv } from '../types.js'
 import { queryOrThrow, executeOrThrow } from '../utils/db.js'
+import { hashToken } from '../utils/hash.js'
 
 const app = new Hono<AppEnv>()
 
@@ -44,15 +45,18 @@ app.post('/members', async (c) => {
     token: string; userName: string; userEmail?: string; ttlDays?: number
   }>()
 
+  // Hash the token before storing (SHA-256 via Web Crypto API)
+  const tokenHash = await hashToken(body.token)
+
   let sql: string
   let args: (string | null)[]
 
   if (body.ttlDays) {
-    sql = `INSERT INTO auth_tokens (token, user_name, user_email, expires_at) VALUES (?, ?, ?, datetime('now', '+' || ? || ' days'))`
-    args = [body.token, body.userName, body.userEmail ?? null, String(body.ttlDays)]
+    sql = `INSERT INTO auth_tokens (token, token_hash, user_name, user_email, expires_at) VALUES (?, ?, ?, ?, datetime('now', '+' || ? || ' days'))`
+    args = [body.token, tokenHash, body.userName, body.userEmail ?? null, String(body.ttlDays)]
   } else {
-    sql = 'INSERT INTO auth_tokens (token, user_name, user_email) VALUES (?, ?, ?)'
-    args = [body.token, body.userName, body.userEmail ?? null]
+    sql = 'INSERT INTO auth_tokens (token, token_hash, user_name, user_email) VALUES (?, ?, ?, ?)'
+    args = [body.token, tokenHash, body.userName, body.userEmail ?? null]
   }
 
   const { rowsAffected } = await executeOrThrow(sql, args)
@@ -94,9 +98,10 @@ app.patch('/members/:token/activate', async (c) => {
 app.post('/members/:token/regenerate', async (c) => {
   const token = c.req.param('token')
   const body = await c.req.json<{ newToken: string }>()
+  const newTokenHash = await hashToken(body.newToken)
   const { rowsAffected } = await executeOrThrow(
-    'UPDATE auth_tokens SET token = ?, created_at = CURRENT_TIMESTAMP WHERE token = ?',
-    [body.newToken, token],
+    'UPDATE auth_tokens SET token = ?, token_hash = ?, created_at = CURRENT_TIMESTAMP WHERE token = ?',
+    [body.newToken, newTokenHash, token],
   )
   return c.json({ ok: true })
 })
