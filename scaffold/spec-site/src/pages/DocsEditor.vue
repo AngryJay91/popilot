@@ -12,13 +12,16 @@ const isNew = computed(() => !docId.value)
 const title = ref('')
 const content = ref('')
 const saving = ref(false)
+const docVersion = ref<number | undefined>(undefined)
+const conflictError = ref('')
 
 onMounted(async () => {
   if (docId.value) {
-    const { data } = await apiGet<{ doc: { title: string; content: string } }>(`/api/v2/docs/${docId.value}`)
+    const { data } = await apiGet<{ doc: { title: string; content: string; version?: number } }>(`/api/v2/docs/${docId.value}`)
     if (data?.doc) {
       title.value = data.doc.title
       content.value = data.doc.content
+      docVersion.value = data.doc.version
     }
   }
 })
@@ -30,14 +33,28 @@ function generateId(title: string): string {
 async function save() {
   if (!title.value.trim()) { alert('Please enter a title'); return }
   saving.value = true
+  conflictError.value = ''
   const id = docId.value || generateId(title.value)
-  const { error } = await apiPut(`/api/v2/docs/${id}`, { title: title.value, content: content.value })
+  const { data, error } = await apiPut<{ ok: boolean; version?: number }>(`/api/v2/docs/${id}`, {
+    title: title.value,
+    content: content.value,
+    version: docVersion.value,
+  })
   saving.value = false
+
+  if ((data as any)?.error === 'conflict' || error?.includes('HTTP 409')) {
+    conflictError.value = 'Someone else edited this document while you were working. Please refresh the page to get the latest version, then re-apply your changes.'
+    return
+  }
   if (error) { alert(error); return }
+
+  // Update local version from server response
+  if (data?.version !== undefined) {
+    docVersion.value = data.version
+  }
+
   router.push(`/docs/${id}`)
 }
-
-// renderMarkdown imported from @/utils/markdown
 </script>
 
 <template>
@@ -50,6 +67,10 @@ async function save() {
           {{ saving ? 'Saving...' : 'Save' }}
         </button>
       </div>
+    </div>
+
+    <div v-if="conflictError" class="conflict-banner">
+      ⚠️ {{ conflictError }}
     </div>
 
     <input
@@ -80,6 +101,12 @@ async function save() {
 .editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .editor-header h1 { font-size: 20px; font-weight: 700; }
 .editor-actions { display: flex; gap: 8px; }
+
+.conflict-banner {
+  background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px;
+  padding: 12px 16px; margin-bottom: 16px; font-size: 14px; color: #92400e;
+  line-height: 1.5;
+}
 
 .editor-title {
   width: 100%; padding: 12px 16px; font-size: 18px; font-weight: 600;

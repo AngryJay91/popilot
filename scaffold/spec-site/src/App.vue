@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppHeader from './components/AppHeader.vue'
 import MemoSidebar from './components/MemoSidebar.vue'
+import ConfirmDialog from './components/ConfirmDialog.vue'
 </script>
 
 <template>
@@ -10,6 +11,7 @@ import MemoSidebar from './components/MemoSidebar.vue'
       <router-view />
     </main>
     <MemoSidebar />
+    <ConfirmDialog />
   </div>
 </template>
 

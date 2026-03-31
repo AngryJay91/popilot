@@ -113,9 +113,10 @@ async function apiMutate<T>(
       signal: AbortSignal.timeout(5000),
     })
     if (!resp.ok) {
-      const text = await resp.text().catch(() => '')
       if (resp.status !== 401 && resp.status !== 403 && _reachable === null) _reachable = false
-      return { error: `HTTP ${resp.status}: ${text}` }
+      // Try to parse structured error body (e.g. 409 conflict payloads)
+      const errorData = await resp.json().catch(() => null)
+      return { error: `HTTP ${resp.status}`, data: errorData ?? undefined }
     }
     _reachable = true
     const data = await resp.json()

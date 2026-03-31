@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiGet, apiPost, apiDelete } from '@/composables/useTurso'
+import { useConfirm } from '@/composables/useConfirm'
+
+const { showConfirm } = useConfirm()
 
 interface Relation { id: number; source_memo_id: number; target_memo_id: number; relation_type: string; created_by: string }
 
@@ -36,7 +39,7 @@ async function addRelation(targetId: number) {
 }
 
 async function removeRelation(relId: number) {
-  if (!confirm('Delete this relation?')) return
+  if (!await showConfirm('Delete this relation?')) return
   await apiDelete(`/api/v2/memos/relations/${relId}`)
   await loadRelations()
 }

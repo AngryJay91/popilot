@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/composables/useTurso'
+import { useConfirm } from '@/composables/useConfirm'
+
+const { showConfirm } = useConfirm()
 
 interface Comment {
   id: number; doc_id: string; parent_id: number | null; author: string; content: string; created_at: string; updated_at: string
@@ -49,7 +52,7 @@ async function saveEdit() {
 }
 
 async function remove(id: number) {
-  if (!confirm('Delete this comment?')) return
+  if (!await showConfirm('Delete this comment?')) return
   await apiDelete(`/api/v2/docs/comments/${id}`)
   await load()
 }
